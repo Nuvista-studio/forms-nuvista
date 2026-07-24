@@ -96,7 +96,7 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                                             </div>
                                             <div>
                                                 <span class="text-muted">Tanggal</span>
-                                                <p class="text-primary">{{ $event['date']?->format('d M Y H:i') ?? '-' }}</p>
+                                                <p class="text-primary">{{ $event['date'] ? $event['date']->format('d M Y H:i') : '-' }}</p>
                                             </div>
                                             <div>
                                                 <span class="text-muted">Kondisi</span>

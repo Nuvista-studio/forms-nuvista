@@ -4,7 +4,7 @@
         scanning: false,
         showUpload: null,
     }"
-    x-init="$watch('openStep', (val) => { $wire.currentStep = val; })"
+    x-init=""
     @asset-found.window="showToast('Aset ditemukan: ' + $event.detail.asset.nama_perangkat, 'success')"
     @asset-not-found.window="showToast('Aset tidak ditemukan untuk kode: ' + $event.detail.code, 'error')"
     @draft-saved.window="showToast('Draft tersimpan', 'success')"
@@ -38,6 +38,7 @@
     </div>
 
     {{-- Progress Bar --}}
+    @if($currentStep > 0)
     <div class="glass-card p-4 mb-4">
         <div class="flex items-center justify-between mb-2">
             <span class="text-xs font-medium text-muted">Langkah {{ $currentStep }} dari {{ count($stepTitles) }}</span>
@@ -48,6 +49,7 @@
                 :style="'width: {{ round(($currentStep / count($stepTitles)) * 100) }}%'"></div>
         </div>
     </div>
+    @endif
 
     {{-- Accordion Steps --}}
     <div class="space-y-3">
@@ -56,21 +58,21 @@
         <div class="glass-card overflow-hidden">
             <button wire:click="goToStep(1)" type="button"
                 class="w-full flex items-center justify-between p-4 text-left transition-colors"
-                :class="currentStep === 1 ? '' : 'opacity-70 hover:opacity-100'">
+                :class="openStep === 1 ? '' : 'opacity-70 hover:opacity-100'">
                 <div class="flex items-center gap-3">
                     <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
-                        :class="currentStep === 1 ? 'text-primary' : 'text-muted'"
+                        :class="openStep === 1 ? 'text-primary' : 'text-muted'"
                         style="background: var(--color-bg-tertiary);">1</span>
                     <div>
                         <span class="font-semibold text-primary text-sm">Info Pengguna</span>
-                        <p class="text-xs text-muted" x-show="currentStep !== 1">
+                        <p class="text-xs text-muted" x-show="openStep !== 1">
                             {{ $teknisiName }} @if($penggunaName) → {{ $penggunaName }} @endif
                         </p>
                     </div>
                 </div>
-                <svg class="w-5 h-5 text-muted transition-transform duration-200" :class="currentStep === 1 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                <svg class="w-5 h-5 text-muted transition-transform duration-200" :class="openStep === 1 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
-            <div x-show="currentStep === 1" x-transition:enter="transition ease-out duration-200"
+            <div x-show="openStep === 1" x-transition:enter="transition ease-out duration-200"
                     x-transition:enter-start="opacity-0 -translate-y-2"
                     x-transition:enter-end="opacity-100 translate-y-0"
                     x-transition:leave="transition ease-in duration-150"
@@ -118,17 +120,17 @@
         <div class="glass-card overflow-hidden">
             <button wire:click="goToStep(2)" type="button"
                 class="w-full flex items-center justify-between p-4 text-left transition-colors"
-                :class="currentStep === 2 ? '' : 'opacity-70 hover:opacity-100'">
+                :class="openStep === 2 ? '' : 'opacity-70 hover:opacity-100'">
                 <div class="flex items-center gap-3">
-                    <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0" :class="currentStep === 2 ? 'text-primary' : 'text-muted'" style="background: var(--color-bg-tertiary);">2</span>
+                    <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0" :class="openStep === 2 ? 'text-primary' : 'text-muted'" style="background: var(--color-bg-tertiary);">2</span>
                     <div>
                         <span class="font-semibold text-primary text-sm">Info Perangkat</span>
-                        <p class="text-xs text-muted" x-show="currentStep !== 2 && $wire.noAsset">{{ $noAsset }} · {{ $brand }} {{ $tipe }}</p>
+                        <p class="text-xs text-muted" x-show="openStep !== 2 && $wire.noAsset">{{ $noAsset }} · {{ $brand }} {{ $tipe }}</p>
                     </div>
                 </div>
-                <svg class="w-5 h-5 text-muted transition-transform duration-200" :class="currentStep === 2 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                <svg class="w-5 h-5 text-muted transition-transform duration-200" :class="openStep === 2 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
-            <div x-show="currentStep === 2" x-transition:enter="transition ease-out duration-200"
+            <div x-show="openStep === 2" x-transition:enter="transition ease-out duration-200"
                     x-transition:enter-start="opacity-0 -translate-y-2"
                     x-transition:enter-end="opacity-100 translate-y-0"
                     x-transition:leave="transition ease-in duration-150"
@@ -183,14 +185,14 @@
 
         {{-- ===== STEP 3: Perawatan Hardware ===== --}}
         <div class="glass-card overflow-hidden">
-            <button wire:click="goToStep(3)" type="button" class="w-full flex items-center justify-between p-4 text-left transition-colors" :class="currentStep === 3 ? '' : 'opacity-70 hover:opacity-100'">
+            <button wire:click="goToStep(3)" type="button" class="w-full flex items-center justify-between p-4 text-left transition-colors" :class="openStep === 3 ? '' : 'opacity-70 hover:opacity-100'">
                 <div class="flex items-center gap-3">
-                    <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0" :class="currentStep === 3 ? 'text-primary' : 'text-muted'" style="background: var(--color-bg-tertiary);">3</span>
-                    <div><span class="font-semibold text-primary text-sm">Perawatan Hardware</span><p class="text-xs text-muted" x-show="currentStep !== 3">{{ count($hardwareItems) }} item</p></div>
+                    <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0" :class="openStep === 3 ? 'text-primary' : 'text-muted'" style="background: var(--color-bg-tertiary);">3</span>
+                    <div><span class="font-semibold text-primary text-sm">Perawatan Hardware</span><p class="text-xs text-muted" x-show="openStep !== 3">{{ count($hardwareItems) }} item</p></div>
                 </div>
-                <svg class="w-5 h-5 text-muted transition-transform duration-200" :class="currentStep === 3 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                <svg class="w-5 h-5 text-muted transition-transform duration-200" :class="openStep === 3 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
-            <div x-show="currentStep === 3" x-transition:enter="transition ease-out duration-200"
+            <div x-show="openStep === 3" x-transition:enter="transition ease-out duration-200"
                     x-transition:enter-start="opacity-0 -translate-y-2"
                     x-transition:enter-end="opacity-100 translate-y-0"
                     x-transition:leave="transition ease-in duration-150"
@@ -221,7 +223,7 @@
                     x-transition:leave-end="opacity-0 -translate-y-2" class="mt-2">
                                         <input type="file" accept="image/*" capture="environment" wire:model="itemPhotos.hw_{{ $index }}" class="text-xs file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-xs file:font-semibold" style="color: var(--color-text-secondary);">
                                         @if(isset($itemPhotos["hw_{$index}"]))
-                                            <div class="mt-1"><img src="{{ $itemPhotos["hw_{$index}"]?->temporaryUrl() }}" class="h-16 rounded-lg object-cover"></div>
+                                            <div class="mt-1"><img src="{{ $itemPhotos["hw_{$index}"] ? $itemPhotos["hw_{$index}"]->temporaryUrl() : '' }}" class="h-16 rounded-lg object-cover"></div>
                                         @endif
                                     </div>
                                 </div>
@@ -238,14 +240,14 @@
 
         {{-- ===== STEP 4: Perawatan Aplikasi ===== --}}
         <div class="glass-card overflow-hidden">
-            <button wire:click="goToStep(4)" type="button" class="w-full flex items-center justify-between p-4 text-left transition-colors" :class="currentStep === 4 ? '' : 'opacity-70 hover:opacity-100'">
+            <button wire:click="goToStep(4)" type="button" class="w-full flex items-center justify-between p-4 text-left transition-colors" :class="openStep === 4 ? '' : 'opacity-70 hover:opacity-100'">
                 <div class="flex items-center gap-3">
-                    <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0" :class="currentStep === 4 ? 'text-primary' : 'text-muted'" style="background: var(--color-bg-tertiary);">4</span>
-                    <div><span class="font-semibold text-primary text-sm">Perawatan Aplikasi</span><p class="text-xs text-muted" x-show="currentStep !== 4">{{ count($aplikasiItems) }} item</p></div>
+                    <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0" :class="openStep === 4 ? 'text-primary' : 'text-muted'" style="background: var(--color-bg-tertiary);">4</span>
+                    <div><span class="font-semibold text-primary text-sm">Perawatan Aplikasi</span><p class="text-xs text-muted" x-show="openStep !== 4">{{ count($aplikasiItems) }} item</p></div>
                 </div>
-                <svg class="w-5 h-5 text-muted transition-transform duration-200" :class="currentStep === 4 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                <svg class="w-5 h-5 text-muted transition-transform duration-200" :class="openStep === 4 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
-            <div x-show="currentStep === 4" x-transition:enter="transition ease-out duration-200"
+            <div x-show="openStep === 4" x-transition:enter="transition ease-out duration-200"
                     x-transition:enter-start="opacity-0 -translate-y-2"
                     x-transition:enter-end="opacity-100 translate-y-0"
                     x-transition:leave="transition ease-in duration-150"
@@ -276,7 +278,7 @@
                     x-transition:leave-end="opacity-0 -translate-y-2" class="mt-2">
                                         <input type="file" accept="image/*" capture="environment" wire:model="itemPhotos.app_{{ $index }}" class="text-xs file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-xs file:font-semibold" style="color: var(--color-text-secondary);">
                                         @if(isset($itemPhotos["app_{$index}"]))
-                                            <div class="mt-1"><img src="{{ $itemPhotos["app_{$index}"]?->temporaryUrl() }}" class="h-16 rounded-lg object-cover"></div>
+                                            <div class="mt-1"><img src="{{ $itemPhotos["app_{$index}"] ? $itemPhotos["app_{$index}"]->temporaryUrl() : '' }}" class="h-16 rounded-lg object-cover"></div>
                                         @endif
                                     </div>
                                 </div>
@@ -293,14 +295,14 @@
 
         {{-- ===== STEP 5: Perawatan Operating System ===== --}}
         <div class="glass-card overflow-hidden">
-            <button wire:click="goToStep(5)" type="button" class="w-full flex items-center justify-between p-4 text-left transition-colors" :class="currentStep === 5 ? '' : 'opacity-70 hover:opacity-100'">
+            <button wire:click="goToStep(5)" type="button" class="w-full flex items-center justify-between p-4 text-left transition-colors" :class="openStep === 5 ? '' : 'opacity-70 hover:opacity-100'">
                 <div class="flex items-center gap-3">
-                    <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0" :class="currentStep === 5 ? 'text-primary' : 'text-muted'" style="background: var(--color-bg-tertiary);">5</span>
-                    <div><span class="font-semibold text-primary text-sm">Perawatan Operating System</span><p class="text-xs text-muted" x-show="currentStep !== 5">{{ count($osItems) }} item</p></div>
+                    <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0" :class="openStep === 5 ? 'text-primary' : 'text-muted'" style="background: var(--color-bg-tertiary);">5</span>
+                    <div><span class="font-semibold text-primary text-sm">Perawatan Operating System</span><p class="text-xs text-muted" x-show="openStep !== 5">{{ count($osItems) }} item</p></div>
                 </div>
-                <svg class="w-5 h-5 text-muted transition-transform duration-200" :class="currentStep === 5 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                <svg class="w-5 h-5 text-muted transition-transform duration-200" :class="openStep === 5 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
-            <div x-show="currentStep === 5" x-transition:enter="transition ease-out duration-200"
+            <div x-show="openStep === 5" x-transition:enter="transition ease-out duration-200"
                     x-transition:enter-start="opacity-0 -translate-y-2"
                     x-transition:enter-end="opacity-100 translate-y-0"
                     x-transition:leave="transition ease-in duration-150"
@@ -329,14 +331,14 @@
 
         {{-- ===== STEP 6: Kondisi Setelah Perawatan ===== --}}
         <div class="glass-card overflow-hidden">
-            <button wire:click="goToStep(6)" type="button" class="w-full flex items-center justify-between p-4 text-left transition-colors" :class="currentStep === 6 ? '' : 'opacity-70 hover:opacity-100'">
+            <button wire:click="goToStep(6)" type="button" class="w-full flex items-center justify-between p-4 text-left transition-colors" :class="openStep === 6 ? '' : 'opacity-70 hover:opacity-100'">
                 <div class="flex items-center gap-3">
-                    <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0" :class="currentStep === 6 ? 'text-primary' : 'text-muted'" style="background: var(--color-bg-tertiary);">6</span>
+                    <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0" :class="openStep === 6 ? 'text-primary' : 'text-muted'" style="background: var(--color-bg-tertiary);">6</span>
                     <span class="font-semibold text-primary text-sm">Kondisi Setelah Perawatan</span>
                 </div>
-                <svg class="w-5 h-5 text-muted transition-transform duration-200" :class="currentStep === 6 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                <svg class="w-5 h-5 text-muted transition-transform duration-200" :class="openStep === 6 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
-            <div x-show="currentStep === 6" x-transition:enter="transition ease-out duration-200"
+            <div x-show="openStep === 6" x-transition:enter="transition ease-out duration-200"
                     x-transition:enter-start="opacity-0 -translate-y-2"
                     x-transition:enter-end="opacity-100 translate-y-0"
                     x-transition:leave="transition ease-in duration-150"
@@ -374,14 +376,14 @@
 
         {{-- ===== STEP 7: Catatan Tambahan ===== --}}
         <div class="glass-card overflow-hidden">
-            <button wire:click="goToStep(7)" type="button" class="w-full flex items-center justify-between p-4 text-left transition-colors" :class="currentStep === 7 ? '' : 'opacity-70 hover:opacity-100'">
+            <button wire:click="goToStep(7)" type="button" class="w-full flex items-center justify-between p-4 text-left transition-colors" :class="openStep === 7 ? '' : 'opacity-70 hover:opacity-100'">
                 <div class="flex items-center gap-3">
-                    <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0" :class="currentStep === 7 ? 'text-primary' : 'text-muted'" style="background: var(--color-bg-tertiary);">7</span>
+                    <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0" :class="openStep === 7 ? 'text-primary' : 'text-muted'" style="background: var(--color-bg-tertiary);">7</span>
                     <span class="font-semibold text-primary text-sm">Catatan Tambahan</span>
                 </div>
-                <svg class="w-5 h-5 text-muted transition-transform duration-200" :class="currentStep === 7 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                <svg class="w-5 h-5 text-muted transition-transform duration-200" :class="openStep === 7 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
-            <div x-show="currentStep === 7" x-transition:enter="transition ease-out duration-200"
+            <div x-show="openStep === 7" x-transition:enter="transition ease-out duration-200"
                     x-transition:enter-start="opacity-0 -translate-y-2"
                     x-transition:enter-end="opacity-100 translate-y-0"
                     x-transition:leave="transition ease-in duration-150"
@@ -404,14 +406,14 @@
 
         {{-- ===== STEP 8: Review & Submit ===== --}}
         <div class="glass-card overflow-hidden">
-            <button wire:click="goToStep(8)" type="button" class="w-full flex items-center justify-between p-4 text-left transition-colors" :class="currentStep === 8 ? '' : 'opacity-70 hover:opacity-100'">
+            <button wire:click="goToStep(8)" type="button" class="w-full flex items-center justify-between p-4 text-left transition-colors" :class="openStep === 8 ? '' : 'opacity-70 hover:opacity-100'">
                 <div class="flex items-center gap-3">
-                    <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0" :class="currentStep === 8 ? 'text-primary' : 'text-muted'" style="background: var(--color-bg-tertiary);">8</span>
+                    <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0" :class="openStep === 8 ? 'text-primary' : 'text-muted'" style="background: var(--color-bg-tertiary);">8</span>
                     <span class="font-semibold text-primary text-sm">Review & Submit</span>
                 </div>
-                <svg class="w-5 h-5 text-muted transition-transform duration-200" :class="currentStep === 8 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                <svg class="w-5 h-5 text-muted transition-transform duration-200" :class="openStep === 8 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
-            <div x-show="currentStep === 8" x-transition:enter="transition ease-out duration-200"
+            <div x-show="openStep === 8" x-transition:enter="transition ease-out duration-200"
                     x-transition:enter-start="opacity-0 -translate-y-2"
                     x-transition:enter-end="opacity-100 translate-y-0"
                     x-transition:leave="transition ease-in duration-150"
@@ -487,10 +489,9 @@
 
                         <div class="flex justify-between pt-2">
                             <button wire:click="prevStep" type="button" class="glass-button-secondary text-sm">← Sebelumnya</button>
-                            <button wire:click="submitForm" type="button"
-                                class="px-6 py-2 rounded-lg font-semibold text-sm transition-all duration-200 text-white"
-                                style="background: linear-gradient(135deg, #059669, #10b981);"
-                                @click="if(!confirm('Yakin ingin submit form ini?')) $event.preventDefault();">
+                            <button wire:click="submitForm" wire:confirm="Yakin ingin submit form ini?"
+                                type="button" class="px-6 py-2 rounded-lg font-semibold text-sm transition-all duration-200 text-white"
+                                style="background: linear-gradient(135deg, #059669, #10b981);">
                                 Submit & Tanda Tangan →
                             </button>
                         </div>

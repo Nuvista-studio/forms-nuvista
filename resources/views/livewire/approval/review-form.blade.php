@@ -74,7 +74,7 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                 </div>
                 <div>
                     <span class="text-xs text-muted">Tanggal</span>
-                    <p class="text-primary">{{ $form->submitted_at?->format('d M Y H:i') ?? '-' }}</p>
+                    <p class="text-primary">{{ $form->submitted_at ? $form->submitted_at->format('d M Y H:i') : '-' }}</p>
                 </div>
             </div>
         </div>
@@ -240,7 +240,7 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                                     {{ $approval->approval_level === 'diperiksa_oleh' ? 'Diperiksa Oleh' : ($approval->approval_level === 'diketahui_oleh' ? 'Diketahui Oleh' : 'Disetujui Oleh') }}
                                 </div>
                                 <div class="text-xs text-muted">
-                                    {{ $approval->user->name }} &middot; {{ $approval->approved_at?->format('d M Y H:i') ?? '-' }}
+                                    {{ $approval->user->name }} &middot; {{ $approval->approved_at ? $approval->approved_at->format('d M Y H:i') : '-' }}
                                     &middot; <span class="{{ $approval->status === 'approved' ? 'text-emerald-400' : ($approval->status === 'rejected' ? 'text-red-400' : 'text-yellow-400') }}">{{ ucfirst($approval->status) }}</span>
                                 </div>
                                 @if($approval->catatan)

@@ -46,7 +46,7 @@
                 <td class="label">Teknisi</td>
                 <td class="value">{{ $form->teknisi->name ?? '-' }}</td>
                 <td class="label">Tanggal Pemeriksaan</td>
-                <td class="value">{{ $form->submitted_at?->format('d/m/Y H:i') ?? '-' }}</td>
+                <td class="value">{{ $form->submitted_at ? $form->submitted_at->format('d/m/Y H:i') : '-' }}</td>
             </tr>
             <tr>
                 <td class="label">NIK Teknisi</td>
@@ -141,7 +141,7 @@
                     <div class="sig-empty"></div>
                 @endif
                 <div class="sig-name">{{ $diperiksa->user->name ?? '_______________' }}</div>
-                <div class="sig-date">{{ $diperiksa->approved_at?->format('d/m/Y') ?? '_______________' }}</div>
+                <div class="sig-date">{{ $diperiksa && $diperiksa->approved_at ? $diperiksa->approved_at->format('d/m/Y') : '_______________' }}</div>
             </div>
 
             <div class="sig-box">
@@ -152,7 +152,7 @@
                     <div class="sig-empty"></div>
                 @endif
                 <div class="sig-name">{{ $diketahui->user->name ?? '_______________' }}</div>
-                <div class="sig-date">{{ $diketahui->approved_at?->format('d/m/Y') ?? '_______________' }}</div>
+                <div class="sig-date">{{ $diketahui && $diketahui->approved_at ? $diketahui->approved_at->format('d/m/Y') : '_______________' }}</div>
             </div>
 
             <div class="sig-box">
@@ -163,7 +163,7 @@
                     <div class="sig-empty"></div>
                 @endif
                 <div class="sig-name">{{ $disetujui->user->name ?? '_______________' }}</div>
-                <div class="sig-date">{{ $disetujui->approved_at?->format('d/m/Y') ?? '_______________' }}</div>
+                <div class="sig-date">{{ $disetujui && $disetujui->approved_at ? $disetujui->approved_at->format('d/m/Y') : '_______________' }}</div>
             </div>
         </div>
 

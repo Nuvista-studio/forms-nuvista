@@ -16,7 +16,7 @@ class ExportPdfController extends Controller
         $pdf = Pdf::loadView('pdf.pemeriksaan', compact('form'))
             ->setPaper('a4', 'portrait');
 
-        return $pdf->download("form-pemeriksaan-{$form->nomor_form}.pdf");
+        return $pdf->download("form-pemeriksaan-" . str_replace('/', '-', $form->nomor_form) . ".pdf");
     }
 
     public function perawatan(int $id)
@@ -27,6 +27,6 @@ class ExportPdfController extends Controller
         $pdf = Pdf::loadView('pdf.perawatan', compact('form'))
             ->setPaper('a4', 'portrait');
 
-        return $pdf->download("form-perawatan-{$form->nomor_form}.pdf");
+        return $pdf->download("form-perawatan-" . str_replace('/', '-', $form->nomor_form) . ".pdf");
     }
 }

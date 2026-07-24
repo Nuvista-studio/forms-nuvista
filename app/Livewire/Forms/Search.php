@@ -30,8 +30,11 @@ class Search extends Component
 
     public int $perPage = 15;
 
+    public ?array $viewingForm = null;
+
     protected $listeners = [
         'resetFilters' => 'resetFilters',
+        'deleteConfirmed' => 'deleteConfirmed',
     ];
 
     public function mount(): void
@@ -219,6 +222,61 @@ class Search extends Component
             'submitted_at' => $f->submitted_at,
             'submitted_at_formatted' => $f->submitted_at?->format('d M Y H:i') ?? '-',
         ]);
+    }
+
+    public function viewForm(int $id, string $type): void
+    {
+        if ($type === 'pemeriksaan') {
+            $form = FormPemeriksaan::with(['teknisi', 'pengguna', 'asset', 'items', 'approvals.user', 'attachments'])
+                ->find($id);
+        } else {
+            $form = FormPerawatan::with(['teknisi', 'pengguna', 'asset', 'items', 'approvals.user', 'attachments'])
+                ->find($id);
+        }
+
+        if (!$form) return;
+
+        $this->viewingForm = array_merge(
+            $form->toArray(),
+            ['type' => $type]
+        );
+    }
+
+    public function closeView(): void
+    {
+        $this->viewingForm = null;
+    }
+
+    public ?int $deletingFormId = null;
+    public ?string $deletingFormType = null;
+
+    public function deleteForm(int $id, string $type): void
+    {
+        $this->deletingFormId = $id;
+        $this->deletingFormType = $type;
+        $this->dispatch('confirmDelete', id: $id, type: $type);
+    }
+
+    public function deleteConfirmed(): void
+    {
+        if (!$this->deletingFormId || !$this->deletingFormType) return;
+
+        if ($this->deletingFormType === 'pemeriksaan') {
+            $form = FormPemeriksaan::find($this->deletingFormId);
+        } else {
+            $form = FormPerawatan::find($this->deletingFormId);
+        }
+
+        if ($form) {
+            $form->items()->delete();
+            $form->approvals()->delete();
+            $form->attachments()->delete();
+            $form->delete();
+        }
+
+        $this->deletingFormId = null;
+        $this->deletingFormType = null;
+        $this->dispatch('formDeleted');
     }
 
     public function getStatusColor(string $status): string

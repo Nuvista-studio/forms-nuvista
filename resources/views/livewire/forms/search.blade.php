@@ -4,7 +4,7 @@ use Livewire\Attributes\Layout;
 
 new #[Layout('components.app-layout')] class extends Component {}; ?>
 
-<div class="max-w-7xl mx-auto px-4 py-6 space-y-4">
+<div class="max-w-7xl mx-auto px-4 py-6 space-y-4" x-data @form-deleted.window="window.location.reload()">
     <h1 class="text-2xl font-bold text-primary">Cari & Filter Form</h1>
 
     {{-- Filters --}}
@@ -164,14 +164,24 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                                 <td class="py-2.5 text-muted text-xs">{{ $form['submitted_at_formatted'] }}</td>
                                 <td class="py-2.5">
                                     <div class="flex items-center gap-1">
+                                        <button wire:click="viewForm({{ $form['id'] }}, '{{ $form['type'] }}')"
+                                            class="text-xs text-blue-400 hover:underline">View</button>
+                                        @if($form['status'] === 'draft' || $form['status'] === 'revisi')
+                                            <a href="{{ route($form['type'] . '.create') }}?formId={{ $form['id'] }}"
+                                                wire:navigate
+                                                class="text-xs text-yellow-400 hover:underline ml-2">Edit</a>
+                                        @endif
                                         @if($form['status'] !== 'draft')
                                             <a href="{{ route('approval.show', ['type' => $form['type'], 'id' => $form['id']]) }}"
                                                 wire:navigate
-                                                class="text-xs text-blue-400 hover:underline">Review</a>
+                                                class="text-xs text-blue-400 hover:underline ml-2">Review</a>
                                         @endif
                                         <a href="{{ route($form['type'] . '.export-pdf', $form['id']) }}"
                                             target="_blank"
                                             class="text-xs text-emerald-400 hover:underline ml-2">PDF</a>
+                                        <button wire:click="deleteForm({{ $form['id'] }}, '{{ $form['type'] }}')"
+                                            wire:confirm="Yakin ingin menghapus form ini? Form yang sudah dihapus tidak dapat dikembalikan."
+                                            class="text-xs text-red-400 hover:underline ml-2">Hapus</button>
                                     </div>
                                 </td>
                             </tr>
@@ -181,4 +191,78 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
             </div>
         @endif
     </div>
+
+    {{-- View Modal --}}
+    @if($viewingForm)
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style="background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);"
+            x-data x-on:click.self="$wire.closeView()">
+            <div class="glass-card w-full max-w-2xl max-h-[80vh] overflow-y-auto p-6 space-y-4"
+                x-on:click.self="$wire.closeView()">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-lg font-bold text-primary">Detail Form</h2>
+                    <button wire:click="closeView" class="text-muted hover:text-primary text-xl">&times;</button>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 text-sm">
+                    <div><span class="text-muted text-xs">Nomor Form</span><p class="text-primary font-mono">{{ $viewingForm['nomor_form'] }}</p></div>
+                    <div><span class="text-muted text-xs">Tipe</span><p class="text-primary">{{ ucfirst($viewingForm['type']) }}</p></div>
+                    <div><span class="text-muted text-xs">Status</span><p class="text-primary">{{ ucfirst($viewingForm['status']) }}</p></div>
+                    <div><span class="text-muted text-xs">Tanggal</span><p class="text-primary">{{ $viewingForm['submitted_at'] ? \Carbon\Carbon::parse($viewingForm['submitted_at'])->format('d M Y H:i') : '-' }}</p></div>
+                    <div><span class="text-muted text-xs">Teknisi</span><p class="text-primary">{{ $viewingForm['teknisi']['name'] ?? '-' }}</p></div>
+                    <div><span class="text-muted text-xs">Pengguna</span><p class="text-primary">{{ $viewingForm['pengguna']['name'] ?? '-' }}</p></div>
+                    <div><span class="text-muted text-xs">Perangkat</span><p class="text-primary">{{ $viewingForm['asset']['nama_perangkat'] ?? '-' }}</p></div>
+                    <div><span class="text-muted text-xs">No. Asset</span><p class="text-primary font-mono">{{ $viewingForm['asset']['no_asset'] ?? '-' }}</p></div>
+                </div>
+
+                @if(!empty($viewingForm['notes']))
+                    <div class="text-sm"><span class="text-muted text-xs">Catatan</span><p class="text-primary">{{ $viewingForm['notes'] }}</p></div>
+                @endif
+
+                @if(!empty($viewingForm['items']) && count($viewingForm['items']) > 0)
+                    <div class="text-sm">
+                        <span class="text-muted text-xs font-semibold uppercase">Checklist Items</span>
+                        <div class="mt-2 space-y-1">
+                            @foreach($viewingForm['items'] as $item)
+                                <div class="flex items-center justify-between py-1 px-2 rounded" style="background: var(--color-bg-tertiary);">
+                                    <span class="text-primary text-xs">{{ $item['name'] ?? $item['item_name'] ?? '-' }}</span>
+                                    @php
+                                        $statusClass = match($item['status'] ?? null) {
+                                            'baik', 'ok' => 'text-emerald-400',
+                                            'tidak_baik', 'not_ok' => 'text-red-400',
+                                            default => 'text-muted'
+                                        };
+                                    @endphp
+                                    <span class="text-xs {{ $statusClass }}">{{ ucfirst($item['status'] ?? '-') }}</span>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
+                @if(!empty($viewingForm['approvals']) && count($viewingForm['approvals']) > 0)
+                    <div class="text-sm">
+                        <span class="text-muted text-xs font-semibold uppercase">Approval History</span>
+                        <div class="mt-2 space-y-1">
+                            @foreach($viewingForm['approvals'] as $approval)
+                                <div class="flex items-center justify-between py-1 px-2 rounded text-xs" style="background: var(--color-bg-tertiary);">
+                                    <span class="text-primary">{{ ucfirst(str_replace('_', ' ', $approval['approval_level'])) }} &mdash; {{ $approval['user']['name'] ?? '-' }}</span>
+                                    <span class="text-muted">{{ $approval['status'] }} {{ $approval['approved_at'] ? \Carbon\Carbon::parse($approval['approved_at'])->format('d/m/Y') : '' }}</span>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
+                <div class="flex justify-end gap-2 pt-2">
+                    <a href="{{ route($viewingForm['type'] . '.export-pdf', $viewingForm['id']) }}" target="_blank"
+                        class="glass-button-primary text-sm">Export PDF</a>
+                    @if($viewingForm['status'] === 'draft' || $viewingForm['status'] === 'revisi')
+                        <a href="{{ route($viewingForm['type'] . '.create') }}?formId={{ $viewingForm['id'] }}"
+                            wire:navigate class="glass-button-primary text-sm">Edit</a>
+                    @endif
+                </div>
+            </div>
+        </div>
+    @endif
 </div>

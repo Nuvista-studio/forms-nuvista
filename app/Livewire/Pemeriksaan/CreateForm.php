@@ -117,7 +117,7 @@ class CreateForm extends Component
         ];
     }
 
-    public function mount(): void
+    public function mount(?int $formId = null): void
     {
         $user = Auth::user();
         $this->teknisiName = $user->name;
@@ -126,7 +126,62 @@ class CreateForm extends Component
         $this->teknisiBusinessUnit = $user->business_unit ?? '';
         $this->teknisiSite = $user->site ?? '';
 
+        if (request('formId')) {
+            $formId = request('formId');
+        }
+
         $this->loadChecklistTemplates();
+
+        if ($formId) {
+            $this->loadFormData($formId);
+        }
+    }
+
+    private function loadFormData(int $formId): void
+    {
+        $form = FormPemeriksaan::with(['items', 'pengguna', 'asset'])->find($formId);
+        if (!$form || ($form->status !== 'draft' && $form->status !== 'revisi')) return;
+
+        $this->formId = $form->id;
+        $this->nomorForm = $form->nomor_form;
+        $this->isDraft = true;
+
+        $this->penggunaId = $form->pengguna_id;
+        if ($form->pengguna) {
+            $this->penggunaName = $form->pengguna->name;
+            $this->penggunaNik = $form->pengguna->nik ?? '';
+            $this->penggunaDepartment = $form->pengguna->department ?? '';
+            $this->penggunaEmail = $form->pengguna->email;
+        }
+
+        $this->assetId = $form->asset_id;
+        if ($form->asset) {
+            $this->kategori = $form->asset->kategori ?? '';
+            $this->brand = $form->asset->brand ?? '';
+            $this->tipe = $form->asset->tipe ?? '';
+            $this->namaPerangkat = $form->asset->nama_perangkat ?? '';
+            $this->noSerial = $form->asset->no_serial ?? '';
+            $this->noAsset = $form->asset->no_asset ?? '';
+        }
+
+        $this->kondisi = $form->kondisi ?? '';
+        $this->kondisiKeterangan = $form->kondisi_keterangan ?? '';
+        $this->notes = $form->notes ?? '';
+
+        foreach ($form->items as $item) {
+            $category = $item->category;
+            if ($category === 'hardware' && isset($this->hardwareItems[$item->sort_order])) {
+                $this->hardwareItems[$item->sort_order]['status'] = $item->status;
+                $this->hardwareItems[$item->sort_order]['keterangan'] = $item->keterangan ?? '';
+            } elseif ($category === 'aplikasi' && isset($this->aplikasiItems[$item->sort_order])) {
+                $this->aplikasiItems[$item->sort_order]['status'] = $item->status;
+                $this->aplikasiItems[$item->sort_order]['keterangan'] = $item->keterangan ?? '';
+            } elseif ($category === 'operating_system' && isset($this->osItems[$item->sort_order])) {
+                $this->osItems[$item->sort_order]['status'] = $item->status;
+                $this->osItems[$item->sort_order]['value'] = $item->value ?? '';
+                $this->osItems[$item->sort_order]['keterangan'] = $item->keterangan ?? '';
+            }
+        }
     }
 
     private function loadChecklistTemplates(): void
@@ -320,7 +375,7 @@ class CreateForm extends Component
     public function goToStep(int $step): void
     {
         if ($step >= 1 && $step <= self::TOTAL_STEPS) {
-            $this->currentStep = $step;
+            $this->currentStep = $this->currentStep === $step ? 0 : $step;
         }
     }
 
@@ -399,7 +454,14 @@ class CreateForm extends Component
 
     public function submitForm(): void
     {
-        $this->validate();
+        try {
+            $this->validate();
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            $errors = $e->getMessage();
+            $firstError = collect($e->errors())->first();
+            $this->dispatch('submitError', message: $firstError ?? 'Mohon lengkapi semua field yang wajib diisi');
+            return;
+        }
 
         DB::beginTransaction();
 
