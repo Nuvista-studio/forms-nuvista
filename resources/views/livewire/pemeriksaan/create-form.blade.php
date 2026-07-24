@@ -80,7 +80,12 @@
                 </svg>
             </button>
 
-            <div x-show="currentStep === 1" x-collapse>
+            <div x-show="currentStep === 1" x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 -translate-y-2"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 -translate-y-2">
                 <div class="px-4 pb-4 space-y-4 border-t" style="border-color: var(--color-border);">
                     {{-- Teknisi (otomatis dari login) --}}
                     <div class="pt-4">
@@ -176,7 +181,12 @@
                 </svg>
             </button>
 
-            <div x-show="currentStep === 2" x-collapse>
+            <div x-show="currentStep === 2" x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 -translate-y-2"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 -translate-y-2">
                 <div class="px-4 pb-4 space-y-4 border-t" style="border-color: var(--color-border);">
                     <div class="pt-4">
                         {{-- QR Scanner --}}
@@ -262,7 +272,12 @@
                 </svg>
             </button>
 
-            <div x-show="currentStep === 3" x-collapse>
+            <div x-show="currentStep === 3" x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 -translate-y-2"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 -translate-y-2">
                 <div class="px-4 pb-4 space-y-4 border-t" style="border-color: var(--color-border);">
                     <div class="pt-4">
                         <label class="text-xs font-semibold text-muted uppercase tracking-wider">Kondisi Perangkat</label>
@@ -322,7 +337,12 @@
                 </svg>
             </button>
 
-            <div x-show="currentStep === 4" x-collapse>
+            <div x-show="currentStep === 4" x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 -translate-y-2"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 -translate-y-2">
                 <div class="px-4 pb-4 border-t" style="border-color: var(--color-border);">
                     <div class="pt-4 space-y-3">
                         @foreach($hardwareItems as $index => $item)
@@ -333,7 +353,7 @@
                                         <button wire:click="toggleItemStatus('hardwareItems', {{ $index }}, 'baik')"
                                             type="button"
                                             class="px-3 py-1 rounded-lg text-xs font-semibold transition-all border-2"
-                                            :class="{{ json_encode($item['status']) } === 'baik'
+                                            :class="@js($item['status']) === 'baik'
                                                 ? 'border-emerald-500 bg-emerald-500/15 text-emerald-400'
                                                 : 'border-transparent'"
                                             style="{{ json_encode($item['status']) !== 'baik' ? 'background: var(--color-bg-secondary); color: var(--color-text-secondary);' : '' }}">
@@ -342,7 +362,7 @@
                                         <button wire:click="toggleItemStatus('hardwareItems', {{ $index }}, 'tidak_baik')"
                                             type="button"
                                             class="px-3 py-1 rounded-lg text-xs font-semibold transition-all border-2"
-                                            :class="{{ json_encode($item['status']) } === 'tidak_baik'
+                                            :class="@js($item['status']) === 'tidak_baik'
                                                 ? 'border-red-500 bg-red-500/15 text-red-400'
                                                 : 'border-transparent'"
                                             style="{{ json_encode($item['status']) !== 'tidak_baik' ? 'background: var(--color-bg-secondary); color: var(--color-text-secondary);' : '' }}">
@@ -366,7 +386,12 @@
                                         </svg>
                                         Lampirkan Foto
                                     </button>
-                                    <div x-show="showUpload === 'hw-{{ $index }}'" x-collapse class="mt-2">
+                                    <div x-show="showUpload === 'hw-{{ $index }}'" x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 -translate-y-2"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 -translate-y-2" class="mt-2">
                                         <input type="file" accept="image/*" capture="environment"
                                             wire:model="itemPhotos.hw_{{ $index }}"
                                             class="text-xs file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-xs file:font-semibold"
@@ -411,7 +436,12 @@
                 </svg>
             </button>
 
-            <div x-show="currentStep === 5" x-collapse>
+            <div x-show="currentStep === 5" x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 -translate-y-2"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 -translate-y-2">
                 <div class="px-4 pb-4 border-t" style="border-color: var(--color-border);">
                     <div class="pt-4 space-y-3">
                         @foreach($aplikasiItems as $index => $item)
@@ -422,7 +452,7 @@
                                         <button wire:click="toggleItemStatus('aplikasiItems', {{ $index }}, 'baik')"
                                             type="button"
                                             class="px-3 py-1 rounded-lg text-xs font-semibold transition-all border-2"
-                                            :class="{{ json_encode($item['status']) } === 'baik'
+                                            :class="@js($item['status']) === 'baik'
                                                 ? 'border-emerald-500 bg-emerald-500/15 text-emerald-400'
                                                 : 'border-transparent'"
                                             style="{{ json_encode($item['status']) !== 'baik' ? 'background: var(--color-bg-secondary); color: var(--color-text-secondary);' : '' }}">
@@ -431,7 +461,7 @@
                                         <button wire:click="toggleItemStatus('aplikasiItems', {{ $index }}, 'tidak_baik')"
                                             type="button"
                                             class="px-3 py-1 rounded-lg text-xs font-semibold transition-all border-2"
-                                            :class="{{ json_encode($item['status']) } === 'tidak_baik'
+                                            :class="@js($item['status']) === 'tidak_baik'
                                                 ? 'border-red-500 bg-red-500/15 text-red-400'
                                                 : 'border-transparent'"
                                             style="{{ json_encode($item['status']) !== 'tidak_baik' ? 'background: var(--color-bg-secondary); color: var(--color-text-secondary);' : '' }}">
@@ -454,7 +484,12 @@
                                         </svg>
                                         Lampirkan Foto
                                     </button>
-                                    <div x-show="showUpload === 'app-{{ $index }}'" x-collapse class="mt-2">
+                                    <div x-show="showUpload === 'app-{{ $index }}'" x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 -translate-y-2"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 -translate-y-2" class="mt-2">
                                         <input type="file" accept="image/*" capture="environment"
                                             wire:model="itemPhotos.app_{{ $index }}"
                                             class="text-xs file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-xs file:font-semibold"
@@ -499,7 +534,12 @@
                 </svg>
             </button>
 
-            <div x-show="currentStep === 6" x-collapse>
+            <div x-show="currentStep === 6" x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 -translate-y-2"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 -translate-y-2">
                 <div class="px-4 pb-4 border-t" style="border-color: var(--color-border);">
                     <div class="pt-4 space-y-3">
                         @foreach($osItems as $index => $item)
@@ -514,7 +554,7 @@
                                     <button wire:click="toggleItemStatus('osItems', {{ $index }}, 'baik')"
                                         type="button"
                                         class="px-3 py-1 rounded-lg text-xs font-semibold transition-all border-2"
-                                        :class="{{ json_encode($item['status']) } === 'baik'
+                                        :class="@js($item['status']) === 'baik'
                                             ? 'border-emerald-500 bg-emerald-500/15 text-emerald-400'
                                             : 'border-transparent'"
                                         style="{{ json_encode($item['status']) !== 'baik' ? 'background: var(--color-bg-secondary); color: var(--color-text-secondary);' : '' }}">
@@ -523,7 +563,7 @@
                                     <button wire:click="toggleItemStatus('osItems', {{ $index }}, 'tidak_baik')"
                                         type="button"
                                         class="px-3 py-1 rounded-lg text-xs font-semibold transition-all border-2"
-                                        :class="{{ json_encode($item['status']) } === 'tidak_baik'
+                                        :class="@js($item['status']) === 'tidak_baik'
                                             ? 'border-red-500 bg-red-500/15 text-red-400'
                                             : 'border-transparent'"
                                         style="{{ json_encode($item['status']) !== 'tidak_baik' ? 'background: var(--color-bg-secondary); color: var(--color-text-secondary);' : '' }}">
@@ -564,7 +604,12 @@
                 </svg>
             </button>
 
-            <div x-show="currentStep === 7" x-collapse>
+            <div x-show="currentStep === 7" x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 -translate-y-2"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 -translate-y-2">
                 <div class="px-4 pb-4 border-t" style="border-color: var(--color-border);">
                     <div class="pt-4 space-y-4">
                         <div>
@@ -601,7 +646,12 @@
                 </svg>
             </button>
 
-            <div x-show="currentStep === 8" x-collapse>
+            <div x-show="currentStep === 8" x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 -translate-y-2"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 -translate-y-2">
                 <div class="px-4 pb-4 border-t" style="border-color: var(--color-border);">
                     <div class="pt-4 space-y-4">
 

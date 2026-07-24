@@ -40,11 +40,13 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                     Export PDF
                 </a>
+                @if($form->asset_id)
                 <a href="{{ route('assets.show', $form->asset_id) }}" wire:navigate
                     class="glass-button-secondary text-xs flex items-center gap-1">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                     Lihat Aset
                 </a>
+                @endif
                 <span class="px-3 py-1 rounded-full text-xs font-medium
                     {{ $formType === 'pemeriksaan' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' }}">
                     {{ $formType === 'pemeriksaan' ? 'Pemeriksaan' : 'Perawatan' }}
@@ -143,7 +145,7 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                 <div class="grid grid-cols-2 gap-3 text-sm">
                     <div>
                         <span class="text-xs text-muted">Kondisi Perangkat</span>
-                        <p class="{{ $getStatusColor($form->kondisi ?? '') }}">{{ $getStatusLabel($form->kondisi ?? '') }}</p>
+                        <p class="{{ $this->getStatusColor($form->kondisi ?? '') }}">{{ $this->getStatusLabel($form->kondisi ?? '') }}</p>
                     </div>
                     @if($form->kondisi_keterangan)
                         <div>
@@ -162,7 +164,7 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                 <div class="grid grid-cols-2 gap-3 text-sm">
                     <div>
                         <span class="text-xs text-muted">Kondisi Akhir</span>
-                        <p class="{{ $getStatusColor($form->kondisi_akhir ?? '') }}">{{ $getStatusLabel($form->kondisi_akhir ?? '') }}</p>
+                        <p class="{{ $this->getStatusColor($form->kondisi_akhir ?? '') }}">{{ $this->getStatusLabel($form->kondisi_akhir ?? '') }}</p>
                     </div>
                     @if($form->kondisi_akhir_notes)
                         <div>
@@ -195,7 +197,7 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                                         <span class="text-xs text-muted">{{ $item->value }}</span>
                                     @endif
                                     @if($item->status)
-                                        <span class="text-xs font-medium {{ $getStatusColor($item->status) }}">{{ $getStatusLabel($item->status) }}</span>
+                                        <span class="text-xs font-medium {{ $this->getStatusColor($item->status) }}">{{ $this->getStatusLabel($item->status) }}</span>
                                     @endif
                                     @if($item->keterangan)
                                         <span class="text-xs text-muted max-w-[200px] truncate" title="{{ $item->keterangan }}">{{ $item->keterangan }}</span>

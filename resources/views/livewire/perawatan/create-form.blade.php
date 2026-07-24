@@ -70,7 +70,12 @@
                 </div>
                 <svg class="w-5 h-5 text-muted transition-transform duration-200" :class="currentStep === 1 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
-            <div x-show="currentStep === 1" x-collapse>
+            <div x-show="currentStep === 1" x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 -translate-y-2"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 -translate-y-2">
                 <div class="px-4 pb-4 space-y-4 border-t" style="border-color: var(--color-border);">
                     <div class="pt-4">
                         <h4 class="text-xs font-semibold text-muted uppercase tracking-wider mb-3">Teknisi (Pemeriksa)</h4>
@@ -123,7 +128,12 @@
                 </div>
                 <svg class="w-5 h-5 text-muted transition-transform duration-200" :class="currentStep === 2 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
-            <div x-show="currentStep === 2" x-collapse>
+            <div x-show="currentStep === 2" x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 -translate-y-2"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 -translate-y-2">
                 <div class="px-4 pb-4 space-y-4 border-t" style="border-color: var(--color-border);">
                     <div class="pt-4">
                         <div class="mb-4">
@@ -180,7 +190,12 @@
                 </div>
                 <svg class="w-5 h-5 text-muted transition-transform duration-200" :class="currentStep === 3 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
-            <div x-show="currentStep === 3" x-collapse>
+            <div x-show="currentStep === 3" x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 -translate-y-2"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 -translate-y-2">
                 <div class="px-4 pb-4 border-t" style="border-color: var(--color-border);">
                     <div class="pt-4 space-y-3">
                         @foreach($hardwareItems as $index => $item)
@@ -198,7 +213,12 @@
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                                         Lampirkan Foto
                                     </button>
-                                    <div x-show="showUpload === 'hw-{{ $index }}'" x-collapse class="mt-2">
+                                    <div x-show="showUpload === 'hw-{{ $index }}'" x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 -translate-y-2"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 -translate-y-2" class="mt-2">
                                         <input type="file" accept="image/*" capture="environment" wire:model="itemPhotos.hw_{{ $index }}" class="text-xs file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-xs file:font-semibold" style="color: var(--color-text-secondary);">
                                         @if(isset($itemPhotos["hw_{$index}"]))
                                             <div class="mt-1"><img src="{{ $itemPhotos["hw_{$index}"]?->temporaryUrl() }}" class="h-16 rounded-lg object-cover"></div>
@@ -225,7 +245,12 @@
                 </div>
                 <svg class="w-5 h-5 text-muted transition-transform duration-200" :class="currentStep === 4 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
-            <div x-show="currentStep === 4" x-collapse>
+            <div x-show="currentStep === 4" x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 -translate-y-2"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 -translate-y-2">
                 <div class="px-4 pb-4 border-t" style="border-color: var(--color-border);">
                     <div class="pt-4 space-y-3">
                         @foreach($aplikasiItems as $index => $item)
@@ -243,7 +268,12 @@
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                                         Lampirkan Foto
                                     </button>
-                                    <div x-show="showUpload === 'app-{{ $index }}'" x-collapse class="mt-2">
+                                    <div x-show="showUpload === 'app-{{ $index }}'" x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 -translate-y-2"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 -translate-y-2" class="mt-2">
                                         <input type="file" accept="image/*" capture="environment" wire:model="itemPhotos.app_{{ $index }}" class="text-xs file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-xs file:font-semibold" style="color: var(--color-text-secondary);">
                                         @if(isset($itemPhotos["app_{$index}"]))
                                             <div class="mt-1"><img src="{{ $itemPhotos["app_{$index}"]?->temporaryUrl() }}" class="h-16 rounded-lg object-cover"></div>
@@ -270,7 +300,12 @@
                 </div>
                 <svg class="w-5 h-5 text-muted transition-transform duration-200" :class="currentStep === 5 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
-            <div x-show="currentStep === 5" x-collapse>
+            <div x-show="currentStep === 5" x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 -translate-y-2"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 -translate-y-2">
                 <div class="px-4 pb-4 border-t" style="border-color: var(--color-border);">
                     <div class="pt-4 space-y-3">
                         @foreach($osItems as $index => $item)
@@ -301,7 +336,12 @@
                 </div>
                 <svg class="w-5 h-5 text-muted transition-transform duration-200" :class="currentStep === 6 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
-            <div x-show="currentStep === 6" x-collapse>
+            <div x-show="currentStep === 6" x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 -translate-y-2"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 -translate-y-2">
                 <div class="px-4 pb-4 space-y-4 border-t" style="border-color: var(--color-border);">
                     <div class="pt-4">
                         <label class="text-xs font-semibold text-muted uppercase tracking-wider">Kondisi Akhir Perangkat</label>
@@ -341,7 +381,12 @@
                 </div>
                 <svg class="w-5 h-5 text-muted transition-transform duration-200" :class="currentStep === 7 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
-            <div x-show="currentStep === 7" x-collapse>
+            <div x-show="currentStep === 7" x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 -translate-y-2"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 -translate-y-2">
                 <div class="px-4 pb-4 border-t" style="border-color: var(--color-border);">
                     <div class="pt-4 space-y-4">
                         <div>
@@ -366,7 +411,12 @@
                 </div>
                 <svg class="w-5 h-5 text-muted transition-transform duration-200" :class="currentStep === 8 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
-            <div x-show="currentStep === 8" x-collapse>
+            <div x-show="currentStep === 8" x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 -translate-y-2"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 -translate-y-2">
                 <div class="px-4 pb-4 border-t" style="border-color: var(--color-border);">
                     <div class="pt-4 space-y-4">
 

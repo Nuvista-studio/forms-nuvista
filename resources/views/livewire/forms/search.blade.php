@@ -69,7 +69,7 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                         style="background: var(--color-card-bg); border: 1px solid var(--color-card-border);">
                         @foreach($userResults as $user)
                             <button wire:click="selectUser({{ $user['id'] }})"
-                                class="w-full text-left px-3 py-2 text-sm hover:bg-white/5 transition-colors text-primary">
+                                class="w-full text-left px-3 py-2 text-sm transition-colors text-primary" onmouseover="this.style.backgroundColor='var(--color-bg-tertiary)'" onmouseout="this.style.backgroundColor=''">
                                 {{ $user['name'] }} <span class="text-muted text-xs">({{ $user['nik'] ?? '-' }})</span>
                             </button>
                         @endforeach
@@ -138,7 +138,7 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                     </thead>
                     <tbody class="divide-y" style="border-color: var(--color-border);">
                         @foreach($results as $form)
-                            <tr class="hover:bg-white/5 transition-colors">
+                            <tr class="transition-colors" onmouseover="this.style.backgroundColor='var(--color-bg-tertiary)'" onmouseout="this.style.backgroundColor=''">
                                 <td class="py-2.5 font-mono font-semibold text-primary text-xs">{{ $form['nomor_form'] }}</td>
                                 <td class="py-2.5">
                                     <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold
@@ -149,11 +149,15 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                                 <td class="py-2.5 text-primary">{{ $form['teknisi'] }}</td>
                                 <td class="py-2.5 text-primary">{{ $form['perangkat'] }}</td>
                                 <td class="py-2.5 font-mono text-xs text-primary">
-                                    <a href="{{ route('assets.show', $form['asset_id']) }}" wire:navigate class="hover:underline">{{ $form['no_asset'] }}</a>
+                                    @if($form['asset_id'])
+                                        <a href="{{ route('assets.show', $form['asset_id']) }}" wire:navigate class="hover:underline">{{ $form['no_asset'] }}</a>
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endif
                                 </td>
                                 <td class="py-2.5 text-xs text-secondary">{{ $form['kondisi'] }}</td>
                                 <td class="py-2.5">
-                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold {{ $getStatusColor($form['status']) }}">
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold {{ $this->getStatusColor($form['status']) }}">
                                         {{ ucfirst($form['status']) }}
                                     </span>
                                 </td>

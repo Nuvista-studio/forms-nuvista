@@ -100,11 +100,11 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                                             </div>
                                             <div>
                                                 <span class="text-muted">Kondisi</span>
-                                                <p class="{{ $getKondisiColor($event['kondisi']) }}">{{ $getKondisiLabel($event['kondisi']) }}</p>
+                                                <p class="{{ $this->getKondisiColor($event['kondisi']) }}">{{ $this->getKondisiLabel($event['kondisi']) }}</p>
                                             </div>
                                         </div>
                                     </div>
-                                <span class="px-2 py-1 rounded-full text-[10px] font-semibold {{ $getStatusColor($event['status']) }}">
+                                <span class="px-2 py-1 rounded-full text-[10px] font-semibold {{ $this->getStatusColor($event['status']) }}">
                                     {{ ucfirst($event['status']) }}
                                 </span>
                                 <a href="{{ route($event['type'] . '.export-pdf', $event['id']) }}" target="_blank"

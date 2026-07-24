@@ -35,7 +35,9 @@
                     @foreach($notifications as $notif)
                         <a href="{{ route('approval.show', ['type' => $notif['type'], 'id' => $notif['id']]) }}"
                             wire:navigate
-                            class="block px-4 py-3 transition-colors duration-150 hover:bg-white/5"
+                            class="block px-4 py-3 transition-colors duration-150"
+                            onmouseover="this.style.backgroundColor='var(--color-bg-tertiary)'"
+                            onmouseout="this.style.backgroundColor=''">
                             @click="open = false; $wire.set('showDropdown', false)">
                             <div class="flex items-start gap-3">
                                 <div class="mt-0.5 w-8 h-8 rounded-full flex items-center justify-center shrink-0

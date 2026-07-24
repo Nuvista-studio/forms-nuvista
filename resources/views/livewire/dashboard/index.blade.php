@@ -210,7 +210,7 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                     </thead>
                     <tbody class="divide-y" style="border-color: var(--color-border);">
                         @foreach($recentForms as $form)
-                            <tr class="hover:bg-white/5 transition-colors">
+                            <tr class="transition-colors" onmouseover="this.style.backgroundColor='var(--color-bg-tertiary)'" onmouseout="this.style.backgroundColor=''">
                                 <td class="py-2.5 font-mono font-semibold text-primary text-xs">{{ $form['nomor_form'] }}</td>
                                 <td class="py-2.5">
                                     <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold
@@ -221,7 +221,7 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                                 <td class="py-2.5 text-primary">{{ $form['teknisi'] }}</td>
                                 <td class="py-2.5 text-primary">{{ $form['perangkat'] }}</td>
                                 <td class="py-2.5">
-                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold {{ $getStatusColor($form['status']) }}">
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold {{ $this->getStatusColor($form['status']) }}">
                                         {{ ucfirst($form['status']) }}
                                     </span>
                                 </td>
