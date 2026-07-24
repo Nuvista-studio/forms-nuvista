@@ -6,7 +6,9 @@ use App\Enums\ApprovalLevel;
 use App\Enums\FormStatus;
 use App\Models\FormApproval;
 use App\Models\FormPemeriksaan;
+use App\Models\FormPemeriksaanItem;
 use App\Models\FormPerawatan;
+use App\Models\FormPerawatanItem;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
@@ -27,6 +29,13 @@ class ReviewForm extends Component
     public string $rejectReason = '';
     public bool $showRejectModal = false;
 
+    // Edit mode
+    public bool $editing = false;
+    public string $editNotes = '';
+    public string $editKondisi = '';
+    public string $editKondisiKeterangan = '';
+    public array $editItems = [];
+
     public function mount(string $type, string $id): void
     {
         $this->formType = $type;
@@ -44,7 +53,7 @@ class ReviewForm extends Component
         }
 
         $form = $this->getForm();
-        $currentStatus = $form->status;
+        $currentStatus = $this->getForm()->status;
 
         if ($currentStatus === FormStatus::Selesai->value || $currentStatus === FormStatus::Draft->value) {
             abort(403, 'Form tidak tersedia untuk approval.');
@@ -83,11 +92,116 @@ class ReviewForm extends Component
             ->first();
     }
 
+    // ─── Edit Mode ────────────────────────────────────────
+
+    public function toggleEdit(): void
+    {
+        if (!$this->editing) {
+            $this->loadEditData();
+        }
+        $this->editing = !$this->editing;
+    }
+
+    private function loadEditData(): void
+    {
+        $form = $this->getForm();
+
+        $this->editNotes = $form->notes ?? '';
+        $this->editKondisi = $form->kondisi ?? $form->kondisi_akhir ?? '';
+        $this->editKondisiKeterangan = $form->kondisi_keterangan ?? $form->kondisi_akhir_notes ?? '';
+
+        $this->editItems = $form->items->sortBy('sort_order')->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'name' => $item->name,
+                'category' => $item->category,
+                'status' => $item->status ?? '',
+                'value' => $item->value ?? '',
+                'keterangan' => $item->keterangan ?? '',
+            ];
+        }->toArray();
+    }
+
+    public function saveEdits(): void
+    {
+        $form = $this->getForm();
+
+        DB::beginTransaction();
+
+        try {
+            // Update form-level fields
+            if ($this->formType === 'pemeriksaan') {
+                $form->update([
+                    'notes' => $this->editNotes ?: null,
+                    'kondisi' => $this->editKondisi ?: null,
+                    'kondisi_keterangan' => $this->editKondisiKeterangan ?: null,
+                ]);
+            } else {
+                $form->update([
+                    'notes' => $this->editNotes ?: null,
+                    'kondisi_akhir' => $this->editKondisi ?: null,
+                    'kondisi_akhir_notes' => $this->editKondisiKeterangan ?: null,
+                ]);
+            }
+
+            // Update item fields
+            foreach ($this->editItems as $editItem) {
+                if ($this->formType === 'pemeriksaan') {
+                    FormPemeriksaanItem::where('id', $editItem['id'])->update([
+                        'status' => $editItem['status'] ?: null,
+                        'value' => $editItem['value'] ?: null,
+                        'keterangan' => $editItem['keterangan'] ?: null,
+                    ]);
+                } else {
+                    FormPerawatanItem::where('id', $editItem['id'])->update([
+                        'status' => $editItem['status'] ?: null,
+                        'keterangan' => $editItem['keterangan'] ?: null,
+                    ]);
+                }
+            }
+
+            DB::commit();
+
+            // Reload form data
+            $this->reloadForm();
+            $this->editing = false;
+            $this->dispatch('edit-saved');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            $this->dispatch('error', message: 'Gagal menyimpan perubahan: ' . $e->getMessage());
+        }
+    }
+
+    private function reloadForm(): void
+    {
+        if ($this->formType === 'pemeriksaan') {
+            $this->pemeriksaanForm = FormPemeriksaan::with(['teknisi', 'pengguna', 'asset', 'items', 'approvals'])
+                ->findOrFail($this->formId);
+        } else {
+            $this->perawatanForm = FormPerawatan::with(['teknisi', 'pengguna', 'asset', 'items', 'approvals'])
+                ->findOrFail($this->formId);
+        }
+    }
+
+    public function updateEditItem(int $index, string $field, string $value): void
+    {
+        if (isset($this->editItems[$index])) {
+            $this->editItems[$index][$field] = $value;
+        }
+    }
+
+    // ─── Approval ─────────────────────────────────────────
+
     public function approveForm(string $signaturePath): void
     {
         if (!$this->canApprove) {
             $this->dispatch('error', message: 'Anda tidak memiliki akses untuk approve.');
             return;
+        }
+
+        // Auto-save edits before approving if in edit mode
+        if ($this->editing) {
+            $this->saveEdits();
         }
 
         $form = $this->getForm();

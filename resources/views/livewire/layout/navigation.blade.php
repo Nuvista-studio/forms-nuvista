@@ -50,6 +50,12 @@ new class extends Component
                     <x-nav-link :href="route('forms.search')" :active="request()->routeIs('forms.*')" wire:navigate>
                         {{ __('Cari Form') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('assets.index')" :active="request()->routeIs('assets.index')" wire:navigate>
+                        {{ __('Assets') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')" wire:navigate>
+                        {{ __('Users') }}
+                    </x-nav-link>
                     @if(auth()->user()->hasRole('admin'))
                         <x-nav-link :href="url('/admin')" :active="request()->is('admin*')">
                             {{ __('Admin Panel') }}
@@ -132,6 +138,12 @@ new class extends Component
             <x-responsive-nav-link :href="route('forms.search')" :active="request()->routeIs('forms.*')" wire:navigate>
                 {{ __('Cari Form') }}
             </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('assets.index')" :active="request()->routeIs('assets.index')" wire:navigate>
+                {{ __('Assets') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')" wire:navigate>
+                {{ __('Users') }}
+            </x-responsive-nav-link>
         </div>
 
         <div class="pt-4 pb-1 border-t" style="border-color: var(--color-border);">
@@ -195,6 +207,15 @@ new class extends Component
                 <span class="text-[10px] font-medium">Perawatan</span>
             </a>
         @endif
+
+        <a href="{{ route('assets.index') }}" wire:navigate
+            class="flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg transition-colors duration-200 {{ request()->routeIs('assets.*') ? 'text-cyan-400' : '' }}"
+            @unless(request()->routeIs('assets.*')) style="color: var(--color-text-secondary);" @endunless>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+            </svg>
+            <span class="text-[10px] font-medium">Assets</span>
+        </a>
 
         <a href="{{ route('forms.search') }}" wire:navigate
             class="flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg transition-colors duration-200 {{ request()->routeIs('forms.*') ? 'text-emerald-400' : '' }}"

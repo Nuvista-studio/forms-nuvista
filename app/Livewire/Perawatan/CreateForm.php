@@ -402,8 +402,33 @@ class CreateForm extends Component
         }
     }
 
+    private function resolveAsset(): void
+    {
+        if ($this->assetId) return;
+
+        if (empty($this->noAsset)) return;
+
+        $asset = Asset::where('no_asset', $this->noAsset)->first();
+
+        if (!$asset) {
+            $asset = Asset::create([
+                'no_asset' => $this->noAsset,
+                'kategori' => $this->kategori,
+                'brand' => $this->brand,
+                'tipe' => $this->tipe,
+                'nama_perangkat' => $this->namaPerangkat,
+                'no_serial' => $this->noSerial,
+                'status' => 'active',
+            ]);
+        }
+
+        $this->assetId = $asset->id;
+    }
+
     public function submitForm(): void
     {
+        $this->resolveAsset();
+
         try {
             $this->validate();
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -444,9 +469,7 @@ class CreateForm extends Component
 
             DB::commit();
 
-            $this->dispatch('formSubmitted', formId: $form->id);
-
-            $this->redirect(route('perawatan.signature', $form->id), navigate: true);
+            $this->redirect(route('perawatan.signature', $form->id));
 
         } catch (\Exception $e) {
             DB::rollBack();

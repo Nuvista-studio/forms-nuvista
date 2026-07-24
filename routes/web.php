@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ExportPdfController;
+use App\Http\Controllers\UserCsvController;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
@@ -10,7 +11,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Volt::route('dashboard', 'dashboard')
         ->name('dashboard');
 
-    Volt::route('profile', 'profile')
+    Route::view('profile', 'profile')
         ->name('profile');
 
     Volt::route('pemeriksaan/create', 'pages.pemeriksaan.create')
@@ -27,6 +28,24 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Volt::route('approval/{type}/{id}', 'pages.approval.show')
         ->name('approval.show');
+
+    Volt::route('assets', 'pages.assets.index')
+        ->name('assets.index');
+
+    Volt::route('users', 'pages.users.index')
+        ->name('users.index');
+
+    Volt::route('users/create', 'pages.users.create')
+        ->name('users.create');
+
+    Volt::route('users/import', 'pages.users.import')
+        ->name('users.import');
+
+    Route::get('users/export-csv', [UserCsvController::class, 'export'])
+        ->name('users.export.csv');
+
+    Route::get('users/import/template', [UserCsvController::class, 'template'])
+        ->name('users.import.template');
 
     Volt::route('assets/{id}', 'pages.assets.show')
         ->name('assets.show');

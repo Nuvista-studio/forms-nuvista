@@ -5,12 +5,17 @@ use Livewire\Volt\Component;
 
 new #[Layout('components.app-layout')] class extends Component
 {
+    public string $type = '';
+    public string $id = '';
+
     public function mount(string $type, string $id): void
     {
         $allowed = ['pemeriksaan', 'perawatan'];
         if (!in_array($type, $allowed)) {
             abort(404);
         }
+        $this->type = $type;
+        $this->id = $id;
     }
 }; ?>
 

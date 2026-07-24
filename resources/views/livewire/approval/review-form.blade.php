@@ -4,7 +4,10 @@ use Livewire\Attributes\Layout;
 
 new #[Layout('components.app-layout')] class extends Component {}; ?>
 
-<div class="max-w-5xl mx-auto px-4 py-6 space-y-4">
+<div class="max-w-5xl mx-auto px-4 py-6 space-y-4"
+    x-data="{ editing: @entangle('editing') }"
+    x-on:edit-saved.window="editing = false">
+
     {{-- SUCCESS / REJECT STATE --}}
     @if($saved)
         <div class="glass-card p-8 text-center">
@@ -26,23 +29,52 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
         </div>
     @else
         {{-- HEADER --}}
-        <div class="flex items-center justify-between">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
                 <h1 class="text-2xl font-bold text-primary">Review & Approval</h1>
                 <p class="text-sm text-muted mt-1">
                     Approval Level: <span class="font-semibold text-primary">{{ $approvalLevel === 'diketahui_oleh' ? 'Diketahui Oleh' : 'Disetujui Oleh' }}</span>
                 </p>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
                 @php $form = $formType === 'pemeriksaan' ? $pemeriksaanForm : $perawatanForm; @endphp
+                @if($canApprove && !$editing)
+                    <button wire:click="toggleEdit"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors duration-200"
+                        style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                        </svg>
+                        Edit
+                    </button>
+                @elseif($editing)
+                    <button wire:click="toggleEdit"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors duration-200"
+                        style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);">
+                        Batal Edit
+                    </button>
+                    <button wire:click="saveEdits" wire:loading.attr="disabled"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors duration-200"
+                        style="background: var(--color-primary); color: var(--color-button-text);">
+                        <span wire:loading.remove wire:target="saveEdits">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                        </span>
+                        <span wire:loading wire:target="saveEdits">Menyimpan...</span>
+                        <span wire:loading.remove wire:target="saveEdits">Simpan Perubahan</span>
+                    </button>
+                @endif
                 <a href="{{ route($formType . '.export-pdf', $form->id) }}" target="_blank"
-                    class="glass-button-secondary text-xs flex items-center gap-1">
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors duration-200"
+                    style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                     Export PDF
                 </a>
                 @if($form->asset_id)
                 <a href="{{ route('assets.show', $form->asset_id) }}" wire:navigate
-                    class="glass-button-secondary text-xs flex items-center gap-1">
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors duration-200"
+                    style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                     Lihat Aset
                 </a>
@@ -142,18 +174,42 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     Kondisi
                 </h3>
-                <div class="grid grid-cols-2 gap-3 text-sm">
-                    <div>
-                        <span class="text-xs text-muted">Kondisi Perangkat</span>
-                        <p class="{{ $this->getStatusColor($form->kondisi ?? '') }}">{{ $this->getStatusLabel($form->kondisi ?? '') }}</p>
-                    </div>
-                    @if($form->kondisi_keterangan)
+                @if($editing)
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                         <div>
-                            <span class="text-xs text-muted">Keterangan</span>
-                            <p class="text-primary">{{ $form->kondisi_keterangan }}</p>
+                            <label class="text-xs text-muted">Kondisi Perangkat</label>
+                            <select wire:model="editKondisi"
+                                class="w-full px-3 py-2 rounded-lg text-sm mt-1 transition-colors duration-200"
+                                style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
+                                <option value="">Pilih Kondisi</option>
+                                <option value="baru">Baru</option>
+                                <option value="lama">Lama</option>
+                                <option value="good_normal">Good / Normal</option>
+                                <option value="caution_poor">Caution / Poor</option>
+                            </select>
                         </div>
-                    @endif
-                </div>
+                        <div>
+                            <label class="text-xs text-muted">Keterangan</label>
+                            <input wire:model="editKondisiKeterangan" type="text"
+                                class="w-full px-3 py-2 rounded-lg text-sm mt-1 transition-colors duration-200"
+                                style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);"
+                                placeholder="Keterangan kondisi..." />
+                        </div>
+                    </div>
+                @else
+                    <div class="grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                            <span class="text-xs text-muted">Kondisi Perangkat</span>
+                            <p class="{{ $this->getStatusColor($form->kondisi ?? '') }}">{{ $this->getStatusLabel($form->kondisi ?? '') }}</p>
+                        </div>
+                        @if($form->kondisi_keterangan)
+                            <div>
+                                <span class="text-xs text-muted">Keterangan</span>
+                                <p class="text-primary">{{ $form->kondisi_keterangan }}</p>
+                            </div>
+                        @endif
+                    </div>
+                @endif
             </div>
         @else
             <div class="glass-card p-4">
@@ -161,18 +217,40 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     Kondisi Setelah Perawatan
                 </h3>
-                <div class="grid grid-cols-2 gap-3 text-sm">
-                    <div>
-                        <span class="text-xs text-muted">Kondisi Akhir</span>
-                        <p class="{{ $this->getStatusColor($form->kondisi_akhir ?? '') }}">{{ $this->getStatusLabel($form->kondisi_akhir ?? '') }}</p>
-                    </div>
-                    @if($form->kondisi_akhir_notes)
+                @if($editing)
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                         <div>
-                            <span class="text-xs text-muted">Keterangan</span>
-                            <p class="text-primary">{{ $form->kondisi_akhir_notes }}</p>
+                            <label class="text-xs text-muted">Kondisi Akhir</label>
+                            <select wire:model="editKondisi"
+                                class="w-full px-3 py-2 rounded-lg text-sm mt-1 transition-colors duration-200"
+                                style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
+                                <option value="">Pilih Kondisi</option>
+                                <option value="good_normal">Good / Normal</option>
+                                <option value="caution_poor">Caution / Poor</option>
+                            </select>
                         </div>
-                    @endif
-                </div>
+                        <div>
+                            <label class="text-xs text-muted">Keterangan</label>
+                            <input wire:model="editKondisiKeterangan" type="text"
+                                class="w-full px-3 py-2 rounded-lg text-sm mt-1 transition-colors duration-200"
+                                style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);"
+                                placeholder="Keterangan kondisi..." />
+                        </div>
+                    </div>
+                @else
+                    <div class="grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                            <span class="text-xs text-muted">Kondisi Akhir</span>
+                            <p class="{{ $this->getStatusColor($form->kondisi_akhir ?? '') }}">{{ $this->getStatusLabel($form->kondisi_akhir ?? '') }}</p>
+                        </div>
+                        @if($form->kondisi_akhir_notes)
+                            <div>
+                                <span class="text-xs text-muted">Keterangan</span>
+                                <p class="text-primary">{{ $form->kondisi_akhir_notes }}</p>
+                            </div>
+                        @endif
+                    </div>
+                @endif
             </div>
         @endif
 
@@ -184,26 +262,58 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
         @endphp
 
         @foreach($categories as $catKey => $catLabel)
-            @php $items = $form->items->where('category', $catKey); @endphp
+            @php $items = $form->items->where('category', $catKey)->sortBy('sort_order'); @endphp
             @if($items->count() > 0)
                 <div class="glass-card p-4">
                     <h3 class="text-sm font-semibold text-primary mb-3">{{ $catLabel }}</h3>
                     <div class="space-y-2">
-                        @foreach($items->sortBy('sort_order') as $item)
-                            <div class="flex items-center justify-between py-2 px-3 rounded-lg" style="background: var(--color-bg-secondary);">
-                                <span class="text-sm text-primary">{{ $item->name }}</span>
-                                <div class="flex items-center gap-3">
-                                    @if($item->value)
-                                        <span class="text-xs text-muted">{{ $item->value }}</span>
-                                    @endif
-                                    @if($item->status)
-                                        <span class="text-xs font-medium {{ $this->getStatusColor($item->status) }}">{{ $this->getStatusLabel($item->status) }}</span>
-                                    @endif
-                                    @if($item->keterangan)
-                                        <span class="text-xs text-muted max-w-[200px] truncate" title="{{ $item->keterangan }}">{{ $item->keterangan }}</span>
-                                    @endif
+                        @foreach($items as $item)
+                            @php
+                                $editIndex = collect($editItems)->search(fn($ei) => $ei['id'] === $item->id);
+                            @endphp
+                            @if($editing && $editIndex !== false)
+                                <div class="py-2 px-3 rounded-lg space-y-2" style="background: var(--color-bg-secondary);">
+                                    <span class="text-sm text-primary font-medium">{{ $item->name }}</span>
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        @if($formType === 'pemeriksaan' && $item->value !== null)
+                                            <input wire:model="editItems.{{ $editIndex }}.value" type="text"
+                                                placeholder="Nilai"
+                                                class="w-24 px-2 py-1 rounded text-xs transition-colors duration-200"
+                                                style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);" />
+                                        @endif
+                                        <select wire:model="editItems.{{ $editIndex }}.status"
+                                            class="px-2 py-1 rounded text-xs transition-colors duration-200"
+                                            style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
+                                            <option value="">Pilih Status</option>
+                                            <option value="baik">Baik</option>
+                                            <option value="tidak_baik">Tidak Baik</option>
+                                            <option value="good_normal">Good / Normal</option>
+                                            <option value="caution_poor">Caution / Poor</option>
+                                            <option value="baru">Baru</option>
+                                            <option value="lama">Lama</option>
+                                        </select>
+                                        <input wire:model="editItems.{{ $editIndex }}.keterangan" type="text"
+                                            placeholder="Keterangan"
+                                            class="flex-1 min-w-[120px] px-2 py-1 rounded text-xs transition-colors duration-200"
+                                            style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);" />
+                                    </div>
                                 </div>
-                            </div>
+                            @else
+                                <div class="flex items-center justify-between py-2 px-3 rounded-lg" style="background: var(--color-bg-secondary);">
+                                    <span class="text-sm text-primary">{{ $item->name }}</span>
+                                    <div class="flex items-center gap-3">
+                                        @if($item->value)
+                                            <span class="text-xs text-muted">{{ $item->value }}</span>
+                                        @endif
+                                        @if($item->status)
+                                            <span class="text-xs font-medium {{ $this->getStatusColor($item->status) }}">{{ $this->getStatusLabel($item->status) }}</span>
+                                        @endif
+                                        @if($item->keterangan)
+                                            <span class="text-xs text-muted max-w-[200px] truncate" title="{{ $item->keterangan }}">{{ $item->keterangan }}</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endif
                         @endforeach
                     </div>
                 </div>
@@ -211,12 +321,17 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
         @endforeach
 
         {{-- Notes --}}
-        @if($form->notes)
-            <div class="glass-card p-4">
-                <h3 class="text-sm font-semibold text-primary mb-2">Catatan</h3>
-                <p class="text-sm text-secondary whitespace-pre-wrap">{{ $form->notes }}</p>
-            </div>
-        @endif
+        <div class="glass-card p-4">
+            <h3 class="text-sm font-semibold text-primary mb-2">Catatan</h3>
+            @if($editing)
+                <textarea wire:model="editNotes" rows="3"
+                    class="w-full px-3 py-2 rounded-lg text-sm resize-none transition-colors duration-200"
+                    style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);"
+                    placeholder="Tambahkan catatan..."></textarea>
+            @else
+                <p class="text-sm text-secondary whitespace-pre-wrap">{{ $form->notes ?? '-' }}</p>
+            @endif
+        </div>
 
         {{-- Previous Approvals --}}
         @if($form->approvals->count() > 0)
@@ -256,7 +371,7 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
         {{-- APPROVE / REJECT --}}
         @if($canApprove)
             <div class="glass-card p-4 space-y-4">
-                <h3 class="text-sm font-semibold text-primary">Catatan (opsional)</h3>
+                <h3 class="text-sm font-semibold text-primary">Catatan Approval (opsional)</h3>
                 <textarea wire:model.live="catatan" rows="2"
                     class="glass-input w-full rounded-lg px-3 py-2 text-sm resize-none"
                     placeholder="Tambahkan catatan approval..."></textarea>

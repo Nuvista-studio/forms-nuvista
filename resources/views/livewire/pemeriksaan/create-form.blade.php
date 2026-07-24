@@ -726,7 +726,7 @@
 
                         <div class="flex justify-between pt-2">
                             <button wire:click="prevStep" type="button" class="glass-button-secondary text-sm">← Sebelumnya</button>
-                            <button wire:click="submitForm" wire:confirm="Yakin ingin submit form ini?"
+                            <button wire:click="submitForm"
                                 type="button" class="px-6 py-2 rounded-lg font-semibold text-sm transition-all duration-200 text-white"
                                 style="background: linear-gradient(135deg, #059669, #10b981);">
                                 Submit & Tanda Tangan →
@@ -741,9 +741,9 @@
 </div>
 
 @script
-<script>
-function showToast(message, type = 'success') {
-    window.dispatchEvent(new CustomEvent('show-toast', { detail: { message, type } }));
-}
-</script>
+    <script>
+    function showToast(message, type = 'success') {
+        window.dispatchEvent(new CustomEvent('show-toast', { detail: { message, type } }));
+    }
+    </script>
 @endscript
