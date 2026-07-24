@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Actions\Logout;
+use App\Livewire\Layout\NotificationBell;
 use Livewire\Volt\Component;
 use Livewire\Livewire;
 
@@ -45,6 +46,9 @@ new class extends Component
                             {{ __('Form Perawatan') }}
                         </x-nav-link>
                     @endif
+                    <x-nav-link :href="route('forms.search')" :active="request()->routeIs('forms.*')" wire:navigate>
+                        {{ __('Cari Form') }}
+                    </x-nav-link>
                     @if(auth()->user()->hasRole('admin'))
                         <x-nav-link :href="route('filament.admin.pages.dashboard')" :active="request()->routeIs('filament.*')">
                             {{ __('Admin Panel') }}
@@ -54,6 +58,8 @@ new class extends Component
             </div>
 
             <div class="hidden sm:flex sm:items-center sm:ms-6 gap-2">
+                <livewire:layout.notification-bell />
+
                 <button
                     wire:click="toggleTheme"
                     x-data
@@ -97,7 +103,8 @@ new class extends Component
                 </x-dropdown>
             </div>
 
-            <div class="-me-2 flex items-center sm:hidden">
+            <div class="-me-2 flex items-center sm:hidden gap-1">
+                <livewire:layout.notification-bell />
                 <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md transition duration-150 ease-in-out" style="color: var(--color-text-secondary);">
                     <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                         <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -121,6 +128,9 @@ new class extends Component
                     {{ __('Form Perawatan') }}
                 </x-responsive-nav-link>
             @endif
+            <x-responsive-nav-link :href="route('forms.search')" :active="request()->routeIs('forms.*')" wire:navigate>
+                {{ __('Cari Form') }}
+            </x-responsive-nav-link>
         </div>
 
         <div class="pt-4 pb-1 border-t" style="border-color: var(--color-border);">

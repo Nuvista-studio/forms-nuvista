@@ -4,6 +4,8 @@ use App\Enums\ApprovalLevel;
 use App\Enums\FormStatus;
 use App\Models\FormApproval;
 use App\Models\FormPerawatan;
+use App\Models\User;
+use App\Notifications\ApprovalRequestNotification;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
@@ -45,7 +47,27 @@ new #[Layout('components.app-layout')] class extends Component
 
         $this->form->update(['status' => FormStatus::Diketahui->value]);
 
+        $this->sendDiketahuiNotification();
+
         $this->saved = true;
+    }
+
+    private function sendDiketahuiNotification(): void
+    {
+        $supervisorIt = User::whereHas('roles', function ($q) {
+            $q->where('name', 'supervisor_it');
+        })->first();
+
+        if ($supervisorIt) {
+            $supervisorIt->notify(new ApprovalRequestNotification(
+                formType: 'perawatan',
+                formId: $this->form->id,
+                nomorForm: $this->form->nomor_form,
+                approvalLevel: ApprovalLevel::DiketahuiOleh->value,
+                submittedBy: $this->form->teknisi->name,
+                deviceName: $this->form->asset->nama_perangkat,
+            ));
+        }
     }
 
     public function render()
