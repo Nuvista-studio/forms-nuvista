@@ -1,0 +1,737 @@
+<div
+    x-data="{
+        openStep: @entangle('currentStep'),
+        scanning: false,
+        showUpload: null,
+        get isDark() { return document.documentElement.classList.contains('dark') },
+    }"
+    x-init="$watch('openStep', (val) => { $wire.currentStep = val; })"
+    @asset-found.window="showToast('Aset ditemukan: ' + $event.detail.asset.nama_perangkat, 'success')"
+    @asset-not-found.window="showToast('Aset tidak ditemukan untuk kode: ' + $event.detail.code, 'error')"
+    @draft-saved.window="showToast('Draft tersimpan', 'success')"
+    @form-submitted.window="showToast('Form berhasil disubmit!', 'success')"
+    @submit-error.window="showToast('Gagal submit: ' + $event.detail.message, 'error')"
+    class="max-w-4xl mx-auto px-4 py-6 space-y-4"
+>
+
+    {{-- Toast Notification --}}
+    <div x-data="{ toast: false, message: '', type: 'success' }"
+        @show-toast.window="toast = true; message = $event.detail.message; type = $event.detail.type || 'success'; setTimeout(() => toast = false, 3000)"
+        x-show="toast" x-transition
+        class="fixed top-20 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-sm font-medium"
+        :class="type === 'success' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'"
+        x-text="message"
+    ></div>
+
+    {{-- Header --}}
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-primary">Form Pemeriksaan Perangkat</h1>
+            <p class="text-sm text-muted mt-1">
+                No. Form: <span class="font-mono font-semibold text-secondary">{{ $this->getFormNumberPreview() }}</span>
+            </p>
+        </div>
+        <div class="flex gap-2">
+            <button wire:click="saveDraft" type="button"
+                class="glass-button-secondary text-sm flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+                Simpan Draft
+            </button>
+        </div>
+    </div>
+
+    {{-- Progress Bar --}}
+    <div class="glass-card p-4 mb-4">
+        <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-medium text-muted">Langkah {{ $currentStep }} dari {{ count($stepTitles) }}</span>
+            <span class="text-xs font-medium text-secondary">{{ round(($currentStep / count($stepTitles)) * 100) }}%</span>
+        </div>
+        <div class="w-full h-2 rounded-full" style="background: var(--color-bg-tertiary);">
+            <div class="h-2 rounded-full transition-all duration-500"
+                style="background: var(--color-text-primary);"
+                :style="'width: {{ round(($currentStep / count($stepTitles)) * 100) }}%'">
+            </div>
+        </div>
+    </div>
+
+    {{-- Accordion Steps --}}
+    <div class="space-y-3">
+
+        {{-- STEP 1: Info Pengguna --}}
+        <div class="glass-card overflow-hidden">
+            <button wire:click="goToStep(1)" type="button"
+                class="w-full flex items-center justify-between p-4 text-left transition-colors"
+                :class="currentStep === 1 ? '' : 'opacity-70 hover:opacity-100'">
+                <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
+                        :class="currentStep === 1 ? 'text-primary' : 'text-muted'"
+                        style="background: var(--color-bg-tertiary);">1</span>
+                    <div>
+                        <span class="font-semibold text-primary text-sm">Info Pengguna</span>
+                        <p class="text-xs text-muted" x-show="currentStep !== 1">
+                            {{ $teknisiName }} @if($penggunaName) → {{ $penggunaName }} @endif
+                        </p>
+                    </div>
+                </div>
+                <svg class="w-5 h-5 text-muted transition-transform duration-200"
+                    :class="currentStep === 1 ? 'rotate-180' : ''"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </button>
+
+            <div x-show="currentStep === 1" x-collapse>
+                <div class="px-4 pb-4 space-y-4 border-t" style="border-color: var(--color-border);">
+                    {{-- Teknisi (otomatis dari login) --}}
+                    <div class="pt-4">
+                        <h4 class="text-xs font-semibold text-muted uppercase tracking-wider mb-3">Teknisi (Pemeriksa)</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="text-xs text-muted">Nama</label>
+                                <input type="text" wire:model.live="teknisiName"
+                                    class="glass-input w-full rounded-lg px-3 py-2 text-sm mt-1">
+                            </div>
+                            <div>
+                                <label class="text-xs text-muted">NIK</label>
+                                <input type="text" wire:model.live="teknisiNik"
+                                    class="glass-input w-full rounded-lg px-3 py-2 text-sm mt-1">
+                            </div>
+                            <div>
+                                <label class="text-xs text-muted">Department</label>
+                                <input type="text" wire:model.live="teknisiDepartment"
+                                    class="glass-input w-full rounded-lg px-3 py-2 text-sm mt-1">
+                            </div>
+                            <div>
+                                <label class="text-xs text-muted">Site</label>
+                                <input type="text" wire:model.live="teknisiSite"
+                                    class="glass-input w-full rounded-lg px-3 py-2 text-sm mt-1">
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Pengguna --}}
+                    <div>
+                        <h4 class="text-xs font-semibold text-muted uppercase tracking-wider mb-3">Pengguna Perangkat</h4>
+                        @if($penggunaId)
+                            <div class="glass-card p-3 flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-semibold text-primary">{{ $penggunaName }}</p>
+                                    <p class="text-xs text-muted">{{ $penggunaNik }} · {{ $penggunaDepartment }} · {{ $penggunaEmail }}</p>
+                                </div>
+                                <button wire:click="clearPengguna" type="button"
+                                    class="text-xs text-red-400 hover:text-red-300">Ganti</button>
+                            </div>
+                        @else
+                            <div class="relative">
+                                <input type="text" wire:model.live="penggunaSearch"
+                                    wire:input.debounce.300ms="searchPengguna"
+                                    placeholder="Cari nama, NIK, atau email..."
+                                    class="glass-input w-full rounded-lg px-3 py-2 text-sm">
+                                @if($showPenggunaDropdown && count($penggunaResults) > 0)
+                                    <div class="absolute z-20 mt-1 w-full rounded-lg shadow-lg max-h-48 overflow-auto"
+                                        style="background: var(--color-bg-secondary); border: 1px solid var(--color-border);">
+                                        @foreach($penggunaResults as $u)
+                                            <button wire:click="selectPengguna({{ $u['id'] }})" type="button"
+                                                class="w-full text-left px-3 py-2 text-sm hover:opacity-80 transition"
+                                                style="color: var(--color-text-primary);">
+                                                <span class="font-medium">{{ $u['name'] }}</span>
+                                                <span class="text-xs text-muted ml-2">{{ $u['nik'] ?? '' }} · {{ $u['email'] }}</span>
+                                            </button>
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </div>
+                        @endif
+                    </div>
+
+                    <div class="flex justify-end pt-2">
+                        <button wire:click="nextStep" type="button" class="glass-button-primary text-sm">
+                            Selanjutnya →
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- STEP 2: Info Perangkat --}}
+        <div class="glass-card overflow-hidden">
+            <button wire:click="goToStep(2)" type="button"
+                class="w-full flex items-center justify-between p-4 text-left transition-colors"
+                :class="currentStep === 2 ? '' : 'opacity-70 hover:opacity-100'">
+                <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
+                        :class="currentStep === 2 ? 'text-primary' : 'text-muted'"
+                        style="background: var(--color-bg-tertiary);">2</span>
+                    <div>
+                        <span class="font-semibold text-primary text-sm">Info Perangkat</span>
+                        <p class="text-xs text-muted" x-show="currentStep !== 2 && $wire.noAsset">
+                            {{ $noAsset }} · {{ $brand }} {{ $tipe }}
+                        </p>
+                    </div>
+                </div>
+                <svg class="w-5 h-5 text-muted transition-transform duration-200"
+                    :class="currentStep === 2 ? 'rotate-180' : ''"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </button>
+
+            <div x-show="currentStep === 2" x-collapse>
+                <div class="px-4 pb-4 space-y-4 border-t" style="border-color: var(--color-border);">
+                    <div class="pt-4">
+                        {{-- QR Scanner --}}
+                        <div class="mb-4">
+                            <label class="text-xs font-semibold text-muted uppercase tracking-wider">Scan QR / Barcode</label>
+                            <div class="mt-2 flex flex-col sm:flex-row gap-2">
+                                <div id="qr-reader" class="w-full rounded-lg overflow-hidden"
+                                    style="display: none; min-height: 200px;"></div>
+                                <div class="flex gap-2">
+                                    <button type="button"
+                                        @click="if(!scanning) { startScanner(); scanning = true; } else { stopScanner(); scanning = false; }"
+                                        :class="scanning ? 'bg-red-500 text-white' : ''"
+                                        class="glass-button-secondary text-sm flex items-center gap-1.5">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
+                                        </svg>
+                                        <span x-text="scanning ? 'Stop Scan' : 'Mulai Scan'"></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Manual Input --}}
+                        <div>
+                            <label class="text-xs text-muted">Atau masukkan No. Asset manual</label>
+                            <div class="flex gap-2 mt-1">
+                                <input type="text" wire:model.live="noAsset"
+                                    placeholder="Contoh: ASR-2024-001"
+                                    class="glass-input flex-1 rounded-lg px-3 py-2 text-sm"
+                                    @keydown.enter.prevent="$wire.searchAssetManual()">
+                                <button wire:click="searchAssetManual" type="button"
+                                    class="glass-button-secondary text-sm px-3">Cari</button>
+                            </div>
+                        </div>
+
+                        {{-- Hasil Pencarian Aset --}}
+                        @if($assetId)
+                            <div class="mt-4 glass-card p-4">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    <span class="text-sm font-semibold text-primary">Aset Ditemukan</span>
+                                </div>
+                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
+                                    <div><span class="text-xs text-muted">No. Asset</span><p class="font-medium text-primary">{{ $noAsset }}</p></div>
+                                    <div><span class="text-xs text-muted">Kategori</span><p class="font-medium text-primary">{{ $kategori }}</p></div>
+                                    <div><span class="text-xs text-muted">Brand</span><p class="font-medium text-primary">{{ $brand }}</p></div>
+                                    <div><span class="text-xs text-muted">Tipe</span><p class="font-medium text-primary">{{ $tipe }}</p></div>
+                                    <div><span class="text-xs text-muted">Nama Perangkat</span><p class="font-medium text-primary">{{ $namaPerangkat }}</p></div>
+                                    <div><span class="text-xs text-muted">No. Serial</span><p class="font-medium text-primary">{{ $noSerial ?: '-' }}</p></div>
+                                </div>
+                            </div>
+                        @endif
+
+                        <div class="flex justify-between pt-4">
+                            <button wire:click="prevStep" type="button" class="glass-button-secondary text-sm">← Sebelumnya</button>
+                            <button wire:click="nextStep" type="button" class="glass-button-primary text-sm"
+                                {{ !$assetId ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : '' }}>
+                                Selanjutnya →
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- STEP 3: Kondisi --}}
+        <div class="glass-card overflow-hidden">
+            <button wire:click="goToStep(3)" type="button"
+                class="w-full flex items-center justify-between p-4 text-left transition-colors"
+                :class="currentStep === 3 ? '' : 'opacity-70 hover:opacity-100'">
+                <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
+                        :class="currentStep === 3 ? 'text-primary' : 'text-muted'"
+                        style="background: var(--color-bg-tertiary);">3</span>
+                    <span class="font-semibold text-primary text-sm">Kondisi Perangkat</span>
+                </div>
+                <svg class="w-5 h-5 text-muted transition-transform duration-200"
+                    :class="currentStep === 3 ? 'rotate-180' : ''"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </button>
+
+            <div x-show="currentStep === 3" x-collapse>
+                <div class="px-4 pb-4 space-y-4 border-t" style="border-color: var(--color-border);">
+                    <div class="pt-4">
+                        <label class="text-xs font-semibold text-muted uppercase tracking-wider">Kondisi Perangkat</label>
+                        <div class="flex gap-3 mt-2">
+                            <button wire:click="$set('kondisi', 'baru')" type="button"
+                                class="flex-1 p-3 rounded-lg border-2 text-sm font-semibold text-center transition-all"
+                                :class="$wire.kondisi === 'baru'
+                                    ? 'border-emerald-500 bg-emerald-500/10 text-emerald-400'
+                                    : 'border-transparent'"
+                                style="background: {{ $kondisi !== 'baru' ? 'var(--color-bg-tertiary)' : '' }}; color: {{ $kondisi !== 'baru' ? 'var(--color-text-secondary)' : '' }};">
+                                Baru
+                            </button>
+                            <button wire:click="$set('kondisi', 'lama')" type="button"
+                                class="flex-1 p-3 rounded-lg border-2 text-sm font-semibold text-center transition-all"
+                                :class="$wire.kondisi === 'lama'
+                                    ? 'border-amber-500 bg-amber-500/10 text-amber-400'
+                                    : 'border-transparent'"
+                                style="background: {{ $kondisi !== 'lama' ? 'var(--color-bg-tertiary)' : '' }}; color: {{ $kondisi !== 'lama' ? 'var(--color-text-secondary)' : '' }};">
+                                Lama
+                            </button>
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="text-xs text-muted">Keterangan Kondisi (opsional)</label>
+                            <textarea wire:model.live="kondisiKeterangan" rows="2"
+                                class="glass-input w-full rounded-lg px-3 py-2 text-sm mt-1 resize-none"
+                                placeholder="Deskripsi kondisi perangkat..."></textarea>
+                        </div>
+
+                        <div class="flex justify-between pt-4">
+                            <button wire:click="prevStep" type="button" class="glass-button-secondary text-sm">← Sebelumnya</button>
+                            <button wire:click="nextStep" type="button" class="glass-button-primary text-sm">Selanjutnya →</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- STEP 4: Pemeriksaan Hardware --}}
+        <div class="glass-card overflow-hidden">
+            <button wire:click="goToStep(4)" type="button"
+                class="w-full flex items-center justify-between p-4 text-left transition-colors"
+                :class="currentStep === 4 ? '' : 'opacity-70 hover:opacity-100'">
+                <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
+                        :class="currentStep === 4 ? 'text-primary' : 'text-muted'"
+                        style="background: var(--color-bg-tertiary);">4</span>
+                    <div>
+                        <span class="font-semibold text-primary text-sm">Pemeriksaan Hardware</span>
+                        <p class="text-xs text-muted" x-show="currentStep !== 4">{{ count($hardwareItems) }} item</p>
+                    </div>
+                </div>
+                <svg class="w-5 h-5 text-muted transition-transform duration-200"
+                    :class="currentStep === 4 ? 'rotate-180' : ''"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </button>
+
+            <div x-show="currentStep === 4" x-collapse>
+                <div class="px-4 pb-4 border-t" style="border-color: var(--color-border);">
+                    <div class="pt-4 space-y-3">
+                        @foreach($hardwareItems as $index => $item)
+                            <div class="glass-card p-3 space-y-2" style="background: var(--color-bg-tertiary); border: none;">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm font-medium text-primary">{{ $item['name'] }}</span>
+                                    <div class="flex gap-1">
+                                        <button wire:click="toggleItemStatus('hardwareItems', {{ $index }}, 'baik')"
+                                            type="button"
+                                            class="px-3 py-1 rounded-lg text-xs font-semibold transition-all border-2"
+                                            :class="{{ json_encode($item['status']) } === 'baik'
+                                                ? 'border-emerald-500 bg-emerald-500/15 text-emerald-400'
+                                                : 'border-transparent'"
+                                            style="{{ json_encode($item['status']) !== 'baik' ? 'background: var(--color-bg-secondary); color: var(--color-text-secondary);' : '' }}">
+                                            ✓ Baik
+                                        </button>
+                                        <button wire:click="toggleItemStatus('hardwareItems', {{ $index }}, 'tidak_baik')"
+                                            type="button"
+                                            class="px-3 py-1 rounded-lg text-xs font-semibold transition-all border-2"
+                                            :class="{{ json_encode($item['status']) } === 'tidak_baik'
+                                                ? 'border-red-500 bg-red-500/15 text-red-400'
+                                                : 'border-transparent'"
+                                            style="{{ json_encode($item['status']) !== 'tidak_baik' ? 'background: var(--color-bg-secondary); color: var(--color-text-secondary);' : '' }}">
+                                            ✗ Tidak Baik
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <textarea wire:model.live="hardwareItems.{{ $index }}.keterangan"
+                                    rows="1" placeholder="Keterangan (opsional)..."
+                                    class="glass-input w-full rounded-lg px-3 py-1.5 text-xs resize-none"></textarea>
+
+                                {{-- Photo Upload --}}
+                                <div>
+                                    <button type="button" @click="showUpload = showUpload === 'hw-{{ $index }}' ? null : 'hw-{{ $index }}'"
+                                        class="text-xs flex items-center gap-1"
+                                        style="color: var(--color-text-muted);">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        </svg>
+                                        Lampirkan Foto
+                                    </button>
+                                    <div x-show="showUpload === 'hw-{{ $index }}'" x-collapse class="mt-2">
+                                        <input type="file" accept="image/*" capture="environment"
+                                            wire:model="itemPhotos.hw_{{ $index }}"
+                                            class="text-xs file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-xs file:font-semibold"
+                                            style="color: var(--color-text-secondary);">
+                                        @if(isset($itemPhotos["hw_{$index}"]))
+                                            <div class="mt-1">
+                                                <img src="{{ $itemPhotos["hw_{$index}"]?->temporaryUrl() }}" class="h-16 rounded-lg object-cover">
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+
+                        <div class="flex justify-between pt-2">
+                            <button wire:click="prevStep" type="button" class="glass-button-secondary text-sm">← Sebelumnya</button>
+                            <button wire:click="nextStep" type="button" class="glass-button-primary text-sm">Selanjutnya →</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- STEP 5: Pemeriksaan Aplikasi --}}
+        <div class="glass-card overflow-hidden">
+            <button wire:click="goToStep(5)" type="button"
+                class="w-full flex items-center justify-between p-4 text-left transition-colors"
+                :class="currentStep === 5 ? '' : 'opacity-70 hover:opacity-100'">
+                <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
+                        :class="currentStep === 5 ? 'text-primary' : 'text-muted'"
+                        style="background: var(--color-bg-tertiary);">5</span>
+                    <div>
+                        <span class="font-semibold text-primary text-sm">Pemeriksaan Aplikasi</span>
+                        <p class="text-xs text-muted" x-show="currentStep !== 5">{{ count($aplikasiItems) }} item</p>
+                    </div>
+                </div>
+                <svg class="w-5 h-5 text-muted transition-transform duration-200"
+                    :class="currentStep === 5 ? 'rotate-180' : ''"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </button>
+
+            <div x-show="currentStep === 5" x-collapse>
+                <div class="px-4 pb-4 border-t" style="border-color: var(--color-border);">
+                    <div class="pt-4 space-y-3">
+                        @foreach($aplikasiItems as $index => $item)
+                            <div class="glass-card p-3 space-y-2" style="background: var(--color-bg-tertiary); border: none;">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm font-medium text-primary">{{ $item['name'] }}</span>
+                                    <div class="flex gap-1">
+                                        <button wire:click="toggleItemStatus('aplikasiItems', {{ $index }}, 'baik')"
+                                            type="button"
+                                            class="px-3 py-1 rounded-lg text-xs font-semibold transition-all border-2"
+                                            :class="{{ json_encode($item['status']) } === 'baik'
+                                                ? 'border-emerald-500 bg-emerald-500/15 text-emerald-400'
+                                                : 'border-transparent'"
+                                            style="{{ json_encode($item['status']) !== 'baik' ? 'background: var(--color-bg-secondary); color: var(--color-text-secondary);' : '' }}">
+                                            ✓ Baik
+                                        </button>
+                                        <button wire:click="toggleItemStatus('aplikasiItems', {{ $index }}, 'tidak_baik')"
+                                            type="button"
+                                            class="px-3 py-1 rounded-lg text-xs font-semibold transition-all border-2"
+                                            :class="{{ json_encode($item['status']) } === 'tidak_baik'
+                                                ? 'border-red-500 bg-red-500/15 text-red-400'
+                                                : 'border-transparent'"
+                                            style="{{ json_encode($item['status']) !== 'tidak_baik' ? 'background: var(--color-bg-secondary); color: var(--color-text-secondary);' : '' }}">
+                                            ✗ Tidak Baik
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <textarea wire:model.live="aplikasiItems.{{ $index }}.keterangan"
+                                    rows="1" placeholder="Keterangan (opsional)..."
+                                    class="glass-input w-full rounded-lg px-3 py-1.5 text-xs resize-none"></textarea>
+
+                                <div>
+                                    <button type="button" @click="showUpload = showUpload === 'app-{{ $index }}' ? null : 'app-{{ $index }}'"
+                                        class="text-xs flex items-center gap-1"
+                                        style="color: var(--color-text-muted);">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        </svg>
+                                        Lampirkan Foto
+                                    </button>
+                                    <div x-show="showUpload === 'app-{{ $index }}'" x-collapse class="mt-2">
+                                        <input type="file" accept="image/*" capture="environment"
+                                            wire:model="itemPhotos.app_{{ $index }}"
+                                            class="text-xs file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-xs file:font-semibold"
+                                            style="color: var(--color-text-secondary);">
+                                        @if(isset($itemPhotos["app_{$index}"]))
+                                            <div class="mt-1">
+                                                <img src="{{ $itemPhotos["app_{$index}"]?->temporaryUrl() }}" class="h-16 rounded-lg object-cover">
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+
+                        <div class="flex justify-between pt-2">
+                            <button wire:click="prevStep" type="button" class="glass-button-secondary text-sm">← Sebelumnya</button>
+                            <button wire:click="nextStep" type="button" class="glass-button-primary text-sm">Selanjutnya →</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- STEP 6: Operating System --}}
+        <div class="glass-card overflow-hidden">
+            <button wire:click="goToStep(6)" type="button"
+                class="w-full flex items-center justify-between p-4 text-left transition-colors"
+                :class="currentStep === 6 ? '' : 'opacity-70 hover:opacity-100'">
+                <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
+                        :class="currentStep === 6 ? 'text-primary' : 'text-muted'"
+                        style="background: var(--color-bg-tertiary);">6</span>
+                    <div>
+                        <span class="font-semibold text-primary text-sm">Operating System</span>
+                        <p class="text-xs text-muted" x-show="currentStep !== 6">{{ count($osItems) }} item</p>
+                    </div>
+                </div>
+                <svg class="w-5 h-5 text-muted transition-transform duration-200"
+                    :class="currentStep === 6 ? 'rotate-180' : ''"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </button>
+
+            <div x-show="currentStep === 6" x-collapse>
+                <div class="px-4 pb-4 border-t" style="border-color: var(--color-border);">
+                    <div class="pt-4 space-y-3">
+                        @foreach($osItems as $index => $item)
+                            <div class="glass-card p-3 space-y-2" style="background: var(--color-bg-tertiary); border: none;">
+                                <span class="text-sm font-medium text-primary">{{ $item['name'] }}</span>
+
+                                <input type="text" wire:model.live="osItems.{{ $index }}.value"
+                                    placeholder="Isi nilai..."
+                                    class="glass-input w-full rounded-lg px-3 py-1.5 text-xs">
+
+                                <div class="flex gap-1">
+                                    <button wire:click="toggleItemStatus('osItems', {{ $index }}, 'baik')"
+                                        type="button"
+                                        class="px-3 py-1 rounded-lg text-xs font-semibold transition-all border-2"
+                                        :class="{{ json_encode($item['status']) } === 'baik'
+                                            ? 'border-emerald-500 bg-emerald-500/15 text-emerald-400'
+                                            : 'border-transparent'"
+                                        style="{{ json_encode($item['status']) !== 'baik' ? 'background: var(--color-bg-secondary); color: var(--color-text-secondary);' : '' }}">
+                                        ✓ Baik
+                                    </button>
+                                    <button wire:click="toggleItemStatus('osItems', {{ $index }}, 'tidak_baik')"
+                                        type="button"
+                                        class="px-3 py-1 rounded-lg text-xs font-semibold transition-all border-2"
+                                        :class="{{ json_encode($item['status']) } === 'tidak_baik'
+                                            ? 'border-red-500 bg-red-500/15 text-red-400'
+                                            : 'border-transparent'"
+                                        style="{{ json_encode($item['status']) !== 'tidak_baik' ? 'background: var(--color-bg-secondary); color: var(--color-text-secondary);' : '' }}">
+                                        ✗ Tidak Baik
+                                    </button>
+                                </div>
+
+                                <textarea wire:model.live="osItems.{{ $index }}.keterangan"
+                                    rows="1" placeholder="Keterangan (opsional)..."
+                                    class="glass-input w-full rounded-lg px-3 py-1.5 text-xs resize-none"></textarea>
+                            </div>
+                        @endforeach
+
+                        <div class="flex justify-between pt-2">
+                            <button wire:click="prevStep" type="button" class="glass-button-secondary text-sm">← Sebelumnya</button>
+                            <button wire:click="nextStep" type="button" class="glass-button-primary text-sm">Selanjutnya →</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- STEP 7: Tindakan / Catatan --}}
+        <div class="glass-card overflow-hidden">
+            <button wire:click="goToStep(7)" type="button"
+                class="w-full flex items-center justify-between p-4 text-left transition-colors"
+                :class="currentStep === 7 ? '' : 'opacity-70 hover:opacity-100'">
+                <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
+                        :class="currentStep === 7 ? 'text-primary' : 'text-muted'"
+                        style="background: var(--color-bg-tertiary);">7</span>
+                    <span class="font-semibold text-primary text-sm">Catatan & Tindakan</span>
+                </div>
+                <svg class="w-5 h-5 text-muted transition-transform duration-200"
+                    :class="currentStep === 7 ? 'rotate-180' : ''"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </button>
+
+            <div x-show="currentStep === 7" x-collapse>
+                <div class="px-4 pb-4 border-t" style="border-color: var(--color-border);">
+                    <div class="pt-4 space-y-4">
+                        <div>
+                            <label class="text-xs font-semibold text-muted uppercase tracking-wider">Catatan / Tindakan Lanjutan</label>
+                            <textarea wire:model.live="notes" rows="4"
+                                class="glass-input w-full rounded-lg px-3 py-2 text-sm mt-2 resize-none"
+                                placeholder="Tuliskan catatan atau tindakan yang perlu dilakukan..."></textarea>
+                        </div>
+
+                        <div class="flex justify-between pt-2">
+                            <button wire:click="prevStep" type="button" class="glass-button-secondary text-sm">← Sebelumnya</button>
+                            <button wire:click="nextStep" type="button" class="glass-button-primary text-sm">Selanjutnya →</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- STEP 8: Review & Submit --}}
+        <div class="glass-card overflow-hidden">
+            <button wire:click="goToStep(8)" type="button"
+                class="w-full flex items-center justify-between p-4 text-left transition-colors"
+                :class="currentStep === 8 ? '' : 'opacity-70 hover:opacity-100'">
+                <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
+                        :class="currentStep === 8 ? 'text-primary' : 'text-muted'"
+                        style="background: var(--color-bg-tertiary);">8</span>
+                    <span class="font-semibold text-primary text-sm">Review & Submit</span>
+                </div>
+                <svg class="w-5 h-5 text-muted transition-transform duration-200"
+                    :class="currentStep === 8 ? 'rotate-180' : ''"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </button>
+
+            <div x-show="currentStep === 8" x-collapse>
+                <div class="px-4 pb-4 border-t" style="border-color: var(--color-border);">
+                    <div class="pt-4 space-y-4">
+
+                        {{-- No Form Preview --}}
+                        <div class="glass-card p-3" style="background: var(--color-bg-tertiary); border: none;">
+                            <span class="text-xs text-muted">Nomor Form</span>
+                            <p class="font-mono font-bold text-primary text-lg">{{ $this->getFormNumberPreview() }}</p>
+                        </div>
+
+                        {{-- Info Pengguna --}}
+                        <div class="glass-card p-3" style="background: var(--color-bg-tertiary); border: none;">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-semibold text-muted uppercase">Info Pengguna</span>
+                                <button wire:click="goToStep(1)" type="button" class="text-xs" style="color: var(--color-text-secondary);">Edit</button>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-sm">
+                                <div><span class="text-xs text-muted">Teknisi</span><p class="text-primary">{{ $teknisiName }}</p></div>
+                                <div><span class="text-xs text-muted">Pengguna</span><p class="text-primary">{{ $penggunaName ?: '-' }}</p></div>
+                            </div>
+                        </div>
+
+                        {{-- Info Perangkat --}}
+                        <div class="glass-card p-3" style="background: var(--color-bg-tertiary); border: none;">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-semibold text-muted uppercase">Info Perangkat</span>
+                                <button wire:click="goToStep(2)" type="button" class="text-xs" style="color: var(--color-text-secondary);">Edit</button>
+                            </div>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-sm">
+                                <div><span class="text-xs text-muted">No. Asset</span><p class="text-primary font-mono">{{ $noAsset ?: '-' }}</p></div>
+                                <div><span class="text-xs text-muted">Brand</span><p class="text-primary">{{ $brand ?: '-' }}</p></div>
+                                <div><span class="text-xs text-muted">Tipe</span><p class="text-primary">{{ $tipe ?: '-' }}</p></div>
+                                <div><span class="text-xs text-muted">Kondisi</span><p class="text-primary">{{ ucfirst($kondisi ?: '-') }}</p></div>
+                            </div>
+                        </div>
+
+                        {{-- Ringkasan Checklist --}}
+                        @php
+                            $hwBaik = collect($hardwareItems)->where('status', 'baik')->count();
+                            $hwTidakBaik = collect($hardwareItems)->where('status', 'tidak_baik')->count();
+                            $appBaik = collect($aplikasiItems)->where('status', 'baik')->count();
+                            $appTidakBaik = collect($aplikasiItems)->where('status', 'tidak_baik')->count();
+                            $osBaik = collect($osItems)->where('status', 'baik')->count();
+                            $osTidakBaik = collect($osItems)->where('status', 'tidak_baik')->count();
+                        @endphp
+                        <div class="glass-card p-3" style="background: var(--color-bg-tertiary); border: none;">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-semibold text-muted uppercase">Ringkasan Checklist</span>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2 text-center text-sm">
+                                <div>
+                                    <p class="text-xs text-muted">Hardware</p>
+                                    <p class="text-emerald-400 font-bold">{{ $hwBaik }} Baik</p>
+                                    <p class="text-red-400 font-bold">{{ $hwTidakBaik }} Tidak Baik</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-muted">Aplikasi</p>
+                                    <p class="text-emerald-400 font-bold">{{ $appBaik }} Baik</p>
+                                    <p class="text-red-400 font-bold">{{ $appTidakBaik }} Tidak Baik</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-muted">OS</p>
+                                    <p class="text-emerald-400 font-bold">{{ $osBaik }} Baik</p>
+                                    <p class="text-red-400 font-bold">{{ $osTidakBaik }} Tidak Baik</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if($notes)
+                            <div class="glass-card p-3" style="background: var(--color-bg-tertiary); border: none;">
+                                <span class="text-xs font-semibold text-muted uppercase">Catatan</span>
+                                <p class="text-sm text-primary mt-1">{{ $notes }}</p>
+                            </div>
+                        @endif
+
+                        <div class="flex justify-between pt-2">
+                            <button wire:click="prevStep" type="button" class="glass-button-secondary text-sm">← Sebelumnya</button>
+                            <button wire:click="submitForm" type="button"
+                                class="px-6 py-2 rounded-lg font-semibold text-sm transition-all duration-200 text-white"
+                                style="background: linear-gradient(135deg, #059669, #10b981);"
+                                @click="if(!confirm('Yakin ingin submit form ini?')) $event.preventDefault();">
+                                Submit & Tanda Tangan →
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@script
+<script>
+function showToast(message, type = 'success') {
+    window.dispatchEvent(new CustomEvent('show-toast', { detail: { message, type } }));
+}
+
+let html5QrCode = null;
+
+function startScanner() {
+    const el = document.getElementById('qr-reader');
+    if (el) el.style.display = 'block';
+
+    if (!html5QrCode) {
+        html5QrCode = new Html5Qrcode('qr-reader');
+    }
+
+    html5QrCode.start(
+        { facingMode: 'environment' },
+        {
+            fps: 10,
+            qrbox: { width: 250, height: 250 },
+            aspectRatio: 1.0,
+        },
+        (decodedText) => {
+            Livewire.dispatch('scanCompleted', [decodedText]);
+            stopScanner();
+        },
+        () => {}
+    ).catch(() => {});
+}
+
+function stopScanner() {
+    if (html5QrCode && html5QrCode.isScanning) {
+        html5QrCode.stop().then(() => {
+            const el = document.getElementById('qr-reader');
+            if (el) el.style.display = 'none';
+        }).catch(() => {});
+    }
+    window.Livewire && Livewire.$wire && Livewire.$wire.set('currentStep', 2);
+}
+</script>
+@endscript
