@@ -61,7 +61,6 @@ class CreateForm extends Component
 
     // Step 2: Info Perangkat
     public ?int $assetId = null;
-    public string $scanResult = '';
     public string $kategori = '';
     public string $brand = '';
     public string $tipe = '';
@@ -96,7 +95,6 @@ class CreateForm extends Component
     public array $itemPhotos = [];
 
     protected $listeners = [
-        'scanCompleted' => 'handleScan',
         'autosave' => 'saveDraft',
     ];
 
@@ -276,35 +274,6 @@ class CreateForm extends Component
         $this->penggunaDepartment = '';
         $this->penggunaEmail = '';
         $this->penggunaSearch = '';
-    }
-
-    public function handleScan(string $code): void
-    {
-        $this->scanResult = $code;
-
-        $asset = Asset::where('qr_code', $code)
-            ->orWhere('no_asset', $code)
-            ->orWhere('no_serial', $code)
-            ->first();
-
-        if ($asset) {
-            $this->assetId = $asset->id;
-            $this->kategori = $asset->kategori;
-            $this->brand = $asset->brand;
-            $this->tipe = $asset->tipe;
-            $this->namaPerangkat = $asset->nama_perangkat;
-            $this->noSerial = $asset->no_serial ?? '';
-            $this->noAsset = $asset->no_asset;
-
-            $this->dispatch('assetFound', asset: [
-                'id' => $asset->id,
-                'no_asset' => $asset->no_asset,
-                'nama_perangkat' => $asset->nama_perangkat,
-            ]);
-        } else {
-            $this->dispatch('assetNotFound', code: $code);
-            $this->resetAssetFields();
-        }
     }
 
     public function searchAssetManual(): void

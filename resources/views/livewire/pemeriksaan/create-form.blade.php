@@ -1,7 +1,6 @@
 <div
     x-data="{
         openStep: @entangle('currentStep'),
-        scanning: false,
         showUpload: null,
         get isDark() { return document.documentElement.classList.contains('dark') },
     }"
@@ -191,65 +190,62 @@
                     x-transition:leave-end="opacity-0 -translate-y-2">
                 <div class="px-4 pb-4 space-y-4 border-t" style="border-color: var(--color-border);">
                     <div class="pt-4">
-                        {{-- QR Scanner --}}
-                        <div class="mb-4">
-                            <label class="text-xs font-semibold text-muted uppercase tracking-wider">Scan QR / Barcode</label>
-                            <div class="mt-2 flex flex-col sm:flex-row gap-2">
-                                <div id="qr-reader" class="w-full rounded-lg overflow-hidden"
-                                    style="display: none; min-height: 200px;"></div>
-                                <div class="flex gap-2">
-                                    <button type="button"
-                                        @click="if(!scanning) { startScanner(); scanning = true; } else { stopScanner(); scanning = false; }"
-                                        :class="scanning ? 'bg-red-500 text-white' : ''"
-                                        class="glass-button-secondary text-sm flex items-center gap-1.5">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
-                                        </svg>
-                                        <span x-text="scanning ? 'Stop Scan' : 'Mulai Scan'"></span>
-                                    </button>
+                        <h4 class="text-xs font-semibold text-muted uppercase tracking-wider mb-3">Data Perangkat</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="text-xs text-muted">No. Asset</label>
+                                <div class="flex gap-2 mt-1">
+                                    <input type="text" wire:model.live="noAsset"
+                                        placeholder="Contoh: ASR-2024-001"
+                                        class="glass-input flex-1 rounded-lg px-3 py-2 text-sm">
+                                    <button wire:click="searchAssetManual" type="button"
+                                        class="glass-button-secondary text-sm px-3 whitespace-nowrap">Cari</button>
                                 </div>
                             </div>
-                        </div>
-
-                        {{-- Manual Input --}}
-                        <div>
-                            <label class="text-xs text-muted">Atau masukkan No. Asset manual</label>
-                            <div class="flex gap-2 mt-1">
-                                <input type="text" wire:model.live="noAsset"
-                                    placeholder="Contoh: ASR-2024-001"
-                                    class="glass-input flex-1 rounded-lg px-3 py-2 text-sm"
-                                    @keydown.enter.prevent="$wire.searchAssetManual()">
-                                <button wire:click="searchAssetManual" type="button"
-                                    class="glass-button-secondary text-sm px-3">Cari</button>
+                            <div>
+                                <label class="text-xs text-muted">Kategori</label>
+                                <input type="text" wire:model.live="kategori"
+                                    placeholder="Contoh: Laptop, Printer, Monitor"
+                                    class="glass-input w-full rounded-lg px-3 py-2 text-sm mt-1">
+                            </div>
+                            <div>
+                                <label class="text-xs text-muted">Brand</label>
+                                <input type="text" wire:model.live="brand"
+                                    placeholder="Contoh: Lenovo, HP, Dell"
+                                    class="glass-input w-full rounded-lg px-3 py-2 text-sm mt-1">
+                            </div>
+                            <div>
+                                <label class="text-xs text-muted">Tipe</label>
+                                <input type="text" wire:model.live="tipe"
+                                    placeholder="Contoh: ThinkPad T480"
+                                    class="glass-input w-full rounded-lg px-3 py-2 text-sm mt-1">
+                            </div>
+                            <div>
+                                <label class="text-xs text-muted">Nama Perangkat</label>
+                                <input type="text" wire:model.live="namaPerangkat"
+                                    placeholder="Contoh: Laptop Kantor"
+                                    class="glass-input w-full rounded-lg px-3 py-2 text-sm mt-1">
+                            </div>
+                            <div>
+                                <label class="text-xs text-muted">No. Serial</label>
+                                <input type="text" wire:model.live="noSerial"
+                                    placeholder="Contoh: SN-12345678"
+                                    class="glass-input w-full rounded-lg px-3 py-2 text-sm mt-1">
                             </div>
                         </div>
 
-                        {{-- Hasil Pencarian Aset --}}
                         @if($assetId)
-                            <div class="mt-4 glass-card p-4">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
-                                    <span class="text-sm font-semibold text-primary">Aset Ditemukan</span>
-                                </div>
-                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
-                                    <div><span class="text-xs text-muted">No. Asset</span><p class="font-medium text-primary">{{ $noAsset }}</p></div>
-                                    <div><span class="text-xs text-muted">Kategori</span><p class="font-medium text-primary">{{ $kategori }}</p></div>
-                                    <div><span class="text-xs text-muted">Brand</span><p class="font-medium text-primary">{{ $brand }}</p></div>
-                                    <div><span class="text-xs text-muted">Tipe</span><p class="font-medium text-primary">{{ $tipe }}</p></div>
-                                    <div><span class="text-xs text-muted">Nama Perangkat</span><p class="font-medium text-primary">{{ $namaPerangkat }}</p></div>
-                                    <div><span class="text-xs text-muted">No. Serial</span><p class="font-medium text-primary">{{ $noSerial ?: '-' }}</p></div>
-                                </div>
+                            <div class="mt-3 flex items-center gap-2 text-xs text-emerald-400">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                <span>Data ditemukan dari database</span>
                             </div>
                         @endif
 
                         <div class="flex justify-between pt-4">
                             <button wire:click="prevStep" type="button" class="glass-button-secondary text-sm">← Sebelumnya</button>
-                            <button wire:click="nextStep" type="button" class="glass-button-primary text-sm"
-                                {{ !$assetId ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : '' }}>
-                                Selanjutnya →
-                            </button>
+                            <button wire:click="nextStep" type="button" class="glass-button-primary text-sm">Selanjutnya →</button>
                         </div>
                     </div>
                 </div>
@@ -748,41 +744,6 @@
 <script>
 function showToast(message, type = 'success') {
     window.dispatchEvent(new CustomEvent('show-toast', { detail: { message, type } }));
-}
-
-let html5QrCode = null;
-
-function startScanner() {
-    const el = document.getElementById('qr-reader');
-    if (el) el.style.display = 'block';
-
-    if (!html5QrCode) {
-        html5QrCode = new Html5Qrcode('qr-reader');
-    }
-
-    html5QrCode.start(
-        { facingMode: 'environment' },
-        {
-            fps: 10,
-            qrbox: { width: 250, height: 250 },
-            aspectRatio: 1.0,
-        },
-        (decodedText) => {
-            Livewire.dispatch('scanCompleted', [decodedText]);
-            stopScanner();
-        },
-        () => {}
-    ).catch(() => {});
-}
-
-function stopScanner() {
-    if (html5QrCode && html5QrCode.isScanning) {
-        html5QrCode.stop().then(() => {
-            const el = document.getElementById('qr-reader');
-            if (el) el.style.display = 'none';
-        }).catch(() => {});
-    }
-    window.Livewire && Livewire.$wire && Livewire.$wire.set('openStep', 2);
 }
 </script>
 @endscript
