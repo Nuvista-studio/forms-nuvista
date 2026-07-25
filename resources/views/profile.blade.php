@@ -14,6 +14,13 @@
             </div>
 
             <div class="glass-card p-4 sm:p-8">
+                <h3 class="text-lg font-semibold text-primary mb-4">Tanda Tangan</h3>
+                <div class="max-w-xl">
+                    <livewire:profile.user-signature />
+                </div>
+            </div>
+
+            <div class="glass-card p-4 sm:p-8">
                 <div class="max-w-xl">
                     <livewire:profile.update-password-form />
                 </div>

@@ -43,6 +43,9 @@ class ReviewForm extends Component
     public string $editKondisiKeterangan = '';
     public array $editItems = [];
 
+    // User saved signature
+    public ?string $userSignature = null;
+
     public function mount(string $type, string $id): void
     {
         $this->formType = $type;
@@ -67,6 +70,8 @@ class ReviewForm extends Component
         }
 
         $this->determineApprovalLevel($user, $form);
+
+        $this->userSignature = $user->signature_path;
     }
 
     private function getForm(): FormPemeriksaan|FormPerawatan

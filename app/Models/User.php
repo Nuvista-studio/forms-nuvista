@@ -29,6 +29,7 @@ class User extends Authenticatable
         'site',
         'no_telepon',
         'theme_preference',
+        'signature_path',
     ];
 
     /**

@@ -473,7 +473,12 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                 {{-- Signature Pad --}}
                 <h3 class="text-sm font-semibold text-primary">Tanda Tangan</h3>
                 <div x-data="{
+                    @if($userSignature)
+                    mode: 'paste',
+                    @else
                     mode: 'draw',
+                    @endif
+                    userSignature: '{{ $userSignature }}',
                     uploadedPreview: null,
                     uploadedFile: null,
                     uploadedFileSize: 0,
@@ -541,6 +546,13 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                 }" class="space-y-3">
                     {{-- Tab Mode --}}
                     <div class="flex rounded-lg overflow-hidden border" style="border-color: var(--color-border);">
+                        @if($userSignature)
+                        <button @click="mode = 'paste'" type="button"
+                            class="flex-1 px-3 py-1.5 text-xs font-medium text-center transition-colors duration-200"
+                            :style="mode === 'paste' ? 'background: var(--color-primary); color: var(--color-button-text);' : 'background: var(--color-glass-bg); color: var(--color-text-secondary);'">
+                            Saya
+                        </button>
+                        @endif
                         <button @click="mode = 'draw'" type="button"
                             class="flex-1 px-3 py-1.5 text-xs font-medium text-center transition-colors duration-200"
                             :style="mode === 'draw' ? 'background: var(--color-primary); color: var(--color-button-text);' : 'background: var(--color-glass-bg); color: var(--color-text-secondary);'">
@@ -552,6 +564,22 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                             Upload PNG
                         </button>
                     </div>
+
+                    {{-- Paste Mode --}}
+                    @if($userSignature)
+                    <div x-show="mode === 'paste'" x-cloak>
+                        <div class="space-y-3">
+                            <p class="text-xs text-muted">Gunakan tanda tangan yang tersimpan di profil Anda.</p>
+                            <div class="rounded-lg overflow-hidden border-2 flex items-center justify-center p-4" style="border-color: var(--color-border); background: var(--color-bg-secondary); min-height: 160px;">
+                                <img :src="userSignature" alt="Tanda Tangan Profil" class="max-h-32 object-contain">
+                            </div>
+                            <button @click="$wire.approveForm(userSignature)" type="button"
+                                class="w-full glass-button-primary text-sm">
+                                Gunakan Tanda Tangan Ini
+                            </button>
+                        </div>
+                    </div>
+                    @endif
 
                     {{-- Draw Mode --}}
                     <div x-show="mode === 'draw'" x-cloak>
