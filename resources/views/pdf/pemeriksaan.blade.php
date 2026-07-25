@@ -22,11 +22,11 @@
         table.items-table tr:nth-child(even) { background: #fafafa; }
         .notes { margin: 12px 0; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 10px; }
         .notes strong { display: block; margin-bottom: 4px; }
-        .signatures { display: flex; justify-content: space-between; margin-top: 40px; page-break-inside: avoid; }
-        .sig-box { width: 30%; text-align: center; }
-        .sig-box .sig-label { font-size: 10px; font-weight: bold; margin-bottom: 5px; text-decoration: underline; }
-        .sig-box .sig-name { font-size: 10px; margin-top: 5px; }
-        .sig-box .sig-date { font-size: 9px; color: #777; margin-top: 2px; }
+        .signatures { width: 100%; border-collapse: collapse; margin-top: 40px; page-break-inside: avoid; }
+        .signatures td { width: 33.33%; text-align: center; vertical-align: top; padding: 0 5px; }
+        .sig-label { font-size: 10px; font-weight: bold; margin-bottom: 5px; text-decoration: underline; }
+        .sig-name { font-size: 10px; margin-top: 5px; }
+        .sig-date { font-size: 9px; color: #777; margin-top: 2px; }
         .sig-img { width: 120px; height: 50px; margin: 5px auto; border: 1px solid #ddd; background: #fafafa; object-fit: contain; }
         .sig-empty { width: 120px; height: 50px; margin: 5px auto; border-bottom: 1px solid #999; }
         .footer { margin-top: 30px; text-align: center; font-size: 8px; color: #999; border-top: 1px solid #eee; padding-top: 8px; }
@@ -126,46 +126,46 @@
         @endif
 
         {{-- Signatures --}}
-        <div class="signatures">
-            @php
-                $diperiksa = $form->approvals->firstWhere('approval_level', 'diperiksa_oleh');
-                $diketahui = $form->approvals->firstWhere('approval_level', 'diketahui_oleh');
-                $disetujui = $form->approvals->firstWhere('approval_level', 'disetujui_oleh');
-            @endphp
+        @php
+            $diperiksa = $form->approvals->firstWhere('approval_level', 'diperiksa_oleh');
+            $diketahui = $form->approvals->firstWhere('approval_level', 'diketahui_oleh');
+            $disetujui = $form->approvals->firstWhere('approval_level', 'disetujui_oleh');
+        @endphp
 
-            <div class="sig-box">
-                <div class="sig-label">Diperiksa Oleh</div>
-                @if($diperiksa && $diperiksa->signature_path)
-                    <img src="{{ $diperiksa->signature_path }}" class="sig-img" alt="TTD">
-                @else
-                    <div class="sig-empty"></div>
-                @endif
-                <div class="sig-name">{{ $diperiksa->user->name ?? '_______________' }}</div>
-                <div class="sig-date">{{ $diperiksa && $diperiksa->approved_at ? $diperiksa->approved_at->format('d/m/Y') : '_______________' }}</div>
-            </div>
-
-            <div class="sig-box">
-                <div class="sig-label">Diketahui Oleh</div>
-                @if($diketahui && $diketahui->signature_path)
-                    <img src="{{ $diketahui->signature_path }}" class="sig-img" alt="TTD">
-                @else
-                    <div class="sig-empty"></div>
-                @endif
-                <div class="sig-name">{{ $diketahui->user->name ?? '_______________' }}</div>
-                <div class="sig-date">{{ $diketahui && $diketahui->approved_at ? $diketahui->approved_at->format('d/m/Y') : '_______________' }}</div>
-            </div>
-
-            <div class="sig-box">
-                <div class="sig-label">Disetujui Oleh</div>
-                @if($disetujui && $disetujui->signature_path)
-                    <img src="{{ $disetujui->signature_path }}" class="sig-img" alt="TTD">
-                @else
-                    <div class="sig-empty"></div>
-                @endif
-                <div class="sig-name">{{ $disetujui->user->name ?? '_______________' }}</div>
-                <div class="sig-date">{{ $disetujui && $disetujui->approved_at ? $disetujui->approved_at->format('d/m/Y') : '_______________' }}</div>
-            </div>
-        </div>
+        <table class="signatures">
+            <tr>
+                <td>
+                    <div class="sig-label">Diperiksa Oleh</div>
+                    @if($diperiksa && $diperiksa->signature_path)
+                        <img src="{{ $diperiksa->signature_path }}" class="sig-img" alt="TTD">
+                    @else
+                        <div class="sig-empty"></div>
+                    @endif
+                    <div class="sig-name">{{ $diperiksa->user->name ?? '_______________' }}</div>
+                    <div class="sig-date">{{ $diperiksa && $diperiksa->approved_at ? $diperiksa->approved_at->format('d/m/Y') : '_______________' }}</div>
+                </td>
+                <td>
+                    <div class="sig-label">Diketahui Oleh</div>
+                    @if($diketahui && $diketahui->signature_path)
+                        <img src="{{ $diketahui->signature_path }}" class="sig-img" alt="TTD">
+                    @else
+                        <div class="sig-empty"></div>
+                    @endif
+                    <div class="sig-name">{{ $diketahui->user->name ?? '_______________' }}</div>
+                    <div class="sig-date">{{ $diketahui && $diketahui->approved_at ? $diketahui->approved_at->format('d/m/Y') : '_______________' }}</div>
+                </td>
+                <td>
+                    <div class="sig-label">Disetujui Oleh</div>
+                    @if($disetujui && $disetujui->signature_path)
+                        <img src="{{ $disetujui->signature_path }}" class="sig-img" alt="TTD">
+                    @else
+                        <div class="sig-empty"></div>
+                    @endif
+                    <div class="sig-name">{{ $disetujui->user->name ?? '_______________' }}</div>
+                    <div class="sig-date">{{ $disetujui && $disetujui->approved_at ? $disetujui->approved_at->format('d/m/Y') : '_______________' }}</div>
+                </td>
+            </tr>
+        </table>
 
         <div class="footer">
             Form Pemeriksaan Perangkat &mdash; {{ $form->nomor_form }} &mdash; Generated on {{ now()->format('d/m/Y H:i') }}

@@ -76,7 +76,7 @@ new #[Layout('components.app-layout')] class extends Component
         }
     }
 
-    public function render()
+    public function render(): mixed
     {
         return view('livewire.pemeriksaan.signature');
     }
