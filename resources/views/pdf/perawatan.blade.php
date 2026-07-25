@@ -27,7 +27,7 @@
         .sig-label { font-size: 9px; font-weight: bold; margin-bottom: 4px; text-decoration: underline; }
         .sig-name { font-size: 8px; margin-top: 4px; }
         .sig-date { font-size: 7px; color: #777; margin-top: 2px; }
-        .sig-img { width: 100px; height: 40px; margin: 4px auto; border: 1px solid #ddd; background: #fafafa; object-fit: contain; }
+        .sig-img { width: 100px; height: 40px; margin: 4px auto; border: none; background: transparent; object-fit: contain; }
         .sig-empty { width: 100px; height: 40px; margin: 4px auto; border-bottom: 1px solid #999; }
         .footer { margin-top: 15px; text-align: center; font-size: 7px; color: #999; border-top: 1px solid #eee; padding-top: 5px; }
     </style>
