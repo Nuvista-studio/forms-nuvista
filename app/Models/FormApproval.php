@@ -16,6 +16,7 @@ class FormApproval extends Model
         'approvable_id',
         'approval_level',
         'user_id',
+        'custom_signer_name',
         'status',
         'signature_path',
         'catatan',

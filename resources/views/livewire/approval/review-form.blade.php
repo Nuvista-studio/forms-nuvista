@@ -355,7 +355,7 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                                     {{ $approval->approval_level === 'diperiksa_oleh' ? 'Diperiksa Oleh' : ($approval->approval_level === 'diketahui_oleh' ? 'Diketahui Oleh' : 'Disetujui Oleh') }}
                                 </div>
                                 <div class="text-xs text-muted">
-                                    {{ $approval->user->name }} &middot; {{ $approval->approved_at ? $approval->approved_at->format('d M Y H:i') : '-' }}
+                                    {{ $approval->custom_signer_name ?: ($approval->user->name ?? '-') }} &middot; {{ $approval->approved_at ? $approval->approved_at->format('d M Y H:i') : '-' }}
                                     &middot; <span class="{{ $approval->status === 'approved' ? 'text-emerald-400' : ($approval->status === 'rejected' ? 'text-red-400' : 'text-yellow-400') }}">{{ ucfirst($approval->status) }}</span>
                                 </div>
                                 @if($approval->catatan)
@@ -383,6 +383,92 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                 <textarea wire:model.live="catatan" rows="2"
                     class="glass-input w-full rounded-lg px-3 py-2 text-sm resize-none"
                     placeholder="Tambahkan catatan approval..."></textarea>
+
+                {{-- Signer Mode --}}
+                @if($approvalLevel === 'diketahui_oleh')
+                    <div>
+                        <h3 class="text-sm font-semibold text-primary mb-2">Penandatangan</h3>
+                        <div class="flex rounded-lg overflow-hidden border" style="border-color: var(--color-border);">
+                            <button wire:click="setSignerMode('me')" type="button"
+                                class="flex-1 px-3 py-2 text-xs font-medium text-center transition-colors duration-200"
+                                style="{{ $signerMode === 'me' ? 'background: var(--color-primary); color: var(--color-button-text);' : 'background: var(--color-glass-bg); color: var(--color-text-secondary);' }}">
+                                Me ({{ Auth::user()->name }})
+                            </button>
+                            <button wire:click="setSignerMode('custom')" type="button"
+                                class="flex-1 px-3 py-2 text-xs font-medium text-center transition-colors duration-200"
+                                style="{{ $signerMode === 'custom' ? 'background: var(--color-primary); color: var(--color-button-text);' : 'background: var(--color-glass-bg); color: var(--color-text-secondary);' }}">
+                                Masukan Nama Diketahui
+                            </button>
+                        </div>
+                        @if($signerMode === 'custom')
+                            <div class="mt-2 relative" x-data="{ open: @entangle('showSignerDropdown') }">
+                                <div class="flex gap-2">
+                                    <div class="flex-1 relative">
+                                        <input wire:model.live="signerSearch" type="text"
+                                            class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
+                                            style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);"
+                                            placeholder="Cari nama, NIK, atau email..."
+                                            wire:keydown="searchSigner()"
+                                            autocomplete="off" />
+                                        @if($customSignerName)
+                                            <button wire:click="clearSigner" type="button"
+                                                class="absolute right-2 top-1/2 -translate-y-1/2 text-muted hover:text-primary">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                            </button>
+                                        @endif
+                                    </div>
+                                </div>
+                                @if($showSignerDropdown && count($signerResults) > 0)
+                                    <div class="absolute z-10 w-full mt-1 rounded-lg border shadow-lg max-h-48 overflow-y-auto"
+                                        style="background: var(--color-glass-bg); border-color: var(--color-border);">
+                                        @foreach($signerResults as $result)
+                                            <button wire:click="selectSigner({{ json_encode($result) }})" type="button"
+                                                class="w-full px-3 py-2 text-left text-sm hover:bg-primary/10 transition-colors duration-150 flex items-center gap-2"
+                                                style="border-bottom: 1px solid var(--color-border);">
+                                                <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold shrink-0"
+                                                    style="background: var(--color-primary); color: var(--color-button-text);">
+                                                    {{ strtoupper(substr($result['name'], 0, 1)) }}
+                                                </div>
+                                                <div class="min-w-0">
+                                                    <p class="font-medium text-primary truncate">{{ $result['name'] }}</p>
+                                                    <p class="text-xs text-muted truncate">{{ $result['nik'] ?? '' }} {{ $result['email'] ?? '' }}</p>
+                                                </div>
+                                            </button>
+                                        @endforeach
+                                    </div>
+                                @endif
+                                @if($customSignerName)
+                                    <div class="mt-2 flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs" style="background: var(--color-bg-secondary);">
+                                        <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                        <span class="text-primary font-medium">{{ $customSignerName }}</span>
+                                    </div>
+                                @endif
+                            </div>
+                        @endif
+                    </div>
+                @elseif($approvalLevel === 'disetujui_oleh')
+                    <div>
+                        <h3 class="text-sm font-semibold text-primary mb-2">Penandatangan</h3>
+                        <div class="p-3 rounded-lg" style="background: var(--color-bg-secondary);">
+                            <p class="text-xs text-muted mb-1">Disetujui Oleh (Supervisor IT / Manager IT):</p>
+                            @php $approvers = $this->getDisetujuiApprovers(); @endphp
+                            @forelse($approvers as $approver)
+                                <div class="flex items-center gap-2 py-1">
+                                    <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold"
+                                        style="background: var(--color-primary); color: var(--color-button-text);">
+                                        {{ strtoupper(substr($approver->name, 0, 1)) }}
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-medium text-primary">{{ $approver->name }}</p>
+                                        <p class="text-xs text-muted">{{ $approver->email }}</p>
+                                    </div>
+                                </div>
+                            @empty
+                                <p class="text-xs text-red-400">Tidak ada user dengan role Supervisor IT / Manager IT</p>
+                            @endforelse
+                        </div>
+                    </div>
+                @endif
 
                 {{-- Signature Pad --}}
                 <h3 class="text-sm font-semibold text-primary">Tanda Tangan</h3>

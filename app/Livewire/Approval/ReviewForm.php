@@ -9,6 +9,7 @@ use App\Models\FormPemeriksaan;
 use App\Models\FormPemeriksaanItem;
 use App\Models\FormPerawatan;
 use App\Models\FormPerawatanItem;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
@@ -28,6 +29,13 @@ class ReviewForm extends Component
 
     public string $rejectReason = '';
     public bool $showRejectModal = false;
+
+    // Signer mode for Diketahui
+    public string $signerMode = 'me';
+    public string $customSignerName = '';
+    public string $signerSearch = '';
+    public array $signerResults = [];
+    public bool $showSignerDropdown = false;
 
     // Edit mode
     public bool $editing = false;
@@ -199,6 +207,11 @@ class ReviewForm extends Component
             return;
         }
 
+        if ($this->approvalLevel === ApprovalLevel::DiketahuiOleh->value && $this->signerMode === 'custom' && empty($this->customSignerName)) {
+            $this->dispatch('error', message: 'Nama penandatangan harus diisi.');
+            return;
+        }
+
         // Auto-save edits before approving if in edit mode
         if ($this->editing) {
             $this->saveEdits();
@@ -213,18 +226,34 @@ class ReviewForm extends Component
                 ->where('approval_level', $this->approvalLevel)
                 ->first();
 
+            $userId = null;
+            $customName = null;
+
+            if ($this->approvalLevel === ApprovalLevel::DiketahuiOleh->value) {
+                if ($this->signerMode === 'me') {
+                    $userId = Auth::id();
+                } else {
+                    $customName = $this->customSignerName;
+                }
+            } else {
+                $userId = Auth::id();
+            }
+
             if (!$approval) {
                 $approval = FormApproval::create([
                     'approvable_type' => $this->formType === 'pemeriksaan' ? FormPemeriksaan::class : FormPerawatan::class,
                     'approvable_id' => $form->id,
                     'approval_level' => $this->approvalLevel,
-                    'user_id' => Auth::id(),
+                    'user_id' => $userId,
+                    'custom_signer_name' => $customName,
                     'status' => 'pending',
                 ]);
             }
 
             $approval->update([
                 'status' => 'approved',
+                'user_id' => $userId,
+                'custom_signer_name' => $customName,
                 'signature_path' => $signaturePath,
                 'catatan' => $this->catatan ?: null,
                 'approved_at' => now(),
@@ -253,13 +282,14 @@ class ReviewForm extends Component
 
     private function sendNextApprovalNotification($form): void
     {
-        $managerIt = \App\Models\User::whereHas('roles', function ($q) {
-            $q->where('name', 'manager_it');
-        })->first();
+        $approvers = User::whereHas('roles', function ($q) {
+            $q->whereIn('name', ['supervisor_it', 'manager_it']);
+        })->get();
 
-        if ($managerIt) {
-            $notifClass = \App\Notifications\ApprovalRequestNotification::class;
-            $managerIt->notify(new $notifClass(
+        $notifClass = \App\Notifications\ApprovalRequestNotification::class;
+
+        foreach ($approvers as $approver) {
+            $approver->notify(new $notifClass(
                 formType: $this->formType,
                 formId: $form->id,
                 nomorForm: $form->nomor_form,
@@ -316,6 +346,50 @@ class ReviewForm extends Component
         $this->showRejectModal = !$this->showRejectModal;
     }
 
+    public function setSignerMode(string $mode): void
+    {
+        $this->signerMode = $mode;
+        if ($mode === 'me') {
+            $this->customSignerName = '';
+            $this->signerSearch = '';
+            $this->signerResults = [];
+            $this->showSignerDropdown = false;
+        }
+    }
+
+    public function searchSigner(): void
+    {
+        if (strlen($this->signerSearch) < 2) {
+            $this->signerResults = [];
+            $this->showSignerDropdown = false;
+            return;
+        }
+
+        $this->signerResults = User::where('name', 'like', "%{$this->signerSearch}%")
+            ->orWhere('nik', 'like', "%{$this->signerSearch}%")
+            ->orWhere('email', 'like', "%{$this->signerSearch}%")
+            ->limit(10)
+            ->get()
+            ->toArray();
+
+        $this->showSignerDropdown = count($this->signerResults) > 0;
+    }
+
+    public function selectSigner(array $user): void
+    {
+        $this->customSignerName = $user['name'];
+        $this->signerSearch = $user['name'];
+        $this->showSignerDropdown = false;
+    }
+
+    public function clearSigner(): void
+    {
+        $this->customSignerName = '';
+        $this->signerSearch = '';
+        $this->signerResults = [];
+        $this->showSignerDropdown = false;
+    }
+
     public function getStatusLabel(string $status): string
     {
         return match ($status) {
@@ -336,6 +410,21 @@ class ReviewForm extends Component
             'tidak_baik', 'caution_poor' => 'text-red-400',
             default => 'text-secondary',
         };
+    }
+
+    public function getDisetujuiApprovers(): \Illuminate\Support\Collection
+    {
+        return User::whereHas('roles', function ($q) {
+            $q->whereIn('name', ['supervisor_it', 'manager_it']);
+        })->get();
+    }
+
+    public function getSignerDisplayName(FormApproval $approval): string
+    {
+        if ($approval->custom_signer_name) {
+            return $approval->custom_signer_name;
+        }
+        return $approval->user->name ?? '-';
     }
 
     public function render()
