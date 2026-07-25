@@ -156,16 +156,20 @@ new #[Layout('components.app-layout')] class extends Component
                 drawing: false,
                 lastX: 0,
                 lastY: 0,
+                canvasReady: false,
 
                 init() {
                     this.canvas = this.$refs.signatureCanvas;
                     this.ctx = this.canvas.getContext('2d');
                     this.resize();
+                    this.canvasReady = true;
                     window.addEventListener('resize', () => this.resize());
                 },
 
                 resize() {
+                    if (!this.canvas || !this.canvas.parentElement) return;
                     const rect = this.canvas.parentElement.getBoundingClientRect();
+                    if (rect.width === 0) return;
                     this.canvas.width = rect.width;
                     this.canvas.height = 200;
                     this.ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--color-text-primary').trim();
@@ -174,28 +178,35 @@ new #[Layout('components.app-layout')] class extends Component
                     this.ctx.lineJoin = 'round';
                 },
 
-                startDraw(e) {
-                    this.drawing = true;
+                getCoords(e) {
                     const rect = this.canvas.getBoundingClientRect();
                     const touch = e.touches ? e.touches[0] : e;
-                    this.lastX = touch.clientX - rect.left;
-                    this.lastY = touch.clientY - rect.top;
+                    return {
+                        x: (touch.clientX - rect.left) * (this.canvas.width / rect.width),
+                        y: (touch.clientY - rect.top) * (this.canvas.height / rect.height)
+                    };
+                },
+
+                startDraw(e) {
+                    if (!this.canvasReady) this.init();
+                    if (this.canvas.width === 0) this.resize();
+                    this.drawing = true;
+                    const coords = this.getCoords(e);
+                    this.lastX = coords.x;
+                    this.lastY = coords.y;
                 },
 
                 draw(e) {
                     if (!this.drawing) return;
-                    const rect = this.canvas.getBoundingClientRect();
-                    const touch = e.touches ? e.touches[0] : e;
-                    const x = touch.clientX - rect.left;
-                    const y = touch.clientY - rect.top;
+                    const coords = this.getCoords(e);
 
                     this.ctx.beginPath();
                     this.ctx.moveTo(this.lastX, this.lastY);
-                    this.ctx.lineTo(x, y);
+                    this.ctx.lineTo(coords.x, coords.y);
                     this.ctx.stroke();
 
-                    this.lastX = x;
-                    this.lastY = y;
+                    this.lastX = coords.x;
+                    this.lastY = coords.y;
                 },
 
                 stopDraw() {

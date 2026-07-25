@@ -421,14 +421,15 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                         $wire.approveForm(this.uploadedPreview);
                     },
 
-                    canvas: null, ctx: null, drawing: false, lastX: 0, lastY: 0,
-                    init() { this.canvas = this.$refs.signatureCanvas; this.ctx = this.canvas.getContext('2d'); this.resize(); window.addEventListener('resize', () => this.resize()); },
-                    resize() { const rect = this.canvas.parentElement.getBoundingClientRect(); this.canvas.width = rect.width; this.canvas.height = 200; this.ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--color-text-primary').trim(); this.ctx.lineWidth = 2; this.ctx.lineCap = 'round'; this.ctx.lineJoin = 'round'; },
-                    startDraw(e) { this.drawing = true; const rect = this.canvas.getBoundingClientRect(); const touch = e.touches ? e.touches[0] : e; this.lastX = touch.clientX - rect.left; this.lastY = touch.clientY - rect.top; },
-                    draw(e) { if (!this.drawing) return; const rect = this.canvas.getBoundingClientRect(); const touch = e.touches ? e.touches[0] : e; const x = touch.clientX - rect.left; const y = touch.clientY - rect.top; this.ctx.beginPath(); this.ctx.moveTo(this.lastX, this.lastY); this.ctx.lineTo(x, y); this.ctx.stroke(); this.lastX = x; this.lastY = y; },
+                    canvas: null, ctx: null, drawing: false, lastX: 0, lastY: 0, canvasReady: false,
+                    init() { this.canvas = this.$refs.signatureCanvas; this.ctx = this.canvas.getContext('2d'); this.resize(); this.canvasReady = true; window.addEventListener('resize', () => this.resize()); },
+                    resize() { if (!this.canvas || !this.canvas.parentElement) return; const rect = this.canvas.parentElement.getBoundingClientRect(); if (rect.width === 0) return; this.canvas.width = rect.width; this.canvas.height = 200; this.ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--color-text-primary').trim(); this.ctx.lineWidth = 2; this.ctx.lineCap = 'round'; this.ctx.lineJoin = 'round'; },
+                    getCoords(e) { const rect = this.canvas.getBoundingClientRect(); const touch = e.touches ? e.touches[0] : e; return { x: (touch.clientX - rect.left) * (this.canvas.width / rect.width), y: (touch.clientY - rect.top) * (this.canvas.height / rect.height) }; },
+                    startDraw(e) { if (!this.canvasReady) this.init(); if (this.canvas.width === 0) this.resize(); this.drawing = true; const coords = this.getCoords(e); this.lastX = coords.x; this.lastY = coords.y; },
+                    draw(e) { if (!this.drawing) return; const coords = this.getCoords(e); this.ctx.beginPath(); this.ctx.moveTo(this.lastX, this.lastY); this.ctx.lineTo(coords.x, coords.y); this.ctx.stroke(); this.lastX = coords.x; this.lastY = coords.y; },
                     stopDraw() { this.drawing = false; },
-                    clear() { this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); },
-                    isEmpty() { const pixel = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height).data; return !pixel.some(v => v !== 0); },
+                    clear() { if (!this.ctx) return; this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); },
+                    isEmpty() { if (!this.ctx) return true; const pixel = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height).data; return !pixel.some(v => v !== 0); },
                     save() { if (this.isEmpty()) { alert('Harap tanda tangan terlebih dahulu'); return; } $wire.approveForm(this.canvas.toDataURL('image/png')); }
                 }" class="space-y-3">
                     {{-- Tab Mode --}}
