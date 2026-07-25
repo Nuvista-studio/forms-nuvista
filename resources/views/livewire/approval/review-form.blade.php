@@ -387,6 +387,40 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                 {{-- Signature Pad --}}
                 <h3 class="text-sm font-semibold text-primary">Tanda Tangan</h3>
                 <div x-data="{
+                    mode: 'draw',
+                    uploadedPreview: null,
+                    uploadedFile: null,
+
+                    handleUpload(e) {
+                        const file = e.target.files[0];
+                        if (!file) return;
+                        if (!file.type.match('image/png')) {
+                            alert('Hanya file PNG yang diperbolehkan');
+                            e.target.value = '';
+                            return;
+                        }
+                        this.uploadedFile = file;
+                        const reader = new FileReader();
+                        reader.onload = (ev) => {
+                            this.uploadedPreview = ev.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    },
+
+                    clearUpload() {
+                        this.uploadedPreview = null;
+                        this.uploadedFile = null;
+                        this.$refs.uploadInput.value = '';
+                    },
+
+                    saveUpload() {
+                        if (!this.uploadedPreview) {
+                            alert('Harap unggah file tanda tangan terlebih dahulu');
+                            return;
+                        }
+                        $wire.approveForm(this.uploadedPreview);
+                    },
+
                     canvas: null, ctx: null, drawing: false, lastX: 0, lastY: 0,
                     init() { this.canvas = this.$refs.signatureCanvas; this.ctx = this.canvas.getContext('2d'); this.resize(); window.addEventListener('resize', () => this.resize()); },
                     resize() { const rect = this.canvas.parentElement.getBoundingClientRect(); this.canvas.width = rect.width; this.canvas.height = 200; this.ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--color-text-primary').trim(); this.ctx.lineWidth = 2; this.ctx.lineCap = 'round'; this.ctx.lineJoin = 'round'; },
@@ -397,16 +431,61 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                     isEmpty() { const pixel = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height).data; return !pixel.some(v => v !== 0); },
                     save() { if (this.isEmpty()) { alert('Harap tanda tangan terlebih dahulu'); return; } $wire.approveForm(this.canvas.toDataURL('image/png')); }
                 }" class="space-y-3">
-                    <div class="rounded-lg overflow-hidden border-2" style="border-color: var(--color-border);">
-                        <canvas x-ref="signatureCanvas" class="w-full cursor-crosshair touch-none"
-                            style="background: var(--color-bg-secondary); height: 200px;"
-                            @mousedown="startDraw($event)" @mousemove="draw($event)" @mouseup="stopDraw()" @mouseleave="stopDraw()"
-                            @touchstart.prevent="startDraw($event)" @touchmove.prevent="draw($event)" @touchend="stopDraw()">
-                        </canvas>
+                    {{-- Tab Mode --}}
+                    <div class="flex rounded-lg overflow-hidden border" style="border-color: var(--color-border);">
+                        <button @click="mode = 'draw'" type="button"
+                            class="flex-1 px-3 py-1.5 text-xs font-medium text-center transition-colors duration-200"
+                            :style="mode === 'draw' ? 'background: var(--color-primary); color: var(--color-button-text);' : 'background: var(--color-glass-bg); color: var(--color-text-secondary);'">
+                            Gambar
+                        </button>
+                        <button @click="mode = 'upload'" type="button"
+                            class="flex-1 px-3 py-1.5 text-xs font-medium text-center transition-colors duration-200"
+                            :style="mode === 'upload' ? 'background: var(--color-primary); color: var(--color-button-text);' : 'background: var(--color-glass-bg); color: var(--color-text-secondary);'">
+                            Upload PNG
+                        </button>
                     </div>
-                    <div class="flex gap-2">
-                        <button @click="clear()" type="button" class="glass-button-secondary text-sm flex-1">Hapus</button>
-                        <button @click="save()" type="button" class="glass-button-primary text-sm flex-1">Submit & Tanda Tangan</button>
+
+                    {{-- Draw Mode --}}
+                    <div x-show="mode === 'draw'" x-cloak>
+                        <div class="rounded-lg overflow-hidden border-2" style="border-color: var(--color-border);">
+                            <canvas x-ref="signatureCanvas" class="w-full cursor-crosshair touch-none"
+                                style="background: var(--color-bg-secondary); height: 200px;"
+                                @mousedown="startDraw($event)" @mousemove="draw($event)" @mouseup="stopDraw()" @mouseleave="stopDraw()"
+                                @touchstart.prevent="startDraw($event)" @touchmove.prevent="draw($event)" @touchend="stopDraw()">
+                            </canvas>
+                        </div>
+                        <div class="flex gap-2 mt-3">
+                            <button @click="clear()" type="button" class="glass-button-secondary text-sm flex-1">Hapus</button>
+                            <button @click="save()" type="button" class="glass-button-primary text-sm flex-1">Submit & Tanda Tangan</button>
+                        </div>
+                    </div>
+
+                    {{-- Upload Mode --}}
+                    <div x-show="mode === 'upload'" x-cloak>
+                        <template x-if="!uploadedPreview">
+                            <label class="flex flex-col items-center justify-center w-full h-40 rounded-lg border-2 border-dashed cursor-pointer transition-colors duration-200"
+                                style="border-color: var(--color-border); background: var(--color-bg-secondary);"
+                                @dragover.prevent="$el.style.borderColor = 'var(--color-primary)'"
+                                @dragleave.prevent="$el.style.borderColor = 'var(--color-border)'"
+                                @drop.prevent="$el.style.borderColor = 'var(--color-border)'; handleUpload({target: {files: $event.dataTransfer.files}})">
+                                <svg class="w-8 h-8 mb-2 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                                <span class="text-xs text-muted">Klik atau seret file PNG ke sini</span>
+                                <input x-ref="uploadInput" type="file" accept="image/png" class="hidden" @change="handleUpload($event)">
+                            </label>
+                        </template>
+                        <template x-if="uploadedPreview">
+                            <div class="space-y-3">
+                                <div class="rounded-lg overflow-hidden border-2 flex items-center justify-center p-4" style="border-color: var(--color-border); background: var(--color-bg-secondary); min-height: 160px;">
+                                    <img :src="uploadedPreview" alt="Preview Tanda Tangan" class="max-h-32 object-contain">
+                                </div>
+                                <div class="flex gap-2">
+                                    <button @click="clearUpload()" type="button" class="glass-button-secondary text-sm flex-1">Hapus</button>
+                                    <button @click="saveUpload()" type="button" class="glass-button-primary text-sm flex-1">Submit & Tanda Tangan</button>
+                                </div>
+                            </div>
+                        </template>
                     </div>
                 </div>
 
