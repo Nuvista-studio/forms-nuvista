@@ -15,7 +15,7 @@ return new class extends Migration
             $table->enum('approval_level', ['diperiksa_oleh', 'diketahui_oleh', 'disetujui_oleh']);
             $table->foreignId('user_id')->constrained('users');
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
-            $table->string('signature_path')->nullable();
+            $table->text('signature_path')->nullable();
             $table->text('catatan')->nullable();
             $table->timestamp('approved_at')->nullable();
             $table->timestamps();

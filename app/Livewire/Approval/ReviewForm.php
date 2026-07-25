@@ -55,7 +55,7 @@ class ReviewForm extends Component
         $form = $this->getForm();
         $currentStatus = $this->getForm()->status;
 
-        if ($currentStatus === FormStatus::Selesai->value || $currentStatus === FormStatus::Draft->value) {
+        if ($currentStatus === FormStatus::Draft->value) {
             abort(403, 'Form tidak tersedia untuk approval.');
         }
 

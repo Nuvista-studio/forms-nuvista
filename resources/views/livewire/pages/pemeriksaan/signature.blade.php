@@ -78,7 +78,7 @@ new #[Layout('components.app-layout')] class extends Component
 
     public function render(): mixed
     {
-        return view('livewire.pemeriksaan.signature');
+        return view('livewire.pages.pemeriksaan.signature');
     }
 }; ?>
 
