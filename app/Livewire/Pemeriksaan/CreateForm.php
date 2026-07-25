@@ -9,6 +9,7 @@ use App\Models\Asset;
 use App\Models\ChecklistTemplate;
 use App\Models\FormApproval;
 use App\Models\FormPemeriksaan;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\On;
@@ -87,6 +88,14 @@ class CreateForm extends Component
     public string $penggunaSearch = '';
     public array $penggunaResults = [];
     public bool $showPenggunaDropdown = false;
+
+    // Create new pengguna
+    public bool $showCreatePengguna = false;
+    public string $newPenggunaName = '';
+    public string $newPenggunaNik = '';
+    public string $newPenggunaDepartment = '';
+    public string $newPenggunaEmail = '';
+    public string $newPenggunaPassword = '';
 
     // Photo uploads per item
     public array $itemPhotos = [];
@@ -246,7 +255,7 @@ class CreateForm extends Component
             ->get()
             ->toArray();
 
-        $this->showPenggunaDropdown = count($this->penggunaResults) > 0;
+        $this->showPenggunaDropdown = strlen($this->penggunaSearch) >= 2;
     }
 
     public function selectPengguna(int $userId): void
@@ -271,6 +280,63 @@ class CreateForm extends Component
         $this->penggunaDepartment = '';
         $this->penggunaEmail = '';
         $this->penggunaSearch = '';
+        $this->showCreatePengguna = false;
+        $this->resetNewPenggunaFields();
+    }
+
+    public function openCreatePengguna(): void
+    {
+        $this->showCreatePengguna = true;
+        $this->showPenggunaDropdown = false;
+        $this->newPenggunaName = $this->penggunaSearch;
+    }
+
+    public function closeCreatePengguna(): void
+    {
+        $this->showCreatePengguna = false;
+        $this->resetNewPenggunaFields();
+    }
+
+    public function createPengguna(): void
+    {
+        $this->validate([
+            'newPenggunaName' => 'required|string|max:255',
+            'newPenggunaEmail' => 'required|email|max:255|unique:users,email',
+            'newPenggunaNik' => 'nullable|string|max:50',
+            'newPenggunaDepartment' => 'nullable|string|max:255',
+        ]);
+
+        $password = $this->newPenggunaPassword ?: 'password';
+
+        $user = User::create([
+            'name' => $this->newPenggunaName,
+            'email' => $this->newPenggunaEmail,
+            'password' => bcrypt($password),
+            'nik' => $this->newPenggunaNik ?: null,
+            'department' => $this->newPenggunaDepartment ?: null,
+            'theme_preference' => 'light',
+        ]);
+
+        $this->penggunaId = $user->id;
+        $this->penggunaName = $user->name;
+        $this->penggunaNik = $user->nik ?? '';
+        $this->penggunaDepartment = $user->department ?? '';
+        $this->penggunaEmail = $user->email;
+        $this->penggunaSearch = $user->name;
+        $this->showPenggunaDropdown = false;
+        $this->showCreatePengguna = false;
+        $this->resetNewPenggunaFields();
+
+        $this->dispatch('penggunaCreated', name: $user->name);
+    }
+
+    private function resetNewPenggunaFields(): void
+    {
+        $this->newPenggunaName = '';
+        $this->newPenggunaNik = '';
+        $this->newPenggunaDepartment = '';
+        $this->newPenggunaEmail = '';
+        $this->newPenggunaPassword = '';
     }
 
     public function searchAssetManual(): void

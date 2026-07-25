@@ -106,8 +106,50 @@
                                             </button>
                                         @endforeach
                                     </div>
+                                @elseif($showPenggunaDropdown && strlen($penggunaSearch) >= 2 && count($penggunaResults) === 0)
+                                    <div class="absolute z-20 mt-1 w-full rounded-lg shadow-lg"
+                                        style="background: var(--color-bg-secondary); border: 1px solid var(--color-border);">
+                                        <button wire:click="openCreatePengguna" type="button"
+                                            class="w-full text-left px-3 py-2 text-sm hover:opacity-80 transition flex items-center gap-2"
+                                            style="color: var(--color-text-primary);">
+                                            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                            <span>Tambah Pengguna Baru: <strong>{{ $penggunaSearch }}</strong></span>
+                                        </button>
+                                    </div>
                                 @endif
                             </div>
+
+                            @if($showCreatePengguna)
+                                <div class="glass-card p-3 mt-2 space-y-2" style="border: 1px solid var(--color-border);">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <p class="text-xs font-semibold text-primary">Tambah Pengguna Baru</p>
+                                        <button wire:click="closeCreatePengguna" type="button" class="text-xs text-red-400 hover:text-red-300">Batal</button>
+                                    </div>
+                                    <div>
+                                        <label class="text-xs text-muted">Nama <span class="text-red-400">*</span></label>
+                                        <input type="text" wire:model.live="newPenggunaName" class="glass-input w-full rounded-lg px-3 py-1.5 text-sm mt-1" placeholder="Nama lengkap">
+                                        @error('newPenggunaName') <span class="text-xs text-red-400">{{ $message }}</span> @enderror
+                                    </div>
+                                    <div>
+                                        <label class="text-xs text-muted">Email <span class="text-red-400">*</span></label>
+                                        <input type="email" wire:model.live="newPenggunaEmail" class="glass-input w-full rounded-lg px-3 py-1.5 text-sm mt-1" placeholder="email@asri.co.id">
+                                        @error('newPenggunaEmail') <span class="text-xs text-red-400">{{ $message }}</span> @enderror
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <label class="text-xs text-muted">NIK</label>
+                                            <input type="text" wire:model.live="newPenggunaNik" class="glass-input w-full rounded-lg px-3 py-1.5 text-sm mt-1" placeholder="Opsional">
+                                        </div>
+                                        <div>
+                                            <label class="text-xs text-muted">Department</label>
+                                            <input type="text" wire:model.live="newPenggunaDepartment" class="glass-input w-full rounded-lg px-3 py-1.5 text-sm mt-1" placeholder="Opsional">
+                                        </div>
+                                    </div>
+                                    <button wire:click="createPengguna" type="button" class="glass-button-primary text-xs w-full py-1.5 mt-1">
+                                        Simpan & Pilih Pengguna
+                                    </button>
+                                </div>
+                            @endif
                         @endif
                     </div>
                     <div class="flex justify-end pt-2"><button wire:click="nextStep" type="button" class="glass-button-primary text-sm">Selanjutnya →</button></div>
