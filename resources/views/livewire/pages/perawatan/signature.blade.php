@@ -109,6 +109,8 @@ new #[Layout('components.app-layout')] class extends Component
                 mode: 'draw',
                 uploadedPreview: null,
                 uploadedFile: null,
+                uploadedFileSize: 0,
+                maxFileSize: 1048576,
 
                 handleUpload(e) {
                     const file = e.target.files[0];
@@ -118,10 +120,28 @@ new #[Layout('components.app-layout')] class extends Component
                         e.target.value = '';
                         return;
                     }
+                    if (file.size > this.maxFileSize) {
+                        alert('Ukuran file melebihi 1 MB. Silakan kompres file terlebih dahulu.');
+                        e.target.value = '';
+                        return;
+                    }
                     this.uploadedFile = file;
+                    this.uploadedFileSize = file.size;
                     const reader = new FileReader();
                     reader.onload = (ev) => {
-                        this.uploadedPreview = ev.target.result;
+                        const img = new Image();
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            const maxWidth = 800, maxHeight = 400;
+                            let w = img.width, h = img.height;
+                            if (w > maxWidth) { h = (h * maxWidth) / w; w = maxWidth; }
+                            if (h > maxHeight) { w = (w * maxHeight) / h; h = maxHeight; }
+                            canvas.width = w;
+                            canvas.height = h;
+                            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                            this.uploadedPreview = canvas.toDataURL('image/png');
+                        };
+                        img.src = ev.target.result;
                     };
                     reader.readAsDataURL(file);
                 },
@@ -129,6 +149,7 @@ new #[Layout('components.app-layout')] class extends Component
                 clearUpload() {
                     this.uploadedPreview = null;
                     this.uploadedFile = null;
+                    this.uploadedFileSize = 0;
                     this.$refs.uploadInput.value = '';
                 },
 
@@ -181,22 +202,29 @@ new #[Layout('components.app-layout')] class extends Component
                 {{-- Upload Mode --}}
                 <div x-show="mode === 'upload'" x-cloak>
                     <template x-if="!uploadedPreview">
-                        <label class="flex flex-col items-center justify-center w-full h-40 rounded-lg border-2 border-dashed cursor-pointer transition-colors duration-200"
-                            style="border-color: var(--color-border); background: var(--color-bg-secondary);"
-                            @dragover.prevent="$el.style.borderColor = 'var(--color-primary)'"
-                            @dragleave.prevent="$el.style.borderColor = 'var(--color-border)'"
-                            @drop.prevent="$el.style.borderColor = 'var(--color-border)'; handleUpload({target: {files: $event.dataTransfer.files}})">
-                            <svg class="w-8 h-8 mb-2 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                            </svg>
-                            <span class="text-xs text-muted">Klik atau seret file PNG ke sini</span>
-                            <input x-ref="uploadInput" type="file" accept="image/png" class="hidden" @change="handleUpload($event)">
-                        </label>
+                        <div class="space-y-2">
+                            <label class="flex flex-col items-center justify-center w-full h-40 rounded-lg border-2 border-dashed cursor-pointer transition-colors duration-200"
+                                style="border-color: var(--color-border); background: var(--color-bg-secondary);"
+                                @dragover.prevent="$el.style.borderColor = 'var(--color-primary)'"
+                                @dragleave.prevent="$el.style.borderColor = 'var(--color-border)'"
+                                @drop.prevent="$el.style.borderColor = 'var(--color-border)'; handleUpload({target: {files: $event.dataTransfer.files}})">
+                                <svg class="w-8 h-8 mb-2 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                                <span class="text-xs text-muted">Klik atau seret file PNG ke sini</span>
+                                <input x-ref="uploadInput" type="file" accept="image/png" class="hidden" @change="handleUpload($event)">
+                            </label>
+                            <p class="text-xs text-muted text-center">Format: PNG | Maksimal: 1 MB</p>
+                        </div>
                     </template>
                     <template x-if="uploadedPreview">
                         <div class="space-y-3">
                             <div class="rounded-lg overflow-hidden border-2 flex items-center justify-center p-4" style="border-color: var(--color-border); background: var(--color-bg-secondary); min-height: 160px;">
                                 <img :src="uploadedPreview" alt="Preview Tanda Tangan" class="max-h-32 object-contain">
+                            </div>
+                            <div class="flex items-center justify-between text-xs px-1">
+                                <span class="text-muted">Ukuran: <span class="font-semibold text-primary" x-text="(uploadedFileSize / 1024).toFixed(1) + ' KB'"></span></span>
+                                <span class="text-muted">Maksimal: 1 MB</span>
                             </div>
                             <div class="flex gap-2">
                                 <button @click="clearUpload()" type="button" class="glass-button-secondary text-sm flex-1">Hapus</button>
