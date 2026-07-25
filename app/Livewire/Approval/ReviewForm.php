@@ -33,7 +33,6 @@ class ReviewForm extends Component
     // Signer mode for Diketahui
     public string $signerMode = 'me';
     public string $customSignerName = '';
-    public string $signerSearch = '';
     public array $signerResults = [];
     public bool $showSignerDropdown = false;
 
@@ -351,7 +350,6 @@ class ReviewForm extends Component
         $this->signerMode = $mode;
         if ($mode === 'me') {
             $this->customSignerName = '';
-            $this->signerSearch = '';
             $this->signerResults = [];
             $this->showSignerDropdown = false;
         }
@@ -359,15 +357,15 @@ class ReviewForm extends Component
 
     public function searchSigner(): void
     {
-        if (strlen($this->signerSearch) < 2) {
+        if (strlen($this->customSignerName) < 2) {
             $this->signerResults = [];
             $this->showSignerDropdown = false;
             return;
         }
 
-        $this->signerResults = User::where('name', 'like', "%{$this->signerSearch}%")
-            ->orWhere('nik', 'like', "%{$this->signerSearch}%")
-            ->orWhere('email', 'like', "%{$this->signerSearch}%")
+        $this->signerResults = User::where('name', 'like', "%{$this->customSignerName}%")
+            ->orWhere('nik', 'like', "%{$this->customSignerName}%")
+            ->orWhere('email', 'like', "%{$this->customSignerName}%")
             ->limit(10)
             ->get()
             ->toArray();
@@ -378,14 +376,12 @@ class ReviewForm extends Component
     public function selectSigner(array $user): void
     {
         $this->customSignerName = $user['name'];
-        $this->signerSearch = $user['name'];
         $this->showSignerDropdown = false;
     }
 
     public function clearSigner(): void
     {
         $this->customSignerName = '';
-        $this->signerSearch = '';
         $this->signerResults = [];
         $this->showSignerDropdown = false;
     }

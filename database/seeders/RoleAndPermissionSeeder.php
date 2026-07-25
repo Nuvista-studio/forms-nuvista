@@ -35,10 +35,12 @@ class RoleAndPermissionSeeder extends Seeder
             ],
             'supervisor_it' => [
                 'approve-diketahui',
+                'approve-disetujui',
                 'view-all-forms',
                 'view-reports',
             ],
             'manager_it' => [
+                'approve-diketahui',
                 'approve-disetujui',
                 'view-all-forms',
                 'view-reports',

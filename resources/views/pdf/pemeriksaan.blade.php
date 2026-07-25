@@ -4,39 +4,48 @@
     <meta charset="utf-8">
     <title>Form Pemeriksaan {{ $form->nomor_form }}</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 11px; color: #1a1a1a; line-height: 1.4; }
-        .container { width: 100%; padding: 30px; }
-        .header { text-align: center; margin-bottom: 20px; border-bottom: 3px solid #000; padding-bottom: 12px; }
-        .header h1 { font-size: 18px; font-weight: bold; margin-bottom: 4px; }
-        .header p { font-size: 11px; color: #555; }
-        .form-number { font-size: 13px; font-weight: bold; text-align: right; margin-bottom: 15px; }
-        table.info-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
-        table.info-table td { padding: 5px 8px; border: 1px solid #ccc; vertical-align: top; }
-        table.info-table .label { background: #f3f4f6; font-weight: 600; width: 30%; font-size: 10px; }
-        table.info-table .value { font-size: 11px; }
-        h3 { font-size: 12px; font-weight: bold; margin: 15px 0 8px; padding: 4px 8px; background: #f3f4f6; border-left: 3px solid #333; }
-        table.items-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
-        table.items-table th { background: #f9fafb; border: 1px solid #ccc; padding: 4px 6px; font-size: 9px; text-align: left; font-weight: 600; }
-        table.items-table td { border: 1px solid #ddd; padding: 4px 6px; font-size: 10px; }
+        @page { margin: 25mm; }
+        body { margin: 0; padding: 0; font-family: 'Helvetica', 'Arial', sans-serif; font-size: 11px; color: #1a1a1a; line-height: 1.4; }
+        .container { width: 100%; }
+        .header { text-align: center; margin-bottom: 12px; border-bottom: 2px solid #000; padding-bottom: 8px; }
+        .header h1 { font-size: 14px; font-weight: bold; margin-bottom: 2px; }
+        .header p { font-size: 9px; color: #555; }
+        .form-number { font-size: 11px; font-weight: bold; text-align: center; margin-bottom: 10px; }
+        table.info-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; table-layout: fixed; }
+        table.info-table td { padding: 3px 5px; border: 1px solid #ccc; vertical-align: middle; word-wrap: break-word; overflow-wrap: break-word; }
+        table.info-table .label { background: #f3f4f6; font-weight: 600; width: 20%; font-size: 8px; }
+        table.info-table .value { font-size: 9px; }
+        h3 { font-size: 10px; font-weight: bold; margin: 10px 0 5px; padding: 2px 5px; background: #f3f4f6; border-left: 3px solid #333; }
+        table.items-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; table-layout: fixed; }
+        table.items-table th { background: #f9fafb; border: 1px solid #ccc; padding: 2px 4px; font-size: 8px; text-align: left; font-weight: 600; }
+        table.items-table td { border: 1px solid #ddd; padding: 2px 4px; font-size: 8px; word-wrap: break-word; overflow-wrap: break-word; }
         table.items-table tr:nth-child(even) { background: #fafafa; }
-        .notes { margin: 12px 0; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 10px; }
-        .notes strong { display: block; margin-bottom: 4px; }
-        .signatures { width: 100%; border-collapse: collapse; margin-top: 40px; page-break-inside: avoid; }
+        .notes { margin: 8px 0; padding: 5px; border: 1px solid #ddd; border-radius: 4px; font-size: 8px; word-wrap: break-word; }
+        .notes strong { display: block; margin-bottom: 2px; }
+        .signatures { width: 100%; border-collapse: collapse; margin-top: 25px; page-break-inside: avoid; }
         .signatures td { width: 33.33%; text-align: center; vertical-align: top; padding: 0 5px; }
-        .sig-label { font-size: 10px; font-weight: bold; margin-bottom: 5px; text-decoration: underline; }
-        .sig-name { font-size: 10px; margin-top: 5px; }
-        .sig-date { font-size: 9px; color: #777; margin-top: 2px; }
-        .sig-img { width: 120px; height: 50px; margin: 5px auto; border: 1px solid #ddd; background: #fafafa; object-fit: contain; }
-        .sig-empty { width: 120px; height: 50px; margin: 5px auto; border-bottom: 1px solid #999; }
-        .footer { margin-top: 30px; text-align: center; font-size: 8px; color: #999; border-top: 1px solid #eee; padding-top: 8px; }
+        .sig-label { font-size: 9px; font-weight: bold; margin-bottom: 4px; text-decoration: underline; }
+        .sig-name { font-size: 8px; margin-top: 4px; }
+        .sig-date { font-size: 7px; color: #777; margin-top: 2px; }
+        .sig-img { width: 100px; height: 40px; margin: 4px auto; border: 1px solid #ddd; background: #fafafa; object-fit: contain; }
+        .sig-empty { width: 100px; height: 40px; margin: 4px auto; border-bottom: 1px solid #999; }
+        .footer { margin-top: 15px; text-align: center; font-size: 7px; color: #999; border-top: 1px solid #eee; padding-top: 5px; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>FORM PEMERIKSAAN PERANGKAT</h1>
-            <p>IT Department &mdash; ASRI</p>
+            <table style="width: 100%; border: none; border-collapse: collapse;">
+                <tr>
+                    <td style="width: 80px; border: none; padding: 0; vertical-align: middle;">
+                        <img src="{{ public_path('images/asri.png') }}" style="width: 70px;">
+                    </td>
+                    <td style="border: none; padding: 0; vertical-align: middle; text-align: center;">
+                        <h1>FORM PEMERIKSAAN PERANGKAT</h1>
+                        <p>IT Department &mdash; ASRI</p>
+                    </td>
+                </tr>
+            </table>
         </div>
 
         <div class="form-number">No. Form: {{ $form->nomor_form }}</div>

@@ -404,11 +404,11 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                             <div class="mt-2 relative" x-data="{ open: @entangle('showSignerDropdown') }">
                                 <div class="flex gap-2">
                                     <div class="flex-1 relative">
-                                        <input wire:model.live="signerSearch" type="text"
+                                        <input wire:model.live="customSignerName" type="text"
                                             class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
                                             style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);"
                                             placeholder="Cari nama, NIK, atau email..."
-                                            wire:keydown="searchSigner()"
+                                            wire:input="searchSigner"
                                             autocomplete="off" />
                                         @if($customSignerName)
                                             <button wire:click="clearSigner" type="button"
