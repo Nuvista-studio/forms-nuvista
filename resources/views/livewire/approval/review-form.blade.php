@@ -370,7 +370,15 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
 
         {{-- APPROVE / REJECT --}}
         @if($canApprove)
-            <div class="glass-card p-4 space-y-4">
+            <div class="glass-card p-5 space-y-4 border-2" style="border-color: var(--color-primary, rgba(59, 130, 246, 0.3));">
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <h3 class="text-base font-bold text-primary">Edit, Submit & Tanda Tangan</h3>
+                </div>
+                <p class="text-xs text-muted -mt-2">Edit data jika diperlukan, lalu tanda tangani untuk approve.</p>
+
                 <h3 class="text-sm font-semibold text-primary">Catatan Approval (opsional)</h3>
                 <textarea wire:model.live="catatan" rows="2"
                     class="glass-input w-full rounded-lg px-3 py-2 text-sm resize-none"
@@ -398,7 +406,7 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                     </div>
                     <div class="flex gap-2">
                         <button @click="clear()" type="button" class="glass-button-secondary text-sm flex-1">Hapus</button>
-                        <button @click="save()" type="button" class="glass-button-primary text-sm flex-1">Approve & Tanda Tangan</button>
+                        <button @click="save()" type="button" class="glass-button-primary text-sm flex-1">Submit & Tanda Tangan</button>
                     </div>
                 </div>
 

@@ -70,7 +70,7 @@ class ReviewForm extends Component
     private function determineApprovalLevel($user, $form): void
     {
         if ($this->formType === 'pemeriksaan') {
-            if ($user->hasPermissionTo('approve-diketahui') && $form->status === FormStatus::Diketahui->value) {
+            if ($user->hasPermissionTo('approve-diketahui') && in_array($form->status, [FormStatus::Diketahui->value, FormStatus::Submitted->value, FormStatus::Revisi->value])) {
                 $this->approvalLevel = ApprovalLevel::DiketahuiOleh->value;
                 $this->canApprove = true;
             } elseif ($user->hasPermissionTo('approve-disetujui') && $form->status === FormStatus::Disetujui->value) {
@@ -78,7 +78,7 @@ class ReviewForm extends Component
                 $this->canApprove = true;
             }
         } else {
-            if ($user->hasPermissionTo('approve-diketahui') && $form->status === FormStatus::Diketahui->value) {
+            if ($user->hasPermissionTo('approve-diketahui') && in_array($form->status, [FormStatus::Diketahui->value, FormStatus::Submitted->value, FormStatus::Revisi->value])) {
                 $this->approvalLevel = ApprovalLevel::DiketahuiOleh->value;
                 $this->canApprove = true;
             } elseif ($user->hasPermissionTo('approve-disetujui') && $form->status === FormStatus::Disetujui->value) {
@@ -119,7 +119,7 @@ class ReviewForm extends Component
                 'value' => $item->value ?? '',
                 'keterangan' => $item->keterangan ?? '',
             ];
-        }->toArray();
+        })->toArray();
     }
 
     public function saveEdits(): void
