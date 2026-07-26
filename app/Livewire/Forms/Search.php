@@ -6,6 +6,7 @@ use App\Models\FormPemeriksaan;
 use App\Models\FormPerawatan;
 use App\Models\User;
 use App\Models\Asset;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -148,6 +149,7 @@ class Search extends Component
     private function getPemeriksaanQuery()
     {
         $query = FormPemeriksaan::with(['teknisi', 'asset', 'pengguna']);
+        $this->applyRoleScope($query);
 
         if ($this->formType && $this->formType !== 'pemeriksaan') {
             return collect();
@@ -189,6 +191,7 @@ class Search extends Component
     private function getPerawatanQuery()
     {
         $query = FormPerawatan::with(['teknisi', 'asset', 'pengguna']);
+        $this->applyRoleScope($query);
 
         if ($this->formType && $this->formType !== 'perawatan') {
             return collect();
@@ -297,5 +300,22 @@ class Search extends Component
         return view('livewire.forms.search', [
             'results' => $this->getResults(),
         ])->layout('components.app-layout');
+    }
+
+    private function applyRoleScope($query): void
+    {
+        $user = Auth::user();
+        if (!$user) return;
+
+        if ($user->hasPermissionTo('view-all-forms')) return;
+
+        if ($user->hasPermissionTo('view-assigned-forms')) {
+            $query->where('pengguna_id', $user->id);
+            return;
+        }
+
+        if ($user->hasPermissionTo('view-own-forms')) {
+            $query->where('user_id', $user->id);
+        }
     }
 }

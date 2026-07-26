@@ -21,6 +21,7 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
 
+        <script src="{{ asset('vendor/chart.umd.min.js') }}"></script>
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
         <script>
@@ -53,7 +54,7 @@
                                 <h2 class="text-sm font-bold text-primary">Admin Panel</h2>
                             </div>
                             <nav class="space-y-0.5">
-                                <a href="{{ route('admin.dashboard') }}" wire:navigate
+                                <a href="{{ route('admin.dashboard') }}"
                                     class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 {{ request()->routeIs('admin.dashboard') ? 'admin-nav-active' : '' }}"
                                     style="{{ request()->routeIs('admin.dashboard') ? '' : 'color: var(--color-text-secondary);' }}">
                                     <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -104,83 +105,4 @@
             </div>
         </div>
     </body>
-
-    <script>
-    document.addEventListener('alpine:init', () => {
-        Alpine.data('dashboardBarChart', (refName, labels, data, bgColor, borderColor) => ({
-            chart: null,
-            init() {
-                const ctx = this.$refs[refName];
-                if (!ctx || typeof Chart === 'undefined') return;
-                this.chart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Jumlah',
-                            data: data,
-                            backgroundColor: bgColor,
-                            borderColor: borderColor,
-                            borderWidth: 1,
-                            borderRadius: 4,
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        indexAxis: 'y',
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            x: {
-                                ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--color-text-muted').trim(), stepSize: 1 },
-                                grid: { color: getComputedStyle(document.documentElement).getPropertyValue('--color-border').trim() }
-                            },
-                            y: {
-                                ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--color-text-muted').trim(), font: { size: 11 } },
-                                grid: { display: false }
-                            }
-                        }
-                    }
-                });
-            },
-            destroy() { if (this.chart) this.chart.destroy(); }
-        }));
-
-        Alpine.data('dashboardLineChart', (refName, labels, data) => ({
-            chart: null,
-            init() {
-                const ctx = this.$refs[refName];
-                if (!ctx || typeof Chart === 'undefined') return;
-                this.chart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Jumlah Perawatan',
-                            data: data,
-                            borderColor: 'rgba(168, 85, 247, 1)',
-                            backgroundColor: 'rgba(168, 85, 247, 0.1)',
-                            fill: true,
-                            tension: 0.4,
-                            pointBackgroundColor: 'rgba(168, 85, 247, 1)',
-                            pointBorderColor: '#fff',
-                            pointBorderWidth: 2,
-                            pointRadius: 4,
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            x: { ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--color-text-muted').trim(), font: { size: 10 } }, grid: { display: false } },
-                            y: { ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--color-text-muted').trim(), stepSize: 1 }, grid: { color: getComputedStyle(document.documentElement).getPropertyValue('--color-border').trim() } }
-                        }
-                    }
-                });
-            },
-            destroy() { if (this.chart) this.chart.destroy(); }
-        }));
-    });
-    </script>
 </html>

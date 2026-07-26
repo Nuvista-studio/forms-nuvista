@@ -21,10 +21,45 @@
     <div class="glass-card p-5">
         <h3 class="text-sm font-bold text-primary mb-4">Laporan Perawatan Perangkat by Site Lokasi</h3>
         @if(count($perawatanBySite) > 0)
-            <div x-data="dashboardBarChart('perawatanSiteChart', @json(array_column($perawatanBySite, 'site')), @json(array_column($perawatanBySite, 'total')), 'rgba(168, 85, 247, 0.6)', 'rgba(168, 85, 247, 1)')"
-                 wire:key="perawatan-{{ md5(json_encode($perawatanBySite)) }}"
-                 style="height: {{ max(200, count($perawatanBySite) * 40 + 60) }}px;">
-                <canvas x-ref="perawatanSiteChart"></canvas>
+            @php
+                $pwLabels = json_encode(array_column($perawatanBySite, 'site'));
+                $pwData = json_encode(array_column($perawatanBySite, 'total'));
+            @endphp
+            <div x-data="{
+                chart: null,
+                init() {
+                    this.$nextTick(() => {
+                        const ctx = this.$refs.chartPerawatan;
+                        if (!ctx || typeof Chart === 'undefined') return;
+                        this.chart = new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: {{ $pwLabels }},
+                                datasets: [{
+                                    label: 'Jumlah Perawatan',
+                                    data: {{ $pwData }},
+                                    backgroundColor: 'rgba(168, 85, 247, 0.6)',
+                                    borderColor: 'rgba(168, 85, 247, 1)',
+                                    borderWidth: 1,
+                                    borderRadius: 4,
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                indexAxis: 'y',
+                                plugins: { legend: { display: false } },
+                                scales: {
+                                    x: { ticks: { color: 'rgb(156,163,175)', stepSize: 1 }, grid: { color: 'rgb(229,231,235)' } },
+                                    y: { ticks: { color: 'rgb(156,163,175)', font: { size: 11 } }, grid: { display: false } }
+                                }
+                            }
+                        });
+                    });
+                },
+                destroy() { if (this.chart) this.chart.destroy(); }
+            }" style="height: {{ max(200, count($perawatanBySite) * 40 + 60) }}px;">
+                <canvas x-ref="chartPerawatan"></canvas>
             </div>
         @else
             <p class="text-sm text-muted text-center py-4">Tidak ada data perawatan pada periode ini</p>
@@ -35,10 +70,45 @@
     <div class="glass-card p-5">
         <h3 class="text-sm font-bold text-primary mb-4">Laporan Pemeriksaan Perangkat by Site Lokasi</h3>
         @if(count($pemeriksaanBySite) > 0)
-            <div x-data="dashboardBarChart('pemeriksaanSiteChart', @json(array_column($pemeriksaanBySite, 'site')), @json(array_column($pemeriksaanBySite, 'total')), 'rgba(59, 130, 246, 0.6)', 'rgba(59, 130, 246, 1)')"
-                 wire:key="pemeriksaan-{{ md5(json_encode($pemeriksaanBySite)) }}"
-                 style="height: {{ max(200, count($pemeriksaanBySite) * 40 + 60) }}px;">
-                <canvas x-ref="pemeriksaanSiteChart"></canvas>
+            @php
+                $pmLabels = json_encode(array_column($pemeriksaanBySite, 'site'));
+                $pmData = json_encode(array_column($pemeriksaanBySite, 'total'));
+            @endphp
+            <div x-data="{
+                chart: null,
+                init() {
+                    this.$nextTick(() => {
+                        const ctx = this.$refs.chartPemeriksaan;
+                        if (!ctx || typeof Chart === 'undefined') return;
+                        this.chart = new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: {{ $pmLabels }},
+                                datasets: [{
+                                    label: 'Jumlah Pemeriksaan',
+                                    data: {{ $pmData }},
+                                    backgroundColor: 'rgba(59, 130, 246, 0.6)',
+                                    borderColor: 'rgba(59, 130, 246, 1)',
+                                    borderWidth: 1,
+                                    borderRadius: 4,
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                indexAxis: 'y',
+                                plugins: { legend: { display: false } },
+                                scales: {
+                                    x: { ticks: { color: 'rgb(156,163,175)', stepSize: 1 }, grid: { color: 'rgb(229,231,235)' } },
+                                    y: { ticks: { color: 'rgb(156,163,175)', font: { size: 11 } }, grid: { display: false } }
+                                }
+                            }
+                        });
+                    });
+                },
+                destroy() { if (this.chart) this.chart.destroy(); }
+            }" style="height: {{ max(200, count($pemeriksaanBySite) * 40 + 60) }}px;">
+                <canvas x-ref="chartPemeriksaan"></canvas>
             </div>
         @else
             <p class="text-sm text-muted text-center py-4">Tidak ada data pemeriksaan pada periode ini</p>
@@ -101,15 +171,51 @@
     <div class="glass-card p-5">
         <h3 class="text-sm font-bold text-primary mb-4">Tren Perawatan per Bulan (12 Bulan)</h3>
         @if(count($trendPerawatanBulanan) > 0)
-            <div x-data="dashboardLineChart('trendBulananChart', @json(array_keys($trendPerawatanBulanan)), @json(array_values($trendPerawatanBulanan)))"
-                 wire:key="trend-{{ md5(json_encode($trendPerawatanBulanan)) }}"
-                 style="height: 220px;">
-                <canvas x-ref="trendBulananChart"></canvas>
+            @php
+                $trLabels = json_encode(array_keys($trendPerawatanBulanan));
+                $trData = json_encode(array_values($trendPerawatanBulanan));
+            @endphp
+            <div x-data="{
+                chart: null,
+                init() {
+                    this.$nextTick(() => {
+                        const ctx = this.$refs.chartTrend;
+                        if (!ctx || typeof Chart === 'undefined') return;
+                        this.chart = new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: {{ $trLabels }},
+                                datasets: [{
+                                    label: 'Jumlah Perawatan',
+                                    data: {{ $trData }},
+                                    borderColor: 'rgba(168, 85, 247, 1)',
+                                    backgroundColor: 'rgba(168, 85, 247, 0.1)',
+                                    fill: true,
+                                    tension: 0.4,
+                                    pointBackgroundColor: 'rgba(168, 85, 247, 1)',
+                                    pointBorderColor: '#fff',
+                                    pointBorderWidth: 2,
+                                    pointRadius: 4,
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: { legend: { display: false } },
+                                scales: {
+                                    x: { ticks: { color: 'rgb(156,163,175)', font: { size: 10 } }, grid: { display: false } },
+                                    y: { ticks: { color: 'rgb(156,163,175)', stepSize: 1 }, grid: { color: 'rgb(229,231,235)' } }
+                                }
+                            }
+                        });
+                    });
+                },
+                destroy() { if (this.chart) this.chart.destroy(); }
+            }" style="height: 220px;">
+                <canvas x-ref="chartTrend"></canvas>
             </div>
         @else
             <p class="text-sm text-muted text-center py-4">Tidak ada data tren perawatan</p>
         @endif
     </div>
 </div>
-
-
