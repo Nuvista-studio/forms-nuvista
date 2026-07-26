@@ -15,34 +15,29 @@
         <div class="flex flex-col sm:flex-row gap-3">
             <div class="flex-1">
                 <div class="relative">
-                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
-                    <input
-                        wire:model.live.debounce.300ms="search"
-                        type="text"
+                    <input wire:model.live.debounce.300ms="search" type="text"
                         placeholder="Cari nama, no. asset, brand, tipe..."
                         class="w-full pl-10 pr-4 py-2 rounded-lg text-sm transition-colors duration-200"
-                        style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);"
-                    />
+                        style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);" />
                 </div>
             </div>
             <div class="flex gap-2">
-                <select
-                    wire:model.live="filterKategori"
+                <select wire:model.live="filterKategori"
                     class="px-3 py-2 rounded-lg text-sm transition-colors duration-200"
-                    style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);"
-                >
+                    style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
                     <option value="">Semua Kategori</option>
-                    @foreach($this->getKategoriList() as $kategori)
+                    @foreach ($this->getKategoriList() as $kategori)
                         <option value="{{ $kategori }}">{{ $kategori }}</option>
                     @endforeach
                 </select>
-                <select
-                    wire:model.live="filterStatus"
+                <select wire:model.live="filterStatus"
                     class="px-3 py-2 rounded-lg text-sm transition-colors duration-200"
-                    style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);"
-                >
+                    style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
                     <option value="">Semua Status</option>
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
@@ -53,20 +48,25 @@
     </div>
 
     {{-- Assets Grid --}}
-    @if($assets->count() > 0)
+    @if ($assets->count() > 0)
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            @foreach($assets as $asset)
+            @foreach ($assets as $asset)
                 <a href="{{ route('assets.show', $asset->id) }}" wire:navigate
                     class="glass-card p-5 transition-all duration-200 hover:scale-[1.01]"
                     style="text-decoration: none;">
                     <div class="flex items-start justify-between mb-3">
                         <div class="flex-1 min-w-0">
                             <h3 class="font-semibold text-primary truncate">{{ $asset->nama_perangkat }}</h3>
-                            <p class="text-sm text-secondary mt-0.5">{{ $asset->brand }} &middot; {{ $asset->tipe }}</p>
+                            <p class="text-sm text-secondary mt-0.5">{{ $asset->brand }} &middot; {{ $asset->tipe }}
+                            </p>
                         </div>
-                        <span class="shrink-0 ml-2 px-2 py-0.5 rounded-full text-xs font-medium
-                            {{ ($asset->status ?? 'active') === 'active' ? 'bg-emerald-500/15 text-emerald-400' :
-                               (($asset->status ?? '') === 'maintenance' ? 'bg-amber-500/15 text-amber-400' : 'bg-gray-500/15 text-gray-400') }}">
+                        <span
+                            class="shrink-0 ml-2 px-2 py-0.5 rounded-full text-xs font-medium
+                            {{ ($asset->status ?? 'active') === 'active'
+                                ? 'bg-emerald-500/15 text-emerald-400'
+                                : (($asset->status ?? '') === 'maintenance'
+                                    ? 'bg-amber-500/15 text-amber-400'
+                                    : 'bg-gray-500/15 text-gray-400') }}">
                             {{ ucfirst($asset->status ?? 'Active') }}
                         </span>
                     </div>
@@ -86,9 +86,19 @@
                         </div>
                         <div>
                             <span class="text-muted">Total Form</span>
-                            <p class="text-primary font-medium">{{ $asset->pemeriksaan_count + $asset->perawatan_count }}</p>
+                            <p class="text-primary font-medium">
+                                {{ $asset->pemeriksaan_count + $asset->perawatan_count }}</p>
                         </div>
                     </div>
+                    @if ($asset->barcode_svg)
+                        <div class="mt-3">
+                            <div class="bg-white rounded-lg" style="padding: 5px;">
+                                <div style="overflow: hidden;">
+                                    {!! str_replace('<svg ', '<svg style="width:100%;" ', $asset->barcode_svg) !!}
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 </a>
             @endforeach
         </div>
@@ -99,7 +109,8 @@
     @else
         <div class="glass-card p-12 text-center">
             <svg class="w-12 h-12 mx-auto text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
             </svg>
             <p class="mt-3 text-muted">Tidak ada aset ditemukan</p>
         </div>

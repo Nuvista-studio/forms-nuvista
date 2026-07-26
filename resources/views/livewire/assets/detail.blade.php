@@ -40,6 +40,15 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                 <p class="text-primary font-bold">{{ $asset->perawatan->count() }}</p>
             </div>
         </div>
+        @if($asset->barcode_svg)
+            <div class="mt-4">
+                <div class="bg-white rounded-lg" style="padding: 5px;">
+                    <div style="overflow: hidden;">
+                        {!! str_replace('<svg ', '<svg style="width:100%;" ', $asset->barcode_svg) !!}
+                    </div>
+                </div>
+            </div>
+        @endif
     </div>
 
     {{-- Timeline --}}
