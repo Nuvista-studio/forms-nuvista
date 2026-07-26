@@ -22,12 +22,16 @@
         .form-no { font-size: 12px; font-weight: bold; }
         .form-date { font-size: 12px; text-align: right; }
 
+        .section-title { font-size: 12px; font-weight: bold; margin: 8px 0 4px; padding: 3px 6px; background: #e8e8e8; border-left: 3px solid #333; }
+
         .info-table { width: 100%; border: 1px solid #999; margin-bottom: 8px; }
         .info-table td { border: 1px solid #ccc; padding: 3px 6px; font-size: 11px; }
-        .info-table .lbl { background: #f0f0f0; font-weight: 600; width: 16%; font-size: 10px; }
-        .info-table .val { width: 34%; }
+        .info-table .lbl { background: #f0f0f0; font-weight: 600; font-size: 10px; }
+        .info-table .val { font-size: 11px; }
 
-        .section-title { font-size: 12px; font-weight: bold; margin: 8px 0 4px; padding: 3px 6px; background: #e8e8e8; border-left: 3px solid #333; }
+        .device-table { width: 100%; border: 1px solid #999; margin-bottom: 8px; }
+        .device-table td { border: 1px solid #ccc; padding: 3px 6px; font-size: 11px; }
+        .device-table .lbl { background: #f0f0f0; font-weight: 600; font-size: 10px; }
 
         .two-col { width: 100%; margin-bottom: 6px; }
         .two-col > td { vertical-align: top; padding: 0 4px 0 0; border: none; width: 50%; }
@@ -92,74 +96,53 @@
         </tr>
     </table>
 
-    {{-- INFORMASI PENGGUNA + INFORMASI PERANGKAT (side by side) --}}
-    <table class="two-col">
+    {{-- INFORMASI PENGGUNA --}}
+    <div class="section-title">Informasi Pengguna</div>
+    <table class="info-table">
         <tr>
-            {{-- INFORMASI PENGGUNA --}}
-            <td>
-                <div class="section-title" style="margin-top:0;">Informasi Pengguna</div>
-                <table class="info-table">
-                    <tr>
-                        <td class="lbl">Nama User</td>
-                        <td class="val">{{ $form->pengguna->name ?? '-' }}</td>
-                    </tr>
-                    <tr>
-                        <td class="lbl">NIK User</td>
-                        <td class="val">{{ $form->pengguna->nik ?? '-' }}</td>
-                    </tr>
-                    <tr>
-                        <td class="lbl">Department</td>
-                        <td class="val">{{ $form->pengguna->department ?? '-' }}</td>
-                    </tr>
-                    <tr>
-                        <td class="lbl">Business Unit</td>
-                        <td class="val">{{ $form->pengguna->business_unit ?? '-' }}</td>
-                    </tr>
-                    <tr>
-                        <td class="lbl">Site</td>
-                        <td class="val">{{ $form->pengguna->site ?? '-' }}</td>
-                    </tr>
-                    <tr>
-                        <td class="lbl">No. Telepon</td>
-                        <td class="val">{{ $form->pengguna->no_telepon ?? '-' }}</td>
-                    </tr>
-                    <tr>
-                        <td class="lbl">Alamat Email</td>
-                        <td class="val">{{ $form->pengguna->email ?? '-' }}</td>
-                    </tr>
-                </table>
-            </td>
+            <td class="lbl" style="width:16%;">Nama User</td>
+            <td style="width:34%;">{{ $form->pengguna->name ?? '-' }}</td>
+            <td class="lbl" style="width:16%;">NIK User</td>
+            <td style="width:34%;">{{ $form->pengguna->nik ?? '-' }}</td>
+        </tr>
+        <tr>
+            <td class="lbl">Department</td>
+            <td>{{ $form->pengguna->department ?? '-' }}</td>
+            <td class="lbl">Site / B. Unit</td>
+            <td>{{ $form->pengguna->site ?? $form->pengguna->business_unit ?? '-' }}</td>
+        </tr>
+        <tr>
+            <td class="lbl">No. Telepon</td>
+            <td>{{ $form->pengguna->no_telepon ?? '-' }}</td>
+            <td class="lbl">Alamat Email</td>
+            <td>{{ $form->pengguna->email ?? '-' }}</td>
+        </tr>
+    </table>
 
-            {{-- INFORMASI PERANGKAT --}}
-            <td>
-                <div class="section-title" style="margin-top:0;">Informasi Perangkat</div>
-                <table class="info-table">
-                    <tr>
-                        <td class="lbl">Kategori</td>
-                        <td class="val">{{ $form->asset->kategori ?? '-' }}</td>
-                        <td class="lbl">Tipe</td>
-                        <td class="val">{{ $form->asset->tipe ?? '-' }}</td>
-                    </tr>
-                    <tr>
-                        <td class="lbl">Brand</td>
-                        <td class="val">{{ $form->asset->brand ?? '-' }}</td>
-                        <td class="lbl">No. Serial</td>
-                        <td class="val">{{ $form->asset->no_serial ?? '-' }}</td>
-                    </tr>
-                    <tr>
-                        <td class="lbl">Nama Perangkat</td>
-                        <td class="val">{{ $form->asset->nama_perangkat ?? '-' }}</td>
-                        <td class="lbl">No. Asset</td>
-                        <td class="val">{{ $form->asset->no_asset ?? '-' }}</td>
-                    </tr>
-                    <tr>
-                        <td class="lbl">Site Location</td>
-                        <td class="val" colspan="3">{{ $form->site->site ?? $form->site_location ?? '-' }}</td>
-                        <td class="lbl">Location Detail</td>
-                        <td class="val" colspan="3">{{ $form->location_detail ?? '-' }}</td>
-                    </tr>
-                </table>
-            </td>
+    {{-- INFORMASI PERANGKAT --}}
+    <div class="section-title">Informasi Perangkat</div>
+    <table class="device-table">
+        <tr>
+            <td class="lbl" style="width:12%;">Kategori</td>
+            <td style="width:14%;">{{ $form->asset->kategori ?? '-' }}</td>
+            <td class="lbl" style="width:10%;">Brand</td>
+            <td style="width:14%;">{{ $form->asset->brand ?? '-' }}</td>
+            <td class="lbl" style="width:10%;">Tipe</td>
+            <td style="width:14%;">{{ $form->asset->tipe ?? '-' }}</td>
+            <td class="lbl" style="width:13%;">Nama Perangkat</td>
+            <td style="width:13%;">{{ $form->asset->nama_perangkat ?? '-' }}</td>
+        </tr>
+        <tr>
+            <td class="lbl">No. Serial</td>
+            <td>{{ $form->asset->no_serial ?? '-' }}</td>
+            <td class="lbl">No. Asset</td>
+            <td>{{ $form->asset->no_asset ?? '-' }}</td>
+            <td class="lbl">Site Location</td>
+            <td colspan="3">{{ $form->site->site ?? $form->site_location ?? '-' }}</td>
+        </tr>
+        <tr>
+            <td class="lbl">Location Detail</td>
+            <td colspan="7">{{ $form->location_detail ?? '-' }}</td>
         </tr>
     </table>
 
@@ -170,12 +153,10 @@
         $osItems = $form->items->where('category', 'operating_system')->sortBy('sort_order');
     @endphp
 
-    <div class="section-title">Pemeriksaan Perangkat</div>
-
-    {{-- HARDWARE + APLIKASI (side by side) --}}
+    {{-- HARDWARE + OS (left) | APLIKASI (right) --}}
     <table class="two-col">
         <tr>
-            {{-- HARDWARE --}}
+            {{-- LEFT: HARDWARE + OS --}}
             <td>
                 <div class="section-title" style="margin-top:0;">Perawatan Hardware</div>
                 <table class="checklist-table">
@@ -224,45 +205,8 @@
                         @endforelse
                     </tbody>
                 </table>
-            </td>
 
-            {{-- APLIKASI --}}
-            <td>
-                <div class="section-title" style="margin-top:0;">Perawatan Aplikasi</div>
-                <table class="checklist-table">
-                    <thead>
-                        <tr>
-                            <th class="col-name">Name</th>
-                            <th class="col-kondisi">Status</th>
-                            <th class="col-ket">Keterangan</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($aplikasiItems as $item)
-                            <tr>
-                                <td>{{ $item->name }}</td>
-                                <td class="col-kondisi">
-                                    @if($item->status === 'baik') OK
-                                    @elseif($item->status === 'tidak_baik') NOT
-                                    @else - @endif
-                                </td>
-                                <td>{{ $item->keterangan ?? '' }}</td>
-                            </tr>
-                        @empty
-                            <tr><td>-</td><td class="col-kondisi">-</td><td>-</td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </td>
-        </tr>
-    </table>
-
-    {{-- OS + KONDISI AKHIR (side by side) --}}
-    <table class="two-col">
-        <tr>
-            {{-- OPERATING SYSTEM --}}
-            <td>
-                <div class="section-title" style="margin-top:0;">Perawatan Operating Sistem</div>
+                <div class="section-title">Perawatan Operating Sistem</div>
                 <table class="checklist-table">
                     <thead>
                         <tr>
@@ -289,9 +233,35 @@
                 </table>
             </td>
 
-            {{-- KONDISI SETELAH PERAWATAN --}}
+            {{-- RIGHT: APLIKASI --}}
             <td>
-                <div class="section-title" style="margin-top:0;">Kondisi Setelah Perawatan</div>
+                <div class="section-title" style="margin-top:0;">Perawatan Aplikasi</div>
+                <table class="checklist-table">
+                    <thead>
+                        <tr>
+                            <th class="col-name">Name</th>
+                            <th class="col-kondisi">Status</th>
+                            <th class="col-ket">Keterangan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($aplikasiItems as $item)
+                            <tr>
+                                <td>{{ $item->name }}</td>
+                                <td class="col-kondisi">
+                                    @if($item->status === 'baik') OK
+                                    @elseif($item->status === 'tidak_baik') NOT
+                                    @else - @endif
+                                </td>
+                                <td>{{ $item->keterangan ?? '' }}</td>
+                            </tr>
+                        @empty
+                            <tr><td>-</td><td class="col-kondisi">-</td><td>-</td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
+
+                <div class="section-title">Kondisi Setelah Perawatan</div>
                 <table class="kondisi-checklist">
                     <tr>
                         <td class="lbl">Good / Normal</td>

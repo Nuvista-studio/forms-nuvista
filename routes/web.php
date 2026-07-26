@@ -90,6 +90,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::get('users/import/template', [UserCsvController::class, 'template'])
             ->name('users.import.template');
+
+        // PDF Templates
+        Volt::route('pdf-templates', 'admin.pages.pdf-templates.index')
+            ->name('pdf-templates.index');
+
+        Volt::route('pdf-templates/{slug}/edit', 'admin.pages.pdf-templates.edit')
+            ->name('pdf-templates.edit');
+
+        Route::get('pdf-templates/{slug}/preview', function (string $slug) {
+            $template = \App\Models\PdfTemplate::where('slug', $slug)->firstOrFail();
+
+            return response($template->html_content, 200, [
+                'Content-Type' => 'text/html; charset=UTF-8',
+            ]);
+        })->name('pdf-templates.preview');
     });
 
     // ── Legacy user routes → redirect to admin ───────────────
