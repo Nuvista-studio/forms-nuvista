@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<div class="space-y-6" x-data x-on:user-updated.window="window.location = '{{ route('admin.users.index') }}'">
     @if (session()->has('success'))
         <div class="p-3 rounded-lg text-sm"
             style="background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3); color: #22c55e;">
@@ -113,7 +113,7 @@
                 <span wire:loading wire:target="update">Menyimpan...</span>
                 <span wire:loading.remove wire:target="update">Simpan Perubahan</span>
             </button>
-            <a href="{{ route('users.index') }}" wire:navigate
+            <a href="{{ route('admin.users.index') }}" wire:navigate
                 class="px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
                 style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);">
                 Batal

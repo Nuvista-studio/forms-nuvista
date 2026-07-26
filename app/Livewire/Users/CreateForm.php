@@ -71,7 +71,7 @@ class CreateForm extends Component
             $this->dispatch('user-created');
             $this->reset();
         } catch (\Illuminate\Validation\ValidationException $e) {
-            $this->dispatch('validation-error', errors: $e->errors()->toArray());
+            $this->dispatch('validation-error', errors: $e->errors());
         }
     }
 

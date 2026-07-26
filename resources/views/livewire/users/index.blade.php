@@ -15,7 +15,7 @@
         </div>
         <div class="flex items-center gap-2 flex-wrap">
             <span class="text-sm text-muted">{{ $users->total() }} user</span>
-            <a href="{{ route('users.export.csv') }}"
+            <a href="{{ route('admin.users.export.csv') }}"
                 class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors duration-200"
                 style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -23,7 +23,7 @@
                 </svg>
                 Export CSV
             </a>
-            <a href="{{ route('users.import') }}" wire:navigate
+            <a href="{{ route('admin.users.import') }}" wire:navigate
                 class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors duration-200"
                 style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -31,7 +31,7 @@
                 </svg>
                 Import CSV
             </a>
-            <a href="{{ route('users.create') }}" wire:navigate
+            <a href="{{ route('admin.users.create') }}" wire:navigate
                 class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors duration-200"
                 style="background: var(--color-primary); color: var(--color-button-text);">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -129,7 +129,7 @@
                                 <td class="px-4 py-3 text-secondary hidden lg:table-cell">{{ $user->site ?? '-' }}</td>
                                 <td class="px-4 py-3 text-right">
                                     <div class="flex items-center justify-end gap-1">
-                                        <a href="{{ route('users.edit', $user->id) }}" wire:navigate
+                                        <a href="{{ route('admin.users.edit', $user->id) }}" wire:navigate
                                             class="p-1.5 rounded-lg transition-colors duration-200"
                                             style="color: var(--color-text-secondary);"
                                             title="Edit">

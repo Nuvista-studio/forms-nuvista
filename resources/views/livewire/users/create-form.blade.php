@@ -1,7 +1,7 @@
 <div class="glass-card p-6 space-y-5"
     x-data="{ errors: {} }"
     x-on:validation-error.window="errors = $event.detail.errors[0]"
-    x-on:user-created.window="errors = {}; window.location = '{{ route('users.index') }}'">
+    x-on:user-created.window="errors = {}; window.location = '{{ route('admin.users.index') }}'">
 
     {{-- Name --}}
     <div>
@@ -110,7 +110,7 @@
             <span wire:loading.remove wire:target="save">Simpan</span>
             <span wire:loading wire:target="save">Menyimpan...</span>
         </button>
-        <a href="{{ route('users.index') }}" wire:navigate
+        <a href="{{ route('admin.users.index') }}" wire:navigate
             class="px-5 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200"
             style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);">
             Batal

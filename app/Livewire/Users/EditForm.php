@@ -20,11 +20,12 @@ class EditForm extends Component
     public string $no_telepon = '';
     public string $role = '';
 
-    public function mount(User $user): void
+    public function mount(int $userId): void
     {
+        $user = User::findOrFail($userId);
         $this->user = $user;
-        $this->name = $user->name;
-        $this->email = $user->email;
+        $this->name = $user->name ?? '';
+        $this->email = $user->email ?? '';
         $this->nik = $user->nik ?? '';
         $this->department = $user->department ?? '';
         $this->business_unit = $user->business_unit ?? '';
@@ -88,7 +89,7 @@ class EditForm extends Component
 
             $this->dispatch('user-updated');
         } catch (\Illuminate\Validation\ValidationException $e) {
-            $this->dispatch('validation-error', errors: $e->errors()->toArray());
+            $this->dispatch('validation-error', errors: $e->errors());
         }
     }
 

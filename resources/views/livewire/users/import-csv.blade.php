@@ -128,7 +128,7 @@
             @endif
 
             <div class="flex items-center justify-center gap-3 pt-2">
-                <a href="{{ route('users.index') }}" wire:navigate
+                <a href="{{ route('admin.users.index') }}" wire:navigate
                     class="px-5 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200"
                     style="background: var(--color-primary); color: var(--color-button-text);">
                     Lihat Users
