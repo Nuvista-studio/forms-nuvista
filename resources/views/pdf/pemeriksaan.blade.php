@@ -153,7 +153,7 @@
         </tr>
     </table>
 
-    {{-- PEMERIKSAAN HARDWARE + APLIKASI (side by side) --}}
+    {{-- PEMERIKSAAN HARDWARE + APLIKASI + OS (side by side) --}}
     @php
         $hardwareItems = $form->items->where('category', 'hardware')->sortBy('sort_order');
         $aplikasiItems = $form->items->where('category', 'aplikasi')->sortBy('sort_order');
@@ -213,7 +213,7 @@
                 </table>
             </td>
 
-            {{-- APLIKASI --}}
+            {{-- APLIKASI + OS --}}
             <td>
                 <div class="section-title" style="margin-top:0;">Pemeriksaan Aplikasi</div>
                 <table class="checklist-table">
@@ -240,17 +240,8 @@
                         @endforelse
                     </tbody>
                 </table>
-            </td>
-        </tr>
-    </table>
 
-    {{-- OPERATING SYSTEM + TINDAKAN (side by side) --}}
-
-    <table class="two-col">
-        <tr>
-            {{-- OPERATING SYSTEM --}}
-            <td>
-                <div class="section-title" style="margin-top:0;">Operating System</div>
+                <div class="section-title">Operating System</div>
                 <table class="checklist-table">
                     <thead>
                         <tr>
@@ -276,34 +267,32 @@
                     </tbody>
                 </table>
             </td>
-
-            {{-- TINDAKAN --}}
-            <td>
-                <div class="section-title" style="margin-top:0;">Tindakan</div>
-                <table class="tindakan-table">
-                    @if($form->tindakan_categories)
-                        @foreach($form->tindakan_categories as $cat)
-                            @if(!empty($cat['selected']))
-                                <tr>
-                                    <td style="width:35%; font-weight:600; font-size:10px;">{{ $cat['label'] }}</td>
-                                    <td style="font-size:10px;">{{ implode(', ', $cat['selected']) }}</td>
-                                </tr>
-                            @endif
-                        @endforeach
-                        @if($form->tindakan_solution)
-                            <tr>
-                                <td style="font-weight:600; font-size:10px;">Solution</td>
-                                <td style="font-size:10px;">{{ $form->tindakan_solution }}</td>
-                            </tr>
-                        @endif
-                    @else
-                        <tr>
-                            <td colspan="2" style="font-size:10px; color:#999;">Tidak ada tindakan</td>
-                        </tr>
-                    @endif
-                </table>
-            </td>
         </tr>
+    </table>
+
+    {{-- TINDAKAN --}}
+    <div class="section-title">Tindakan</div>
+    <table class="tindakan-table" style="margin-bottom: 8px;">
+        @if($form->tindakan_categories)
+            @foreach($form->tindakan_categories as $cat)
+                @if(!empty($cat['selected']))
+                    <tr>
+                        <td style="width:35%; font-weight:600; font-size:10px;">{{ $cat['label'] }}</td>
+                        <td style="font-size:10px;">{{ implode(', ', $cat['selected']) }}</td>
+                    </tr>
+                @endif
+            @endforeach
+            @if($form->tindakan_solution)
+                <tr>
+                    <td style="font-weight:600; font-size:10px;">Solution</td>
+                    <td style="font-size:10px;">{{ $form->tindakan_solution }}</td>
+                </tr>
+            @endif
+        @else
+            <tr>
+                <td colspan="2" style="font-size:10px; color:#999;">Tidak ada tindakan</td>
+            </tr>
+        @endif
     </table>
 
     {{-- KONDISI LEGEND --}}
