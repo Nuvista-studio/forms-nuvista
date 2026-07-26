@@ -2,10 +2,18 @@
 
 use App\Http\Controllers\ExportPdfController;
 use App\Http\Controllers\UserCsvController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
 Route::get('/', fn () => redirect()->route('login'));
+
+Route::post('logout', function () {
+    Auth::guard('web')->logout();
+    session()->invalidate();
+    session()->regenerateToken();
+    return redirect('/login');
+})->middleware('auth')->name('logout');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', fn () => auth()->user()->hasRole('admin')
