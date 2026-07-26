@@ -415,6 +415,32 @@
                                     rows="1" placeholder="Keterangan (opsional)..."
                                     class="glass-input w-full rounded-lg px-3 py-1.5 text-xs resize-none"></textarea>
 
+                                {{-- Battery Capacity Fields --}}
+                                @if($item['name'] === 'Battery')
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <label class="text-xs" style="color: var(--color-text-muted);">Full Charge Capacity (mWh)</label>
+                                            <input type="number" wire:model.live="hardwareItems.{{ $index }}.full_charge_capacity"
+                                                placeholder="Contoh: 45000"
+                                                class="glass-input w-full rounded-lg px-3 py-1.5 text-xs">
+                                        </div>
+                                        <div>
+                                            <label class="text-xs" style="color: var(--color-text-muted);">Design Capacity (mWh)</label>
+                                            <input type="number" wire:model.live="hardwareItems.{{ $index }}.design_capacity"
+                                                placeholder="Contoh: 50000"
+                                                class="glass-input w-full rounded-lg px-3 py-1.5 text-xs">
+                                        </div>
+                                    </div>
+                                    @if($item['full_charge_capacity'] && $item['design_capacity'] && $item['design_capacity'] > 0)
+                                        @php
+                                            $batteryPercent = round(($item['full_charge_capacity'] / $item['design_capacity']) * 100);
+                                        @endphp
+                                        <div class="text-xs font-semibold" style="color: {{ $batteryPercent >= 80 ? 'var(--color-success, #10b981)' : ($batteryPercent >= 50 ? 'var(--color-warning, #f59e0b)' : 'var(--color-danger, #ef4444)') }};">
+                                            Battery Health: {{ $batteryPercent }}%
+                                        </div>
+                                    @endif
+                                @endif
+
                                 {{-- Photo Upload --}}
                                 <div>
                                     <button type="button" @click="showUpload = showUpload === 'hw-{{ $index }}' ? null : 'hw-{{ $index }}'"

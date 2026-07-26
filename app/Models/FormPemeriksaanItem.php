@@ -18,6 +18,8 @@ class FormPemeriksaanItem extends Model
         'status',
         'value',
         'keterangan',
+        'full_charge_capacity',
+        'design_capacity',
         'sort_order',
     ];
 

@@ -5,7 +5,7 @@ use App\Http\Controllers\UserCsvController;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
-Route::view('/', 'welcome');
+Route::get('/', fn () => redirect()->route('login'));
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Volt::route('dashboard', 'dashboard')

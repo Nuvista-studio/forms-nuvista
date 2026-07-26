@@ -177,6 +177,8 @@ class CreateForm extends Component
             if ($category === 'hardware' && isset($this->hardwareItems[$item->sort_order])) {
                 $this->hardwareItems[$item->sort_order]['status'] = $item->status;
                 $this->hardwareItems[$item->sort_order]['keterangan'] = $item->keterangan ?? '';
+                $this->hardwareItems[$item->sort_order]['full_charge_capacity'] = $item->full_charge_capacity;
+                $this->hardwareItems[$item->sort_order]['design_capacity'] = $item->design_capacity;
             } elseif ($category === 'aplikasi' && isset($this->aplikasiItems[$item->sort_order])) {
                 $this->aplikasiItems[$item->sort_order]['status'] = $item->status;
                 $this->aplikasiItems[$item->sort_order]['keterangan'] = $item->keterangan ?? '';
@@ -202,6 +204,8 @@ class CreateForm extends Component
                 'name' => $item->name,
                 'status' => null,
                 'keterangan' => '',
+                'full_charge_capacity' => null,
+                'design_capacity' => null,
                 'sort_order' => $item->sort_order,
             ])->values()->toArray();
         }
@@ -478,6 +482,8 @@ class CreateForm extends Component
                     'status' => $item['status'] ?: null,
                     'value' => $item['value'] ?? null,
                     'keterangan' => $item['keterangan'] ?? null,
+                    'full_charge_capacity' => $item['full_charge_capacity'] ?? null,
+                    'design_capacity' => $item['design_capacity'] ?? null,
                     'sort_order' => $item['sort_order'] ?? 0,
                 ]
             );

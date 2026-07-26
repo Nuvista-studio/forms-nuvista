@@ -4,68 +4,70 @@
     <meta charset="utf-8">
     <title>Form Pemeriksaan {{ $form->nomor_form }}</title>
     <style>
-        @page { margin: 15mm 15mm 15mm 15mm; size: A4 portrait; }
+        @page { margin: 20mm 20mm 20mm 20mm; size: A4 portrait; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 9px; color: #1a1a1a; line-height: 1.3; }
+        body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 12px; color: #1a1a1a; line-height: 1.4; padding: 0 5mm; }
         table { border-collapse: collapse; }
-        td, th { padding: 2px 4px; }
+        td, th { padding: 3px 6px; }
 
-        .header-table { width: 100%; margin-bottom: 4px; }
+        .header-table { width: 100%; margin-bottom: 8px; }
         .header-table td { border: none; vertical-align: middle; }
         .header-logo { width: 55px; }
         .header-title { text-align: center; }
-        .header-title h1 { font-size: 13px; font-weight: bold; margin: 0; }
-        .header-title p { font-size: 8px; color: #555; margin: 1px 0 0; }
+        .header-title h1 { font-size: 18px; font-weight: bold; margin: 0; }
+        .header-title p { font-size: 10px; color: #555; margin: 1px 0 0; }
 
-        .form-row { width: 100%; margin-bottom: 4px; }
+        .form-row { width: 100%; margin-bottom: 8px; }
         .form-row td { border: none; padding: 0; }
-        .form-no { font-size: 9px; font-weight: bold; }
-        .form-date { font-size: 9px; text-align: right; }
+        .form-no { font-size: 12px; font-weight: bold; }
+        .form-date { font-size: 12px; text-align: right; }
 
-        .info-table { width: 100%; border: 1px solid #999; margin-bottom: 6px; }
-        .info-table td { border: 1px solid #ccc; padding: 2px 5px; font-size: 8.5px; }
-        .info-table .lbl { background: #f0f0f0; font-weight: 600; width: 16%; font-size: 8px; }
+        .info-table { width: 100%; border: 1px solid #999; margin-bottom: 8px; }
+        .info-table td { border: 1px solid #ccc; padding: 3px 6px; font-size: 11px; }
+        .info-table .lbl { background: #f0f0f0; font-weight: 600; width: 16%; font-size: 10px; }
         .info-table .val { width: 34%; }
 
-        .section-title { font-size: 9px; font-weight: bold; margin: 6px 0 3px; padding: 2px 5px; background: #e8e8e8; border-left: 3px solid #333; }
+        .section-title { font-size: 12px; font-weight: bold; margin: 8px 0 4px; padding: 3px 6px; background: #e8e8e8; border-left: 3px solid #333; }
 
-        .device-table { width: 100%; border: 1px solid #999; margin-bottom: 6px; }
-        .device-table td { border: 1px solid #ccc; padding: 2px 5px; font-size: 8px; }
-        .device-table .lbl { background: #f0f0f0; font-weight: 600; font-size: 7.5px; }
+        .device-table { width: 100%; border: 1px solid #999; margin-bottom: 8px; }
+        .device-table td { border: 1px solid #ccc; padding: 3px 6px; font-size: 11px; }
+        .device-table .lbl { background: #f0f0f0; font-weight: 600; font-size: 10px; }
 
-        .two-col { width: 100%; margin-bottom: 2px; }
+        .two-col { width: 100%; margin-bottom: 6px; }
         .two-col > td { vertical-align: top; padding: 0 4px 0 0; border: none; width: 50%; }
         .two-col > td:last-child { padding: 0 0 0 4px; }
 
         .checklist-table { width: 100%; border: 1px solid #999; margin-bottom: 4px; table-layout: fixed; }
-        .checklist-table th { background: #f5f5f5; border: 1px solid #ccc; padding: 2px 3px; font-size: 7.5px; text-align: left; font-weight: 600; }
-        .checklist-table td { border: 1px solid #ddd; padding: 1.5px 3px; font-size: 7.5px; }
-        .checklist-table .col-no { width: 6%; text-align: center; }
-        .checklist-table .col-name { width: 30%; }
-        .checklist-table .col-kondisi { width: 20%; text-align: center; }
-        .checklist-table .col-ket { width: 44%; }
+        .checklist-table th { background: #f5f5f5; border: 1px solid #ccc; padding: 3px 4px; font-size: 10px; text-align: left; font-weight: 600; }
+        .checklist-table td { border: 1px solid #ddd; padding: 2px 4px; font-size: 10px; }
+        .checklist-table .col-name { width: 28%; }
+        .checklist-table .col-kondisi { width: 16%; text-align: center; }
+        .checklist-table .col-fcc { width: 16%; text-align: center; }
+        .checklist-table .col-dc { width: 16%; text-align: center; }
+        .checklist-table .col-battery { width: 10%; text-align: center; font-weight: bold; }
+        .checklist-table .col-ket { width: 14%; }
         .checklist-table tr:nth-child(even) td { background: #fafafa; }
 
         .tindakan-table { width: 100%; border: 1px solid #999; margin-bottom: 4px; }
-        .tindakan-table td { border: 1px solid #ccc; padding: 2px 5px; font-size: 8px; }
-        .tindakan-table .lbl { background: #f0f0f0; font-weight: 600; font-size: 7.5px; }
+        .tindakan-table td { border: 1px solid #ccc; padding: 3px 6px; font-size: 11px; }
+        .tindakan-table .lbl { background: #f0f0f0; font-weight: 600; font-size: 10px; }
 
-        .kondisi-legend { font-size: 8px; margin: 4px 0; padding: 3px 5px; border: 1px solid #ddd; background: #fafafa; }
+        .kondisi-legend { font-size: 11px; margin: 6px 0; padding: 4px 6px; border: 1px solid #ddd; background: #fafafa; }
         .kondisi-legend span { margin-right: 12px; }
 
-        .catatan { font-size: 8px; margin: 5px 0; padding: 4px 5px; border: 1px solid #ddd; }
-        .catatan strong { display: block; margin-bottom: 2px; font-size: 8.5px; }
+        .catatan { font-size: 11px; margin: 8px 0; padding: 5px 6px; border: 1px solid #ddd; }
+        .catatan strong { display: block; margin-bottom: 2px; font-size: 11px; }
 
-        .signatures { width: 100%; border-collapse: collapse; margin-top: 20px; page-break-inside: avoid; }
+        .signatures { width: 100%; border-collapse: collapse; margin-top: 25px; page-break-inside: avoid; }
         .signatures td { text-align: center; vertical-align: top; padding: 0 3px; }
-        .sig-label { font-size: 8px; font-weight: bold; margin-bottom: 3px; text-decoration: underline; }
-        .sig-role { font-size: 7px; color: #555; margin-bottom: 15px; }
-        .sig-name { font-size: 7.5px; margin-top: 3px; }
-        .sig-date { font-size: 7px; color: #777; margin-top: 1px; }
+        .sig-label { font-size: 11px; font-weight: bold; margin-bottom: 3px; text-decoration: underline; }
+        .sig-role { font-size: 9px; color: #555; margin-bottom: 15px; }
+        .sig-name { font-size: 10px; margin-top: 3px; }
+        .sig-date { font-size: 9px; color: #777; margin-top: 1px; }
         .sig-img { width: 90px; height: 35px; margin: 3px auto; border: none; background: transparent; object-fit: contain; }
         .sig-line { width: 90px; border-bottom: 1px solid #999; margin: 20px auto 3px; }
 
-        .footer { margin-top: 10px; text-align: center; font-size: 7px; color: #999; border-top: 1px solid #eee; padding-top: 4px; }
+        .footer { margin-top: 10px; text-align: center; font-size: 9px; color: #999; border-top: 1px solid #eee; padding-top: 4px; }
     </style>
 </head>
 <body>
@@ -165,30 +167,42 @@
                 <table class="checklist-table">
                     <thead>
                         <tr>
-                            <th class="col-no">No</th>
                             <th class="col-name">Name</th>
                             <th class="col-kondisi">Kondisi</th>
+                            <th class="col-fcc">Full Charge (mWh)</th>
+                            <th class="col-dc">Design (mWh)</th>
+                            <th class="col-battery">Battery %</th>
                             <th class="col-ket">Keterangan</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($hardwareItems as $idx => $item)
                             <tr>
-                                <td class="col-no" style="text-align:center;">{{ $idx + 1 }}</td>
                                 <td>{{ $item->name }}</td>
                                 <td class="col-kondisi">
-                                    @if($item->status === 'baik') &#10003; Baik
-                                    @elseif($item->status === 'tidak_baik') &#10007; Tidak Baik
-                                    @elseif($item->status === 'baru') &#10003; Baru
-                                    @elseif($item->status === 'lama') &#10003; Lama
-                                    @elseif($item->status === 'good_normal') &#10003; Good/Normal
-                                    @elseif($item->status === 'caution_poor') &#10007; Caution/Poor
+                                    @if($item->status === 'baik') Baik
+                                    @elseif($item->status === 'tidak_baik') Tidak Baik
                                     @else - @endif
                                 </td>
+                                @if($item->name === 'Battery')
+                                    <td class="col-fcc">{{ $item->full_charge_capacity ?? '-' }}</td>
+                                    <td class="col-dc">{{ $item->design_capacity ?? '-' }}</td>
+                                    <td class="col-battery">
+                                        @if($item->full_charge_capacity && $item->design_capacity && $item->design_capacity > 0)
+                                            {{ round(($item->full_charge_capacity / $item->design_capacity) * 100) }}%
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
+                                @else
+                                    <td class="col-fcc">-</td>
+                                    <td class="col-dc">-</td>
+                                    <td class="col-battery">-</td>
+                                @endif
                                 <td>{{ $item->keterangan ?? '' }}</td>
                             </tr>
                         @empty
-                            <tr><td class="col-no">1</td><td>-</td><td class="col-kondisi">-</td><td>-</td></tr>
+                            <tr><td>-</td><td class="col-kondisi">-</td><td class="col-fcc">-</td><td class="col-dc">-</td><td class="col-battery">-</td><td>-</td></tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -200,30 +214,24 @@
                 <table class="checklist-table">
                     <thead>
                         <tr>
-                            <th class="col-no">No</th>
                             <th class="col-name">Name</th>
                             <th class="col-kondisi">Kondisi</th>
-                            <th class="col-ket">Keterangan</th>
+                            <th class="col-ket" style="width:56%;">Keterangan</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($aplikasiItems as $idx => $item)
                             <tr>
-                                <td class="col-no" style="text-align:center;">{{ $idx + 1 }}</td>
                                 <td>{{ $item->name }}</td>
                                 <td class="col-kondisi">
-                                    @if($item->status === 'baik') &#10003; Baik
-                                    @elseif($item->status === 'tidak_baik') &#10007; Tidak Baik
-                                    @elseif($item->status === 'baru') &#10003; Baru
-                                    @elseif($item->status === 'lama') &#10003; Lama
-                                    @elseif($item->status === 'good_normal') &#10003; Good/Normal
-                                    @elseif($item->status === 'caution_poor') &#10007; Caution/Poor
+                                    @if($item->status === 'baik') Installed
+                                    @elseif($item->status === 'tidak_baik') Not Installed
                                     @else - @endif
                                 </td>
-                                <td>{{ $item->keterangan ?? '' }}</td>
+                                <td style="width:56%;">{{ $item->keterangan ?? '' }}</td>
                             </tr>
                         @empty
-                            <tr><td class="col-no">1</td><td>-</td><td class="col-kondisi">-</td><td>-</td></tr>
+                            <tr><td>-</td><td class="col-kondisi">-</td><td style="width:56%;">-</td></tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -244,7 +252,6 @@
                 <table class="checklist-table">
                     <thead>
                         <tr>
-                            <th class="col-no">No</th>
                             <th class="col-name">Name</th>
                             <th class="col-kondisi">Kondisi</th>
                             <th class="col-ket">Keterangan</th>
@@ -253,21 +260,16 @@
                     <tbody>
                         @forelse($osItems as $idx => $item)
                             <tr>
-                                <td class="col-no" style="text-align:center;">{{ $idx + 1 }}</td>
                                 <td>{{ $item->name }}</td>
                                 <td class="col-kondisi">
-                                    @if($item->status === 'baik') &#10003; Baik
-                                    @elseif($item->status === 'tidak_baik') &#10007; Tidak Baik
-                                    @elseif($item->status === 'baru') &#10003; Baru
-                                    @elseif($item->status === 'lama') &#10003; Lama
-                                    @elseif($item->status === 'good_normal') &#10003; Good/Normal
-                                    @elseif($item->status === 'caution_poor') &#10007; Caution/Poor
+                                    @if($item->status === 'baik') Baik
+                                    @elseif($item->status === 'tidak_baik') Tidak Baik
                                     @else - @endif
                                 </td>
                                 <td>{{ $item->keterangan ?? '' }}</td>
                             </tr>
                         @empty
-                            <tr><td class="col-no">1</td><td>-</td><td class="col-kondisi">-</td><td>-</td></tr>
+                            <tr><td>-</td><td class="col-kondisi">-</td><td>-</td></tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -279,7 +281,7 @@
                 <table class="tindakan-table">
                     @foreach($tindakanItems as $ti)
                         <tr>
-                            <td style="width:12%; text-align:center; font-size:9px;">[&nbsp;&nbsp;&nbsp;]</td>
+                            <td style="width:12%; text-align:center; font-size:12px;">[&nbsp;&nbsp;&nbsp;]</td>
                             <td>{{ $ti }}</td>
                         </tr>
                     @endforeach
@@ -290,10 +292,10 @@
 
     {{-- KONDISI LEGEND --}}
     <div class="kondisi-legend">
-        <strong style="font-size:8px;">Kondisi :</strong>
-        <span>&#10003; : BAIK</span>
-        <span>&#10007; : TIDAK BAIK</span>
-        <span style="margin-left:8px; font-size:7px;">(Mohon jelaskan kerusakan atau masalah yang ada)</span>
+        <strong style="font-size:11px;">Kondisi :</strong>
+        <span>V : BAIK</span>
+        <span>X : TIDAK BAIK</span>
+        <span style="margin-left:8px; font-size:9px;">(Mohon jelaskan kerusakan atau masalah yang ada)</span>
     </div>
 
     {{-- CATATAN --}}
@@ -319,7 +321,7 @@
     <table class="signatures">
         <tr>
             {{-- DIPERIKSA --}}
-            <td style="width:28%;">
+            <td style="width:33%;">
                 <div class="sig-label">Diperiksa Oleh</div>
                 @if($diperiksa && $diperiksa->signature_path)
                     <img src="{{ $diperiksa->signature_path }}" class="sig-img" alt="TTD">
@@ -331,7 +333,7 @@
             </td>
 
             {{-- DIKETAHUI --}}
-            <td style="width:28%;">
+            <td style="width:33%;">
                 <div class="sig-label">Diketahui Oleh</div>
                 @if($diketahui && $diketahui->signature_path)
                     <img src="{{ $diketahui->signature_path }}" class="sig-img" alt="TTD">
@@ -343,7 +345,7 @@
             </td>
 
             {{-- DISETUJUI --}}
-            <td style="width:28%;">
+            <td style="width:33%;">
                 <div class="sig-label">Disetujui Oleh</div>
                 @if($disetujui && $disetujui->signature_path)
                     <img src="{{ $disetujui->signature_path }}" class="sig-img" alt="TTD">
@@ -352,13 +354,6 @@
                 @endif
                 <div class="sig-name">{{ $disetujui->user->name ?? '_______________' }}</div>
                 <div class="sig-date">Tanggal : {{ $disetujui && $disetujui->approved_at ? $disetujui->approved_at->format('d/m/Y') : '___/___/______' }}</div>
-            </td>
-
-            {{-- PENGGUNA --}}
-            <td style="width:16%;">
-                <div class="sig-label">Pengguna</div>
-                <div class="sig-line"></div>
-                <div class="sig-role">Supervisor IT<br>Operation Staff IT</div>
             </td>
         </tr>
     </table>
