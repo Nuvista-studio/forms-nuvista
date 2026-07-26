@@ -70,7 +70,7 @@ class CreateForm extends Component
     public bool $isDraft = false;
     public string $nomorForm = '';
 
-    // Search
+    // Search - Pengguna
     public string $penggunaSearch = '';
     public array $penggunaResults = [];
     public bool $showPenggunaDropdown = false;
@@ -82,6 +82,20 @@ class CreateForm extends Component
     public string $newPenggunaDepartment = '';
     public string $newPenggunaEmail = '';
     public string $newPenggunaPassword = '';
+
+    // Search - Asset
+    public string $assetSearch = '';
+    public array $assetResults = [];
+    public bool $showAssetDropdown = false;
+
+    // Create new asset
+    public bool $showCreateAsset = false;
+    public string $newAssetNoAsset = '';
+    public string $newAssetKategori = '';
+    public string $newAssetBrand = '';
+    public string $newAssetTipe = '';
+    public string $newAssetNamaPerangkat = '';
+    public string $newAssetNoSerial = '';
 
     // Photo uploads
     public array $itemPhotos = [];
@@ -97,6 +111,8 @@ class CreateForm extends Component
             'assetId' => 'required|exists:assets,id',
             'hardwareItems.*.status' => 'nullable|in:baik,tidak_baik',
             'hardwareItems.*.keterangan' => 'nullable|string|max:1000',
+            'hardwareItems.*.full_charge_capacity' => 'nullable|integer|min:0',
+            'hardwareItems.*.design_capacity' => 'nullable|integer|min:0',
             'aplikasiItems.*.status' => 'nullable|in:baik,tidak_baik',
             'aplikasiItems.*.keterangan' => 'nullable|string|max:1000',
             'osItems.*.status' => 'nullable|in:baik,tidak_baik',
@@ -152,6 +168,7 @@ class CreateForm extends Component
             $this->namaPerangkat = $form->asset->nama_perangkat ?? '';
             $this->noSerial = $form->asset->no_serial ?? '';
             $this->noAsset = $form->asset->no_asset ?? '';
+            $this->assetSearch = $form->asset->no_asset ?? '';
         }
 
         $this->kondisiAkhir = $form->kondisi_akhir ?? '';
@@ -163,6 +180,8 @@ class CreateForm extends Component
             if ($category === 'hardware' && isset($this->hardwareItems[$item->sort_order])) {
                 $this->hardwareItems[$item->sort_order]['status'] = $item->status;
                 $this->hardwareItems[$item->sort_order]['keterangan'] = $item->keterangan ?? '';
+                $this->hardwareItems[$item->sort_order]['full_charge_capacity'] = $item->full_charge_capacity;
+                $this->hardwareItems[$item->sort_order]['design_capacity'] = $item->design_capacity;
             } elseif ($category === 'aplikasi' && isset($this->aplikasiItems[$item->sort_order])) {
                 $this->aplikasiItems[$item->sort_order]['status'] = $item->status;
                 $this->aplikasiItems[$item->sort_order]['keterangan'] = $item->keterangan ?? '';
@@ -188,6 +207,8 @@ class CreateForm extends Component
                 'status' => null,
                 'keterangan' => '',
                 'sort_order' => $item->sort_order,
+                'full_charge_capacity' => null,
+                'design_capacity' => null,
             ])->values()->toArray();
         }
 
@@ -323,33 +344,42 @@ class CreateForm extends Component
         $this->newPenggunaPassword = '';
     }
 
-    public function searchAssetManual(): void
+    public function searchAsset(): void
     {
-        if (empty($this->noAsset)) {
-            $this->resetAssetFields();
+        if (strlen($this->assetSearch) < 2) {
+            $this->assetResults = [];
+            $this->showAssetDropdown = false;
             return;
         }
 
-        $asset = Asset::where('no_asset', $this->noAsset)->first();
+        $this->assetResults = Asset::where('no_asset', 'like', "%{$this->assetSearch}%")
+            ->orWhere('nama_perangkat', 'like', "%{$this->assetSearch}%")
+            ->orWhere('brand', 'like', "%{$this->assetSearch}%")
+            ->orWhere('tipe', 'like', "%{$this->assetSearch}%")
+            ->limit(10)
+            ->get()
+            ->toArray();
 
+        $this->showAssetDropdown = strlen($this->assetSearch) >= 2;
+    }
+
+    public function selectAsset(int $assetId): void
+    {
+        $asset = Asset::find($assetId);
         if ($asset) {
-            $this->assetId = $asset->id;
-            $this->kategori = $asset->kategori;
-            $this->brand = $asset->brand;
-            $this->tipe = $asset->tipe;
-            $this->namaPerangkat = $asset->nama_perangkat;
+            $this->assetId = $assetId;
+            $this->kategori = $asset->kategori ?? '';
+            $this->brand = $asset->brand ?? '';
+            $this->tipe = $asset->tipe ?? '';
+            $this->namaPerangkat = $asset->nama_perangkat ?? '';
             $this->noSerial = $asset->no_serial ?? '';
             $this->noAsset = $asset->no_asset;
-
-            $this->dispatch('assetFound', asset: [
-                'id' => $asset->id,
-                'no_asset' => $asset->no_asset,
-                'nama_perangkat' => $asset->nama_perangkat,
-            ]);
+            $this->assetSearch = $asset->no_asset;
+            $this->showAssetDropdown = false;
         }
     }
 
-    private function resetAssetFields(): void
+    public function clearAsset(): void
     {
         $this->assetId = null;
         $this->kategori = '';
@@ -357,6 +387,70 @@ class CreateForm extends Component
         $this->tipe = '';
         $this->namaPerangkat = '';
         $this->noSerial = '';
+        $this->noAsset = '';
+        $this->assetSearch = '';
+        $this->showAssetDropdown = false;
+        $this->showCreateAsset = false;
+        $this->resetNewAssetFields();
+    }
+
+    public function openCreateAsset(): void
+    {
+        $this->showCreateAsset = true;
+        $this->showAssetDropdown = false;
+        $this->newAssetNoAsset = $this->assetSearch;
+    }
+
+    public function closeCreateAsset(): void
+    {
+        $this->showCreateAsset = false;
+        $this->resetNewAssetFields();
+    }
+
+    public function createAsset(): void
+    {
+        $this->validate([
+            'newAssetNoAsset' => 'required|string|max:255|unique:assets,no_asset',
+            'newAssetKategori' => 'nullable|string|max:255',
+            'newAssetBrand' => 'nullable|string|max:255',
+            'newAssetTipe' => 'nullable|string|max:255',
+            'newAssetNamaPerangkat' => 'nullable|string|max:255',
+            'newAssetNoSerial' => 'nullable|string|max:255',
+        ]);
+
+        $asset = Asset::create([
+            'no_asset' => $this->newAssetNoAsset,
+            'kategori' => $this->newAssetKategori,
+            'brand' => $this->newAssetBrand,
+            'tipe' => $this->newAssetTipe,
+            'nama_perangkat' => $this->newAssetNamaPerangkat,
+            'no_serial' => $this->newAssetNoSerial,
+            'status' => 'active',
+        ]);
+
+        $this->assetId = $asset->id;
+        $this->kategori = $asset->kategori ?? '';
+        $this->brand = $asset->brand ?? '';
+        $this->tipe = $asset->tipe ?? '';
+        $this->namaPerangkat = $asset->nama_perangkat ?? '';
+        $this->noSerial = $asset->no_serial ?? '';
+        $this->noAsset = $asset->no_asset;
+        $this->assetSearch = $asset->no_asset;
+        $this->showAssetDropdown = false;
+        $this->showCreateAsset = false;
+        $this->resetNewAssetFields();
+
+        $this->dispatch('assetCreated', name: $asset->nama_perangkat);
+    }
+
+    private function resetNewAssetFields(): void
+    {
+        $this->newAssetNoAsset = '';
+        $this->newAssetKategori = '';
+        $this->newAssetBrand = '';
+        $this->newAssetTipe = '';
+        $this->newAssetNamaPerangkat = '';
+        $this->newAssetNoSerial = '';
     }
 
     public function generateNomorForm(): string
@@ -462,38 +556,15 @@ class CreateForm extends Component
                     'status' => $item['status'] ?: null,
                     'keterangan' => $item['keterangan'] ?? null,
                     'sort_order' => $item['sort_order'] ?? 0,
+                    'full_charge_capacity' => $item['full_charge_capacity'] ?? null,
+                    'design_capacity' => $item['design_capacity'] ?? null,
                 ]
             );
         }
     }
 
-    private function resolveAsset(): void
-    {
-        if ($this->assetId) return;
-
-        if (empty($this->noAsset)) return;
-
-        $asset = Asset::where('no_asset', $this->noAsset)->first();
-
-        if (!$asset) {
-            $asset = Asset::create([
-                'no_asset' => $this->noAsset,
-                'kategori' => $this->kategori,
-                'brand' => $this->brand,
-                'tipe' => $this->tipe,
-                'nama_perangkat' => $this->namaPerangkat,
-                'no_serial' => $this->noSerial,
-                'status' => 'active',
-            ]);
-        }
-
-        $this->assetId = $asset->id;
-    }
-
     public function submitForm(): void
     {
-        $this->resolveAsset();
-
         try {
             $this->validate();
         } catch (\Illuminate\Validation\ValidationException $e) {
