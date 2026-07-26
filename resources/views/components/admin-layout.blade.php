@@ -41,7 +41,7 @@
         </script>
     </head>
     <body class="font-sans antialiased transition-colors duration-300" style="background-color: var(--color-bg-primary); color: var(--color-text-primary);">
-        <div class="min-h-screen" style="background-color: var(--color-bg-primary);">
+        <div class="min-h-screen pt-16" style="background-color: var(--color-bg-primary);">
             <livewire:layout.navigation />
 
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">

@@ -16,7 +16,7 @@ new class extends Component
 }; ?>
 
 <div>
-<nav x-data="{ open: false }" class="glass-nav sticky top-0 z-50">
+<nav x-data="{ open: false }" class="glass-nav fixed top-0 inset-x-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <div class="flex">
