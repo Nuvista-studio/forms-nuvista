@@ -48,7 +48,7 @@ class Index extends Component
 
     public function render()
     {
-        $query = Asset::query()
+        $query = Asset::with('assignedUser')
             ->when($this->search, fn ($q) => $q->where(function ($q) {
                 $q->where('no_asset', 'like', "%{$this->search}%")
                     ->orWhere('nama_perangkat', 'like', "%{$this->search}%")

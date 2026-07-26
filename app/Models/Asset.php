@@ -23,6 +23,7 @@ class Asset extends Model
         'status',
         'operating_unit',
         'site_location_asset',
+        'assigned_user_id',
     ];
 
     public function getBarcodeSvgAttribute(): ?string
@@ -66,5 +67,15 @@ class Asset extends Model
     public function siteAsset(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Site::class, 'site_location_asset', 'id_site');
+    }
+
+    public function assignedUser(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assigned_user_id');
+    }
+
+    public function getIsActiveAttribute(): bool
+    {
+        return $this->assigned_user_id !== null;
     }
 }

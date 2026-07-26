@@ -422,13 +422,17 @@ class CreateForm extends Component
             return;
         }
 
-        $this->assetResults = Asset::where('no_asset', 'like', "%{$this->assetSearch}%")
+        $query = Asset::where('no_asset', 'like', "%{$this->assetSearch}%")
             ->orWhere('nama_perangkat', 'like', "%{$this->assetSearch}%")
             ->orWhere('brand', 'like', "%{$this->assetSearch}%")
-            ->orWhere('tipe', 'like', "%{$this->assetSearch}%")
-            ->limit(10)
-            ->get()
-            ->toArray();
+            ->orWhere('tipe', 'like', "%{$this->assetSearch}%");
+
+        $user = Auth::user();
+        if ($user && !$user->hasPermissionTo('view-all-forms') && $user->hasPermissionTo('view-assigned-forms')) {
+            $query->where('assigned_user_id', $user->id);
+        }
+
+        $this->assetResults = $query->limit(10)->get()->toArray();
 
         $this->showAssetDropdown = strlen($this->assetSearch) >= 2;
     }

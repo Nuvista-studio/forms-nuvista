@@ -47,6 +47,7 @@
                             <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden sm:table-cell">Kategori</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden md:table-cell">Brand / Tipe</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden lg:table-cell">No Serial</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden lg:table-cell">Pengguna</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Status</th>
                             <th class="px-4 py-3 text-right text-xs font-medium text-muted uppercase tracking-wider">Aksi</th>
                         </tr>
@@ -64,13 +65,14 @@
                                 <td class="px-4 py-3 text-secondary hidden sm:table-cell">{{ $a->kategori }}</td>
                                 <td class="px-4 py-3 text-secondary hidden md:table-cell">{{ $a->brand }} {{ $a->tipe }}</td>
                                 <td class="px-4 py-3 text-secondary hidden lg:table-cell font-mono text-xs">{{ $a->no_serial ?? '-' }}</td>
+                                <td class="px-4 py-3 text-secondary hidden lg:table-cell">{{ $a->assignedUser->name ?? '-' }}</td>
                                 <td class="px-4 py-3">
-                                    @if($a->status === 'active')
+                                    @if($a->is_active)
                                         <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium" style="background: rgba(34,197,94,0.15); color: #22c55e;">Active</span>
-                                    @elseif($a->status === 'inactive')
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium" style="background: rgba(234,179,8,0.15); color: #eab308;">Inactive</span>
-                                    @else
+                                    @elseif($a->status === 'disposed')
                                         <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium" style="background: rgba(239,68,68,0.15); color: #ef4444;">Disposed</span>
+                                    @else
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium" style="background: rgba(234,179,8,0.15); color: #eab308;">Inactive</span>
                                     @endif
                                 </td>
                                 <td class="px-4 py-3 text-right">

@@ -4,6 +4,7 @@ namespace App\Livewire\Admin\Assets;
 
 use App\Models\Asset;
 use App\Models\Site;
+use App\Models\User;
 use Livewire\Component;
 
 class EditForm extends Component
@@ -15,9 +16,9 @@ class EditForm extends Component
     public string $namaPerangkat = '';
     public string $noSerial = '';
     public string $noAsset = '';
-    public string $status = 'active';
     public string $operatingUnit = '';
     public string $siteLocationAsset = '';
+    public ?int $assignedUserId = null;
 
     public function mount(int $id): void
     {
@@ -29,9 +30,9 @@ class EditForm extends Component
         $this->namaPerangkat = $asset->nama_perangkat;
         $this->noSerial = $asset->no_serial ?? '';
         $this->noAsset = $asset->no_asset;
-        $this->status = $asset->status;
         $this->operatingUnit = $asset->operating_unit ?? '';
         $this->siteLocationAsset = $asset->site_location_asset ?? '';
+        $this->assignedUserId = $asset->assigned_user_id;
     }
 
     protected function rules(): array
@@ -43,9 +44,9 @@ class EditForm extends Component
             'namaPerangkat' => 'required|string|max:255',
             'noSerial' => 'nullable|string|max:255',
             'noAsset' => 'required|string|max:255|unique:assets,no_asset,' . $this->assetModel?->id,
-            'status' => 'required|in:active,inactive,disposed',
             'operatingUnit' => 'nullable|string|max:255',
             'siteLocationAsset' => 'nullable|string|max:255',
+            'assignedUserId' => 'nullable|exists:users,id',
         ];
     }
 
@@ -58,7 +59,7 @@ class EditForm extends Component
             'namaPerangkat.required' => 'Nama Perangkat wajib diisi.',
             'noAsset.required' => 'No Asset wajib diisi.',
             'noAsset.unique' => 'No Asset sudah terdaftar.',
-            'status.required' => 'Status wajib dipilih.',
+            'assignedUserId.exists' => 'Pengguna tidak valid.',
         ];
     }
 
@@ -74,9 +75,10 @@ class EditForm extends Component
                 'nama_perangkat' => $this->namaPerangkat,
                 'no_serial' => $this->noSerial ?: null,
                 'no_asset' => $this->noAsset,
-                'status' => $this->status,
+                'status' => $this->assignedUserId ? 'active' : 'inactive',
                 'operating_unit' => $this->operatingUnit ?: null,
                 'site_location_asset' => $this->siteLocationAsset ?: null,
+                'assigned_user_id' => $this->assignedUserId,
             ]);
 
             $this->dispatch('asset-updated');
@@ -89,6 +91,7 @@ class EditForm extends Component
     {
         return view('livewire.admin.assets.edit-form', [
             'sites' => Site::orderBy('site')->get(),
+            'users' => User::orderBy('name')->get(),
         ]);
     }
 }

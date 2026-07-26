@@ -3,6 +3,7 @@
 namespace App\Livewire\Assets;
 
 use App\Models\Asset;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -63,14 +64,29 @@ class Index extends Component
 
     public function getKategoriList(): array
     {
-        return Asset::select('kategori')->distinct()->whereNotNull('kategori')->orderBy('kategori')->pluck('kategori')->toArray();
+        $query = Asset::select('kategori')->distinct()->whereNotNull('kategori')->orderBy('kategori');
+        $this->applyAssetScope($query);
+        return $query->pluck('kategori')->toArray();
+    }
+
+    private function applyAssetScope($query): void
+    {
+        $user = Auth::user();
+        if (!$user) return;
+        if ($user->hasPermissionTo('view-all-forms')) return;
+        if ($user->hasPermissionTo('view-assigned-forms')) {
+            $query->where('assigned_user_id', $user->id);
+        }
     }
 
     public function render()
     {
         $query = Asset::query()
-            ->withCount(['pemeriksaan', 'perawatan'])
-            ->when($this->search, fn ($q) => $q->where(function ($q) {
+            ->withCount(['pemeriksaan', 'perawatan']);
+
+        $this->applyAssetScope($query);
+
+        $query->when($this->search, fn ($q) => $q->where(function ($q) {
                 $q->where('nama_perangkat', 'like', "%{$this->search}%")
                     ->orWhere('no_asset', 'like', "%{$this->search}%")
                     ->orWhere('brand', 'like', "%{$this->search}%")
