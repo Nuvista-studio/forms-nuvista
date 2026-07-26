@@ -8,6 +8,7 @@ use App\Models\Asset;
 use App\Models\ChecklistTemplate;
 use App\Models\FormApproval;
 use App\Models\FormPerawatan;
+use App\Models\Site;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -52,6 +53,8 @@ class CreateForm extends Component
     public string $namaPerangkat = '';
     public string $noSerial = '';
     public string $noAsset = '';
+    public string $siteLocation = '';
+    public string $locationDetail = '';
 
     // Steps 3-5: Checklist items
     public array $hardwareItems = [];
@@ -87,6 +90,9 @@ class CreateForm extends Component
     public string $assetSearch = '';
     public array $assetResults = [];
     public bool $showAssetDropdown = false;
+
+    // Sites
+    public array $sites = [];
 
     // Create new asset
     public bool $showCreateAsset = false;
@@ -132,6 +138,8 @@ class CreateForm extends Component
         $this->teknisiBusinessUnit = $user->business_unit ?? '';
         $this->teknisiSite = $user->site ?? '';
 
+        $this->sites = Site::orderBy('id_site')->get()->toArray();
+
         if (request('formId')) {
             $formId = request('formId');
         }
@@ -171,6 +179,8 @@ class CreateForm extends Component
             $this->assetSearch = $form->asset->no_asset ?? '';
         }
 
+        $this->siteLocation = $form->site_location ?? '';
+        $this->locationDetail = $form->location_detail ?? '';
         $this->kondisiAkhir = $form->kondisi_akhir ?? '';
         $this->kondisiAkhirNotes = $form->kondisi_akhir_notes ?? '';
         $this->notes = $form->notes ?? '';
@@ -531,6 +541,8 @@ class CreateForm extends Component
             'user_id' => Auth::id(),
             'pengguna_id' => $this->penggunaId,
             'asset_id' => $this->assetId,
+            'site_location' => $this->siteLocation ?: null,
+            'location_detail' => $this->locationDetail ?: null,
             'kondisi_akhir' => $this->kondisiAkhir ?: null,
             'kondisi_akhir_notes' => $this->kondisiAkhirNotes ?: null,
             'notes' => $this->notes ?: null,

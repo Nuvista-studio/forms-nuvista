@@ -20,6 +20,8 @@ class FormPerawatan extends Model
         'user_id',
         'pengguna_id',
         'asset_id',
+        'site_location',
+        'location_detail',
         'kondisi_akhir',
         'kondisi_akhir_notes',
         'notes',
@@ -44,6 +46,11 @@ class FormPerawatan extends Model
     public function asset(): BelongsTo
     {
         return $this->belongsTo(Asset::class);
+    }
+
+    public function site(): BelongsTo
+    {
+        return $this->belongsTo(Site::class, 'site_location', 'id_site');
     }
 
     public function items(): HasMany

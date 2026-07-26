@@ -10,7 +10,7 @@ class ExportPdfController extends Controller
 {
     public function pemeriksaan(int $id)
     {
-        $form = FormPemeriksaan::with(['teknisi', 'pengguna', 'asset', 'items', 'approvals.user'])
+        $form = FormPemeriksaan::with(['teknisi', 'pengguna', 'asset', 'site', 'items', 'approvals.user'])
             ->findOrFail($id);
 
         $pdf = Pdf::loadView('pdf.pemeriksaan', compact('form'))
@@ -21,7 +21,7 @@ class ExportPdfController extends Controller
 
     public function perawatan(int $id)
     {
-        $form = FormPerawatan::with(['teknisi', 'pengguna', 'asset', 'items', 'approvals.user'])
+        $form = FormPerawatan::with(['teknisi', 'pengguna', 'asset', 'site', 'items', 'approvals.user'])
             ->findOrFail($id);
 
         $pdf = Pdf::loadView('pdf.perawatan', compact('form'))

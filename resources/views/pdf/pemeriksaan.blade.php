@@ -151,6 +151,12 @@
                 @endif
             </td>
         </tr>
+        <tr>
+            <td class="lbl">Site Location</td>
+            <td colspan="3">{{ $form->site->site ?? $form->site_location ?? '-' }}</td>
+            <td class="lbl">Location Detail</td>
+            <td colspan="3">{{ $form->location_detail ?? '-' }}</td>
+        </tr>
     </table>
 
     {{-- PEMERIKSAAN HARDWARE + APLIKASI + OS (side by side) --}}

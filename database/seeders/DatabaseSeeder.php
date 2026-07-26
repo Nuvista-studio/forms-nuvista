@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
             RoleAndPermissionSeeder::class,
             ChecklistTemplateSeeder::class,
             AssetSeeder::class,
+            SiteSeeder::class,
         ]);
 
         // Create admin user

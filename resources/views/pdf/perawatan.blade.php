@@ -152,6 +152,12 @@
                         <td class="lbl">No. Asset</td>
                         <td class="val">{{ $form->asset->no_asset ?? '-' }}</td>
                     </tr>
+                    <tr>
+                        <td class="lbl">Site Location</td>
+                        <td class="val" colspan="3">{{ $form->site->site ?? $form->site_location ?? '-' }}</td>
+                        <td class="lbl">Location Detail</td>
+                        <td class="val" colspan="3">{{ $form->location_detail ?? '-' }}</td>
+                    </tr>
                 </table>
             </td>
         </tr>

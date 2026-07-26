@@ -165,6 +165,14 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                     <span class="text-xs text-muted">No. Asset</span>
                     <p class="font-mono text-primary">{{ $form->asset->no_asset ?? '-' }}</p>
                 </div>
+                <div>
+                    <span class="text-xs text-muted">Site Location</span>
+                    <p class="text-primary">{{ $form->site->site ?? $form->site_location ?? '-' }}</p>
+                </div>
+                <div>
+                    <span class="text-xs text-muted">Location Detail</span>
+                    <p class="text-primary">{{ $form->location_detail ?? '-' }}</p>
+                </div>
             </div>
         </div>
 

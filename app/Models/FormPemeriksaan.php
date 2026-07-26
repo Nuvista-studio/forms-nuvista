@@ -20,6 +20,8 @@ class FormPemeriksaan extends Model
         'user_id',
         'pengguna_id',
         'asset_id',
+        'site_location',
+        'location_detail',
         'kondisi',
         'kondisi_keterangan',
         'notes',
@@ -47,6 +49,11 @@ class FormPemeriksaan extends Model
     public function asset(): BelongsTo
     {
         return $this->belongsTo(Asset::class);
+    }
+
+    public function site(): BelongsTo
+    {
+        return $this->belongsTo(Site::class, 'site_location', 'id_site');
     }
 
     public function items(): HasMany

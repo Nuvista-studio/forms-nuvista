@@ -261,6 +261,23 @@
                             @endif
                         @endif
 
+                        <div class="pt-3 space-y-3">
+                            <div>
+                                <label class="text-xs text-muted">Site Location Perawatan <span class="text-red-400">*</span></label>
+                                <select wire:model.live="siteLocation"
+                                    class="glass-input w-full rounded-lg px-3 py-2 text-sm mt-1">
+                                    <option value="">Pilih Site Location</option>
+                                    @foreach($sites as $site)
+                                        <option value="{{ $site['id_site'] }}">{{ $site['id_site'] }} - {{ $site['site'] }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-xs text-muted">Location Detail</label>
+                                <input type="text" wire:model.live="locationDetail" class="glass-input w-full rounded-lg px-3 py-2 text-sm mt-1" placeholder="Contoh: Ruang Server, Meja No. 12">
+                            </div>
+                        </div>
+
                         <div class="flex justify-between pt-4">
                             <button wire:click="prevStep" type="button" class="glass-button-secondary text-sm">← Sebelumnya</button>
                             <button wire:click="nextStep" type="button" class="glass-button-primary text-sm">Selanjutnya →</button>
@@ -561,6 +578,8 @@
                                 <div><span class="text-xs text-muted">No. Asset</span><p class="text-primary font-mono">{{ $noAsset ?: '-' }}</p></div>
                                 <div><span class="text-xs text-muted">Brand</span><p class="text-primary">{{ $brand ?: '-' }}</p></div>
                                 <div><span class="text-xs text-muted">Tipe</span><p class="text-primary">{{ $tipe ?: '-' }}</p></div>
+                                <div><span class="text-xs text-muted">Site Location</span><p class="text-primary">{{ $sites[array_search($siteLocation, array_column($sites, 'id_site'))]['site'] ?? '-' }}</p></div>
+                                <div><span class="text-xs text-muted">Location Detail</span><p class="text-primary">{{ $locationDetail ?: '-' }}</p></div>
                             </div>
                         </div>
 
