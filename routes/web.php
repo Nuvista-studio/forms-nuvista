@@ -33,19 +33,28 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('assets.index');
 
     Volt::route('users', 'pages.users.index')
-        ->name('users.index');
+        ->name('users.index')
+        ->middleware('role:admin');
 
     Volt::route('users/create', 'pages.users.create')
-        ->name('users.create');
+        ->name('users.create')
+        ->middleware('role:admin');
+
+    Volt::route('users/{id}/edit', 'pages.users.edit')
+        ->name('users.edit')
+        ->middleware('role:admin');
 
     Volt::route('users/import', 'pages.users.import')
-        ->name('users.import');
+        ->name('users.import')
+        ->middleware('role:admin');
 
     Route::get('users/export-csv', [UserCsvController::class, 'export'])
-        ->name('users.export.csv');
+        ->name('users.export.csv')
+        ->middleware('role:admin');
 
     Route::get('users/import/template', [UserCsvController::class, 'template'])
-        ->name('users.import.template');
+        ->name('users.import.template')
+        ->middleware('role:admin');
 
     Volt::route('assets/{id}', 'pages.assets.show')
         ->name('assets.show');

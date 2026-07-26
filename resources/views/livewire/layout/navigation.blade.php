@@ -53,9 +53,11 @@ new class extends Component
                     <x-nav-link :href="route('assets.index')" :active="request()->routeIs('assets.index')" wire:navigate>
                         {{ __('Assets') }}
                     </x-nav-link>
+                    @if(auth()->user()->hasRole('admin'))
                     <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')" wire:navigate>
                         {{ __('Users') }}
                     </x-nav-link>
+                    @endif
                     @if(auth()->user()->hasRole('admin'))
                         <x-nav-link :href="url('/admin')" :active="request()->is('admin*')">
                             {{ __('Admin Panel') }}
@@ -141,9 +143,11 @@ new class extends Component
             <x-responsive-nav-link :href="route('assets.index')" :active="request()->routeIs('assets.index')" wire:navigate>
                 {{ __('Assets') }}
             </x-responsive-nav-link>
+            @if(auth()->user()->hasRole('admin'))
             <x-responsive-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')" wire:navigate>
                 {{ __('Users') }}
             </x-responsive-nav-link>
+            @endif
         </div>
 
         <div class="pt-4 pb-1 border-t" style="border-color: var(--color-border);">

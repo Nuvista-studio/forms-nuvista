@@ -3,6 +3,7 @@
 namespace App\Livewire\Users;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -14,6 +15,9 @@ class Index extends Component
     public string $filterRole = '';
     public string $sortBy = 'name';
     public string $sortDirection = 'asc';
+    public bool $showDeleteModal = false;
+    public ?int $deleteUserId = null;
+    public string $deleteUserName = '';
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -70,6 +74,34 @@ class Index extends Component
             'pengguna' => 'Pengguna',
             default => ucfirst($role),
         };
+    }
+
+    public function confirmDelete(int $id, string $name): void
+    {
+        $this->deleteUserId = $id;
+        $this->deleteUserName = $name;
+        $this->showDeleteModal = true;
+    }
+
+    public function cancelDelete(): void
+    {
+        $this->showDeleteModal = false;
+        $this->deleteUserId = null;
+        $this->deleteUserName = '';
+    }
+
+    public function deleteUser(): void
+    {
+        if ($this->deleteUserId === Auth::id()) {
+            $this->dispatch('delete-error', message: 'Tidak bisa menghapus akun sendiri.');
+            $this->cancelDelete();
+            return;
+        }
+
+        User::findOrFail($this->deleteUserId)->delete();
+
+        $this->cancelDelete();
+        $this->dispatch('user-deleted');
     }
 
     public function render()
