@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin\Assets;
 
 use App\Models\Asset;
+use App\Models\Site;
 use Livewire\Component;
 
 class EditForm extends Component
@@ -15,6 +16,8 @@ class EditForm extends Component
     public string $noSerial = '';
     public string $noAsset = '';
     public string $status = 'active';
+    public string $operatingUnit = '';
+    public string $siteLocationAsset = '';
 
     public function mount(int $id): void
     {
@@ -27,6 +30,8 @@ class EditForm extends Component
         $this->noSerial = $asset->no_serial ?? '';
         $this->noAsset = $asset->no_asset;
         $this->status = $asset->status;
+        $this->operatingUnit = $asset->operating_unit ?? '';
+        $this->siteLocationAsset = $asset->site_location_asset ?? '';
     }
 
     protected function rules(): array
@@ -39,6 +44,8 @@ class EditForm extends Component
             'noSerial' => 'nullable|string|max:255',
             'noAsset' => 'required|string|max:255|unique:assets,no_asset,' . $this->assetModel?->id,
             'status' => 'required|in:active,inactive,disposed',
+            'operatingUnit' => 'nullable|string|max:255',
+            'siteLocationAsset' => 'nullable|string|max:255',
         ];
     }
 
@@ -68,6 +75,8 @@ class EditForm extends Component
                 'no_serial' => $this->noSerial ?: null,
                 'no_asset' => $this->noAsset,
                 'status' => $this->status,
+                'operating_unit' => $this->operatingUnit ?: null,
+                'site_location_asset' => $this->siteLocationAsset ?: null,
             ]);
 
             $this->dispatch('asset-updated');
@@ -78,6 +87,8 @@ class EditForm extends Component
 
     public function render()
     {
-        return view('livewire.admin.assets.edit-form');
+        return view('livewire.admin.assets.edit-form', [
+            'sites' => Site::orderBy('site')->get(),
+        ]);
     }
 }

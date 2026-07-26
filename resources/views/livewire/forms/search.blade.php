@@ -167,6 +167,15 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                                     <div class="flex items-center gap-1">
                                         <button wire:click="viewForm({{ $form['id'] }}, '{{ $form['type'] }}')"
                                             class="text-xs text-blue-400 hover:underline">View</button>
+                                        @if($form['status'] === 'submitted')
+                                            <a href="{{ route($form['type'] . '.signature', $form['id']) }}"
+                                                wire:navigate
+                                                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/15 text-amber-400 hover:bg-amber-500/25 transition-colors ml-1"
+                                                title="Tanda Tangan - Diperiksa Oleh">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                                                Sign
+                                            </a>
+                                        @endif
                                         @if($form['status'] === 'draft' || $form['status'] === 'revisi')
                                             <a href="{{ route($form['type'] . '.create') }}?formId={{ $form['id'] }}"
                                                 wire:navigate

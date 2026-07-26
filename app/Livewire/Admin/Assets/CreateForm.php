@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin\Assets;
 
 use App\Models\Asset;
+use App\Models\Site;
 use Livewire\Component;
 
 class CreateForm extends Component
@@ -14,6 +15,8 @@ class CreateForm extends Component
     public string $noSerial = '';
     public string $noAsset = '';
     public string $status = 'active';
+    public string $operatingUnit = '';
+    public string $siteLocationAsset = '';
 
     protected function rules(): array
     {
@@ -25,6 +28,8 @@ class CreateForm extends Component
             'noSerial' => 'nullable|string|max:255',
             'noAsset' => 'required|string|max:255|unique:assets,no_asset',
             'status' => 'required|in:active,inactive,disposed',
+            'operatingUnit' => 'nullable|string|max:255',
+            'siteLocationAsset' => 'nullable|string|max:255',
         ];
     }
 
@@ -54,6 +59,8 @@ class CreateForm extends Component
                 'no_serial' => $this->noSerial ?: null,
                 'no_asset' => $this->noAsset,
                 'status' => $this->status,
+                'operating_unit' => $this->operatingUnit ?: null,
+                'site_location_asset' => $this->siteLocationAsset ?: null,
             ]);
 
             $this->dispatch('asset-created');
@@ -65,6 +72,8 @@ class CreateForm extends Component
 
     public function render()
     {
-        return view('livewire.admin.assets.create-form');
+        return view('livewire.admin.assets.create-form', [
+            'sites' => Site::orderBy('site')->get(),
+        ]);
     }
 }

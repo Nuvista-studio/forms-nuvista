@@ -21,6 +21,8 @@ class Asset extends Model
         'no_asset',
         'qr_code',
         'status',
+        'operating_unit',
+        'site_location_asset',
     ];
 
     public function getBarcodeSvgAttribute(): ?string
@@ -54,5 +56,15 @@ class Asset extends Model
     public function perawatan(): HasMany
     {
         return $this->hasMany(FormPerawatan::class);
+    }
+
+    public function operatingUnitSite(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Site::class, 'operating_unit', 'id_site');
+    }
+
+    public function siteAsset(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Site::class, 'site_location_asset', 'id_site');
     }
 }
