@@ -98,9 +98,15 @@ class ChecklistTemplateSeeder extends Seeder
         ]);
 
         $appPerawatan->items()->createMany([
-            ['name' => 'Application Standard IT Check', 'sort_order' => 1],
-            ['name' => 'Antivirus Kaspersky (Lisensi & Proteksi Aktif)', 'sort_order' => 2],
-            ['name' => 'Manage Engine Endpoint Central (Terkoneksi Server)', 'sort_order' => 3],
+            ['name' => 'Antivirus (Kaspersky)', 'sort_order' => 1],
+            ['name' => 'Manage Device (Endpoint Central)', 'sort_order' => 2],
+            ['name' => 'Office 365', 'sort_order' => 3],
+            ['name' => 'Remote (Anydesk)', 'sort_order' => 4],
+            ['name' => 'Browser (Edge/Chrome)', 'sort_order' => 5],
+            ['name' => 'PDF (Adobe Acrobat/PDF SAM/PDF Gear)', 'sort_order' => 6],
+            ['name' => 'Onedrive', 'sort_order' => 7],
+            ['name' => 'Teams', 'sort_order' => 8],
+            ['name' => 'File Extraction (7-Zip)', 'sort_order' => 9],
         ]);
 
         // OS Perawatan

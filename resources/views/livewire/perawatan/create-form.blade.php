@@ -391,8 +391,8 @@
                                 <div class="flex items-center justify-between">
                                     <span class="text-sm font-medium text-primary">{{ $item['name'] }}</span>
                                     <div class="flex gap-1">
-                                        <button wire:click="toggleItemStatus('aplikasiItems', {{ $index }}, 'baik')" type="button" class="px-3 py-1 rounded-lg text-xs font-semibold transition-all border-2" :class="{{ json_encode($item['status']) }} === 'baik' ? 'border-emerald-500 bg-emerald-500/15 text-emerald-400' : 'border-transparent'" style="{{ json_encode($item['status']) !== 'baik' ? 'background: var(--color-bg-secondary); color: var(--color-text-secondary);' : '' }}">✓ Baik</button>
-                                        <button wire:click="toggleItemStatus('aplikasiItems', {{ $index }}, 'tidak_baik')" type="button" class="px-3 py-1 rounded-lg text-xs font-semibold transition-all border-2" :class="{{ json_encode($item['status']) }} === 'tidak_baik' ? 'border-red-500 bg-red-500/15 text-red-400' : 'border-transparent'" style="{{ json_encode($item['status']) !== 'tidak_baik' ? 'background: var(--color-bg-secondary); color: var(--color-text-secondary);' : '' }}">✗ Tidak Baik</button>
+                                        <button wire:click="toggleItemStatus('aplikasiItems', {{ $index }}, 'baik')" type="button" class="px-3 py-1 rounded-lg text-xs font-semibold transition-all border-2" :class="{{ json_encode($item['status']) }} === 'baik' ? 'border-emerald-500 bg-emerald-500/15 text-emerald-400' : 'border-transparent'" style="{{ json_encode($item['status']) !== 'baik' ? 'background: var(--color-bg-secondary); color: var(--color-text-secondary);' : '' }}">OK</button>
+                                        <button wire:click="toggleItemStatus('aplikasiItems', {{ $index }}, 'tidak_baik')" type="button" class="px-3 py-1 rounded-lg text-xs font-semibold transition-all border-2" :class="{{ json_encode($item['status']) }} === 'tidak_baik' ? 'border-red-500 bg-red-500/15 text-red-400' : 'border-transparent'" style="{{ json_encode($item['status']) !== 'tidak_baik' ? 'background: var(--color-bg-secondary); color: var(--color-text-secondary);' : '' }}">NOT</button>
                                     </div>
                                 </div>
                                 <textarea wire:model.live="aplikasiItems.{{ $index }}.keterangan" rows="1" placeholder="Keterangan (opsional)..." class="glass-input w-full rounded-lg px-3 py-1.5 text-xs resize-none"></textarea>
@@ -595,7 +595,7 @@
                             <span class="text-xs font-semibold text-muted uppercase">Ringkasan Checklist</span>
                             <div class="grid grid-cols-3 gap-2 text-center text-sm mt-2">
                                 <div><p class="text-xs text-muted">Hardware</p><p class="text-emerald-400 font-bold">{{ $hwBaik }} Baik</p><p class="text-red-400 font-bold">{{ $hwTidakBaik }} Tidak Baik</p></div>
-                                <div><p class="text-xs text-muted">Aplikasi</p><p class="text-emerald-400 font-bold">{{ $appBaik }} Baik</p><p class="text-red-400 font-bold">{{ $appTidakBaik }} Tidak Baik</p></div>
+                                <div><p class="text-xs text-muted">Aplikasi</p><p class="text-emerald-400 font-bold">{{ $appBaik }} OK</p><p class="text-red-400 font-bold">{{ $appTidakBaik }} NOT</p></div>
                                 <div><p class="text-xs text-muted">OS</p><p class="text-emerald-400 font-bold">{{ $osBaik }} Baik</p><p class="text-red-400 font-bold">{{ $osTidakBaik }} Tidak Baik</p></div>
                             </div>
                         </div>

@@ -242,8 +242,8 @@
                             <tr>
                                 <td>{{ $item->name }}</td>
                                 <td class="col-kondisi">
-                                    @if($item->status === 'baik') Baik
-                                    @elseif($item->status === 'tidak_baik') Tidak Baik
+                                    @if($item->status === 'baik') OK
+                                    @elseif($item->status === 'tidak_baik') NOT
                                     @else - @endif
                                 </td>
                                 <td>{{ $item->keterangan ?? '' }}</td>
