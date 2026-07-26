@@ -7,6 +7,7 @@
     x-init=""
     @asset-found.window="showToast('Aset ditemukan: ' + $event.detail.asset.nama_perangkat, 'success')"
     @asset-not-found.window="showToast('Aset tidak ditemukan untuk kode: ' + $event.detail.code, 'error')"
+    @asset-created.window="showToast('Asset baru berhasil dibuat: ' + $event.detail.name, 'success')"
     @draft-saved.window="showToast('Draft tersimpan', 'success')"
     @form-submitted.window="showToast('Form berhasil disubmit!', 'success')"
     @submit-error.window="showToast('Gagal submit: ' + $event.detail.message, 'error')"
@@ -233,56 +234,85 @@
                 <div class="px-4 pb-4 space-y-4 border-t" style="border-color: var(--color-border);">
                     <div class="pt-4">
                         <h4 class="text-xs font-semibold text-muted uppercase tracking-wider mb-3">Data Perangkat</h4>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div>
-                                <label class="text-xs text-muted">No. Asset</label>
-                                <div class="flex gap-2 mt-1">
-                                    <input type="text" wire:model.live="noAsset"
-                                        placeholder="Contoh: ASR-2024-001"
-                                        class="glass-input flex-1 rounded-lg px-3 py-2 text-sm">
-                                    <button wire:click="searchAssetManual" type="button"
-                                        class="glass-button-secondary text-sm px-3 whitespace-nowrap">Cari</button>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="text-xs text-muted">Kategori</label>
-                                <input type="text" wire:model.live="kategori"
-                                    placeholder="Contoh: Laptop, Printer, Monitor"
-                                    class="glass-input w-full rounded-lg px-3 py-2 text-sm mt-1">
-                            </div>
-                            <div>
-                                <label class="text-xs text-muted">Brand</label>
-                                <input type="text" wire:model.live="brand"
-                                    placeholder="Contoh: Lenovo, HP, Dell"
-                                    class="glass-input w-full rounded-lg px-3 py-2 text-sm mt-1">
-                            </div>
-                            <div>
-                                <label class="text-xs text-muted">Tipe</label>
-                                <input type="text" wire:model.live="tipe"
-                                    placeholder="Contoh: ThinkPad T480"
-                                    class="glass-input w-full rounded-lg px-3 py-2 text-sm mt-1">
-                            </div>
-                            <div>
-                                <label class="text-xs text-muted">Nama Perangkat</label>
-                                <input type="text" wire:model.live="namaPerangkat"
-                                    placeholder="Contoh: Laptop Kantor"
-                                    class="glass-input w-full rounded-lg px-3 py-2 text-sm mt-1">
-                            </div>
-                            <div>
-                                <label class="text-xs text-muted">No. Serial</label>
-                                <input type="text" wire:model.live="noSerial"
-                                    placeholder="Contoh: SN-12345678"
-                                    class="glass-input w-full rounded-lg px-3 py-2 text-sm mt-1">
-                            </div>
-                        </div>
 
                         @if($assetId)
-                            <div class="mt-3 flex items-center gap-2 text-xs text-emerald-400">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                </svg>
-                                <span>Data ditemukan dari database</span>
+                            <div class="glass-card p-3 flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-semibold text-primary">{{ $namaPerangkat }}</p>
+                                    <p class="text-xs text-muted">{{ $noAsset }} · {{ $brand }} {{ $tipe }}</p>
+                                </div>
+                                <button wire:click="clearAsset" type="button"
+                                    class="text-xs text-red-400 hover:text-red-300">Ganti</button>
                             </div>
+                        @else
+                            <div class="relative">
+                                <input type="text" wire:model.live="assetSearch"
+                                    wire:input.debounce.300ms="searchAsset"
+                                    placeholder="Cari No. Asset, Nama Perangkat, Brand, atau Tipe..."
+                                    class="glass-input w-full rounded-lg px-3 py-2 text-sm">
+                                @if($showAssetDropdown && count($assetResults) > 0)
+                                    <div class="absolute z-20 mt-1 w-full rounded-lg shadow-lg max-h-48 overflow-auto"
+                                        style="background: var(--color-bg-secondary); border: 1px solid var(--color-border);">
+                                        @foreach($assetResults as $a)
+                                            <button wire:click="selectAsset({{ $a['id'] }})" type="button"
+                                                class="w-full text-left px-3 py-2 text-sm hover:opacity-80 transition"
+                                                style="color: var(--color-text-primary);">
+                                                <span class="font-medium">{{ $a['no_asset'] }}</span>
+                                                <span class="text-xs text-muted ml-2">{{ $a['nama_perangkat'] }} · {{ $a['brand'] }} {{ $a['tipe'] }}</span>
+                                            </button>
+                                        @endforeach
+                                    </div>
+                                @elseif($showAssetDropdown && strlen($assetSearch) >= 2 && count($assetResults) === 0)
+                                    <div class="absolute z-20 mt-1 w-full rounded-lg shadow-lg"
+                                        style="background: var(--color-bg-secondary); border: 1px solid var(--color-border);">
+                                        <button wire:click="openCreateAsset" type="button"
+                                            class="w-full text-left px-3 py-2 text-sm hover:opacity-80 transition flex items-center gap-2"
+                                            style="color: var(--color-text-primary);">
+                                            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                            <span>Tambah Asset Baru: <strong>{{ $assetSearch }}</strong></span>
+                                        </button>
+                                    </div>
+                                @endif
+                            </div>
+
+                            @if($showCreateAsset)
+                                <div class="glass-card p-3 mt-2 space-y-2" style="border: 1px solid var(--color-border);">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <p class="text-xs font-semibold text-primary">Tambah Asset Baru</p>
+                                        <button wire:click="closeCreateAsset" type="button" class="text-xs text-red-400 hover:text-red-300">Batal</button>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <label class="text-xs text-muted">No. Asset <span class="text-red-400">*</span></label>
+                                            <input type="text" wire:model.live="newAssetNoAsset" class="glass-input w-full rounded-lg px-3 py-1.5 text-sm mt-1" placeholder="Contoh: ASR-2024-001">
+                                            @error('newAssetNoAsset') <span class="text-xs text-red-400">{{ $message }}</span> @enderror
+                                        </div>
+                                        <div>
+                                            <label class="text-xs text-muted">Kategori</label>
+                                            <input type="text" wire:model.live="newAssetKategori" class="glass-input w-full rounded-lg px-3 py-1.5 text-sm mt-1" placeholder="Laptop, Printer, Monitor">
+                                        </div>
+                                        <div>
+                                            <label class="text-xs text-muted">Brand</label>
+                                            <input type="text" wire:model.live="newAssetBrand" class="glass-input w-full rounded-lg px-3 py-1.5 text-sm mt-1" placeholder="Lenovo, HP, Dell">
+                                        </div>
+                                        <div>
+                                            <label class="text-xs text-muted">Tipe</label>
+                                            <input type="text" wire:model.live="newAssetTipe" class="glass-input w-full rounded-lg px-3 py-1.5 text-sm mt-1" placeholder="ThinkPad T480">
+                                        </div>
+                                        <div>
+                                            <label class="text-xs text-muted">Nama Perangkat</label>
+                                            <input type="text" wire:model.live="newAssetNamaPerangkat" class="glass-input w-full rounded-lg px-3 py-1.5 text-sm mt-1" placeholder="Laptop Kantor">
+                                        </div>
+                                        <div>
+                                            <label class="text-xs text-muted">No. Serial</label>
+                                            <input type="text" wire:model.live="newAssetNoSerial" class="glass-input w-full rounded-lg px-3 py-1.5 text-sm mt-1" placeholder="SN-12345678">
+                                        </div>
+                                    </div>
+                                    <button wire:click="createAsset" type="button" class="glass-button-primary text-xs w-full py-1.5 mt-1">
+                                        Simpan & Pilih Asset
+                                    </button>
+                                </div>
+                            @endif
                         @endif
 
                         <div class="flex justify-between pt-4">

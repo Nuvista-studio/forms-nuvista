@@ -40,13 +40,14 @@
         .checklist-table { width: 100%; border: 1px solid #999; margin-bottom: 4px; table-layout: fixed; }
         .checklist-table th { background: #f5f5f5; border: 1px solid #ccc; padding: 3px 4px; font-size: 10px; text-align: left; font-weight: 600; }
         .checklist-table td { border: 1px solid #ddd; padding: 2px 4px; font-size: 10px; }
-        .checklist-table .col-name { width: 28%; }
-        .checklist-table .col-kondisi { width: 16%; text-align: center; }
-        .checklist-table .col-fcc { width: 16%; text-align: center; }
-        .checklist-table .col-dc { width: 16%; text-align: center; }
-        .checklist-table .col-battery { width: 10%; text-align: center; font-weight: bold; }
-        .checklist-table .col-ket { width: 14%; }
+        .checklist-table .col-name { width: 36%; }
+        .checklist-table .col-kondisi { width: 20%; text-align: center; }
+        .checklist-table .col-ket { width: 44%; }
         .checklist-table tr:nth-child(even) td { background: #fafafa; }
+        .battery-detail { background: #f9f9f9; }
+        .battery-detail td { border: 1px solid #ddd; padding: 2px 4px; font-size: 9px; }
+        .battery-detail .lbl { font-weight: 600; width: 25%; text-align: right; padding-right: 6px; }
+        .battery-detail .val { width: 25%; }
 
         .tindakan-table { width: 100%; border: 1px solid #999; margin-bottom: 4px; }
         .tindakan-table td { border: 1px solid #ccc; padding: 3px 6px; font-size: 11px; }
@@ -169,9 +170,6 @@
                         <tr>
                             <th class="col-name">Name</th>
                             <th class="col-kondisi">Kondisi</th>
-                            <th class="col-fcc">Full Charge (mWh)</th>
-                            <th class="col-dc">Design (mWh)</th>
-                            <th class="col-battery">Battery %</th>
                             <th class="col-ket">Keterangan</th>
                         </tr>
                     </thead>
@@ -184,25 +182,32 @@
                                     @elseif($item->status === 'tidak_baik') Tidak Baik
                                     @else - @endif
                                 </td>
-                                @if($item->name === 'Battery')
-                                    <td class="col-fcc">{{ $item->full_charge_capacity ?? '-' }}</td>
-                                    <td class="col-dc">{{ $item->design_capacity ?? '-' }}</td>
-                                    <td class="col-battery">
-                                        @if($item->full_charge_capacity && $item->design_capacity && $item->design_capacity > 0)
-                                            {{ round(($item->full_charge_capacity / $item->design_capacity) * 100) }}%
-                                        @else
-                                            -
-                                        @endif
-                                    </td>
-                                @else
-                                    <td class="col-fcc">-</td>
-                                    <td class="col-dc">-</td>
-                                    <td class="col-battery">-</td>
-                                @endif
                                 <td>{{ $item->keterangan ?? '' }}</td>
                             </tr>
+                            @if($item->name === 'Battery' && ($item->full_charge_capacity || $item->design_capacity))
+                                <tr class="battery-detail">
+                                    <td colspan="3" style="border-top: none; padding: 1px 4px 3px;">
+                                        <table style="width: 100%; border-collapse: collapse;">
+                                            <tr>
+                                                <td class="lbl">Full Charge Capacity</td>
+                                                <td class="val">{{ $item->full_charge_capacity ?? '-' }} mWh</td>
+                                                <td class="lbl">Design Capacity</td>
+                                                <td class="val">{{ $item->design_capacity ?? '-' }} mWh</td>
+                                                <td class="lbl">Battery Health</td>
+                                                <td class="val" style="font-weight: bold;">
+                                                    @if($item->full_charge_capacity && $item->design_capacity && $item->design_capacity > 0)
+                                                        {{ round(($item->full_charge_capacity / $item->design_capacity) * 100) }}%
+                                                    @else
+                                                        -
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            @endif
                         @empty
-                            <tr><td>-</td><td class="col-kondisi">-</td><td class="col-fcc">-</td><td class="col-dc">-</td><td class="col-battery">-</td><td>-</td></tr>
+                            <tr><td>-</td><td class="col-kondisi">-</td><td>-</td></tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -216,7 +221,7 @@
                         <tr>
                             <th class="col-name">Name</th>
                             <th class="col-kondisi">Kondisi</th>
-                            <th class="col-ket" style="width:56%;">Keterangan</th>
+                            <th class="col-ket">Keterangan</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -228,10 +233,10 @@
                                     @elseif($item->status === 'tidak_baik') Not Installed
                                     @else - @endif
                                 </td>
-                                <td style="width:56%;">{{ $item->keterangan ?? '' }}</td>
+                                <td>{{ $item->keterangan ?? '' }}</td>
                             </tr>
                         @empty
-                            <tr><td>-</td><td class="col-kondisi">-</td><td style="width:56%;">-</td></tr>
+                            <tr><td>-</td><td class="col-kondisi">-</td><td>-</td></tr>
                         @endforelse
                     </tbody>
                 </table>
