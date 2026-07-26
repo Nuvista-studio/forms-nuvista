@@ -23,11 +23,5 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('access-admin', function ($user) {
             return $user->hasRole('admin');
         });
-
-        $templatePath = storage_path('app/templates');
-        if (!is_dir($templatePath)) {
-            mkdir($templatePath, 0755, true);
-        }
-        $this->app['view']->addNamespace('pdf-templates', $templatePath);
     }
 }
