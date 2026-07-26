@@ -245,9 +245,6 @@
     </table>
 
     {{-- OPERATING SYSTEM + TINDAKAN (side by side) --}}
-    @php
-        $tindakanItems = ['Install / Repair / Reset OS', 'Create / Delete Account', 'Delete / Backup Data', 'Install / Uninstall Application', 'Service / Pergantian sparepart', 'Upgrade', 'Pergantian Unit (replacement unit)'];
-    @endphp
 
     <table class="two-col">
         <tr>
@@ -284,12 +281,26 @@
             <td>
                 <div class="section-title" style="margin-top:0;">Tindakan</div>
                 <table class="tindakan-table">
-                    @foreach($tindakanItems as $ti)
+                    @if($form->tindakan_categories)
+                        @foreach($form->tindakan_categories as $cat)
+                            @if(!empty($cat['selected']))
+                                <tr>
+                                    <td style="width:35%; font-weight:600; font-size:10px;">{{ $cat['label'] }}</td>
+                                    <td style="font-size:10px;">{{ implode(', ', $cat['selected']) }}</td>
+                                </tr>
+                            @endif
+                        @endforeach
+                        @if($form->tindakan_solution)
+                            <tr>
+                                <td style="font-weight:600; font-size:10px;">Solution</td>
+                                <td style="font-size:10px;">{{ $form->tindakan_solution }}</td>
+                            </tr>
+                        @endif
+                    @else
                         <tr>
-                            <td style="width:12%; text-align:center; font-size:12px;">[&nbsp;&nbsp;&nbsp;]</td>
-                            <td>{{ $ti }}</td>
+                            <td colspan="2" style="font-size:10px; color:#999;">Tidak ada tindakan</td>
                         </tr>
-                    @endforeach
+                    @endif
                 </table>
             </td>
         </tr>

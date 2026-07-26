@@ -552,7 +552,7 @@
                                                 ? 'border-emerald-500 bg-emerald-500/15 text-emerald-400'
                                                 : 'border-transparent'"
                                             style="{{ json_encode($item['status']) !== 'baik' ? 'background: var(--color-bg-secondary); color: var(--color-text-secondary);' : '' }}">
-                                            ✓ Baik
+                                            Installed
                                         </button>
                                         <button wire:click="toggleItemStatus('aplikasiItems', {{ $index }}, 'tidak_baik')"
                                             type="button"
@@ -561,7 +561,7 @@
                                                 ? 'border-red-500 bg-red-500/15 text-red-400'
                                                 : 'border-transparent'"
                                             style="{{ json_encode($item['status']) !== 'tidak_baik' ? 'background: var(--color-bg-secondary); color: var(--color-text-secondary);' : '' }}">
-                                            ✗ Tidak Baik
+                                            Not Installed
                                         </button>
                                     </div>
                                 </div>
@@ -682,7 +682,7 @@
             </div>
         </div>
 
-        {{-- STEP 7: Tindakan / Catatan --}}
+        {{-- STEP 7: Tindakan --}}
         <div class="glass-card overflow-hidden">
             <button wire:click="goToStep(7)" type="button"
                 class="w-full flex items-center justify-between p-4 text-left transition-colors"
@@ -691,7 +691,10 @@
                     <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
                         :class="openStep === 7 ? 'text-primary' : 'text-muted'"
                         style="background: var(--color-bg-tertiary);">7</span>
-                    <span class="font-semibold text-primary text-sm">Catatan & Tindakan</span>
+                    <div>
+                        <span class="font-semibold text-primary text-sm">Tindakan</span>
+                        <p class="text-xs text-muted" x-show="openStep !== 7">Kategori tindakan yang dilakukan</p>
+                    </div>
                 </div>
                 <svg class="w-5 h-5 text-muted transition-transform duration-200"
                     :class="openStep === 7 ? 'rotate-180' : ''"
@@ -701,6 +704,70 @@
             </button>
 
             <div x-show="openStep === 7" x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 -translate-y-2"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 -translate-y-2">
+                <div class="px-4 pb-4 border-t" style="border-color: var(--color-border);">
+                    <div class="pt-4 space-y-4">
+                        @foreach($tindakanCategories as $catIndex => $category)
+                            <div class="glass-card p-3" style="background: var(--color-bg-tertiary); border: none;">
+                                <span class="text-sm font-semibold text-primary mb-2 block">{{ $category['label'] }}</span>
+                                <div class="flex flex-wrap gap-1.5">
+                                    @foreach($category['options'] as $option)
+                                        @php
+                                            $isSelected = in_array($option, $category['selected']);
+                                        @endphp
+                                        <button wire:click="toggleTindakanOption({{ $catIndex }}, '{{ $option }}')"
+                                            type="button"
+                                            class="px-3 py-1 rounded-lg text-xs font-semibold transition-all border-2"
+                                            :class="{{ $isSelected ? 'true' : 'false' }}
+                                                ? 'border-emerald-500 bg-emerald-500/15 text-emerald-400'
+                                                : 'border-transparent'"
+                                            style="{{ !$isSelected ? 'background: var(--color-bg-secondary); color: var(--color-text-secondary);' : '' }}">
+                                            {{ $option }}
+                                        </button>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endforeach
+
+                        <div>
+                            <label class="text-xs font-semibold text-muted uppercase tracking-wider">Solution</label>
+                            <textarea wire:model.live="tindakanSolution" rows="3"
+                                class="glass-input w-full rounded-lg px-3 py-2 text-sm mt-2 resize-none"
+                                placeholder="Contoh: Replacement unit / Upgrade Disk, Ram dll"></textarea>
+                        </div>
+
+                        <div class="flex justify-between pt-2">
+                            <button wire:click="prevStep" type="button" class="glass-button-secondary text-sm">← Sebelumnya</button>
+                            <button wire:click="nextStep" type="button" class="glass-button-primary text-sm">Selanjutnya →</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- STEP 8: Catatan --}}
+        <div class="glass-card overflow-hidden">
+            <button wire:click="goToStep(8)" type="button"
+                class="w-full flex items-center justify-between p-4 text-left transition-colors"
+                :class="openStep === 8 ? '' : 'opacity-70 hover:opacity-100'">
+                <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
+                        :class="openStep === 8 ? 'text-primary' : 'text-muted'"
+                        style="background: var(--color-bg-tertiary);">8</span>
+                    <span class="font-semibold text-primary text-sm">Catatan</span>
+                </div>
+                <svg class="w-5 h-5 text-muted transition-transform duration-200"
+                    :class="openStep === 8 ? 'rotate-180' : ''"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </button>
+
+            <div x-show="openStep === 8" x-transition:enter="transition ease-out duration-200"
                     x-transition:enter-start="opacity-0 -translate-y-2"
                     x-transition:enter-end="opacity-100 translate-y-0"
                     x-transition:leave="transition ease-in duration-150"
@@ -724,25 +791,25 @@
             </div>
         </div>
 
-        {{-- STEP 8: Review & Submit --}}
+        {{-- STEP 9: Review & Submit --}}
         <div class="glass-card overflow-hidden">
-            <button wire:click="goToStep(8)" type="button"
+            <button wire:click="goToStep(9)" type="button"
                 class="w-full flex items-center justify-between p-4 text-left transition-colors"
-                :class="openStep === 8 ? '' : 'opacity-70 hover:opacity-100'">
+                :class="openStep === 9 ? '' : 'opacity-70 hover:opacity-100'">
                 <div class="flex items-center gap-3">
                     <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
-                        :class="openStep === 8 ? 'text-primary' : 'text-muted'"
-                        style="background: var(--color-bg-tertiary);">8</span>
+                        :class="openStep === 9 ? 'text-primary' : 'text-muted'"
+                        style="background: var(--color-bg-tertiary);">9</span>
                     <span class="font-semibold text-primary text-sm">Review & Submit</span>
                 </div>
                 <svg class="w-5 h-5 text-muted transition-transform duration-200"
-                    :class="openStep === 8 ? 'rotate-180' : ''"
+                    :class="openStep === 9 ? 'rotate-180' : ''"
                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                 </svg>
             </button>
 
-            <div x-show="openStep === 8" x-transition:enter="transition ease-out duration-200"
+            <div x-show="openStep === 9" x-transition:enter="transition ease-out duration-200"
                     x-transition:enter-start="opacity-0 -translate-y-2"
                     x-transition:enter-end="opacity-100 translate-y-0"
                     x-transition:leave="transition ease-in duration-150"
@@ -819,6 +886,31 @@
                             <div class="glass-card p-3" style="background: var(--color-bg-tertiary); border: none;">
                                 <span class="text-xs font-semibold text-muted uppercase">Catatan</span>
                                 <p class="text-sm text-primary mt-1">{{ $notes }}</p>
+                            </div>
+                        @endif
+
+                        @php
+                            $hasTindakan = collect($tindakanCategories)->filter(fn($c) => !empty($c['selected']))->count() > 0;
+                        @endphp
+                        @if($hasTindakan)
+                            <div class="glass-card p-3" style="background: var(--color-bg-tertiary); border: none;">
+                                <span class="text-xs font-semibold text-muted uppercase">Tindakan</span>
+                                <div class="mt-1 space-y-1">
+                                    @foreach($tindakanCategories as $cat)
+                                        @if(!empty($cat['selected']))
+                                            <div class="text-sm">
+                                                <span class="font-semibold text-primary">{{ $cat['label'] }}:</span>
+                                                <span class="text-secondary">{{ implode(', ', $cat['selected']) }}</span>
+                                            </div>
+                                        @endif
+                                    @endforeach
+                                    @if($tindakanSolution)
+                                        <div class="text-sm mt-2">
+                                            <span class="font-semibold text-primary">Solution:</span>
+                                            <span class="text-secondary">{{ $tindakanSolution }}</span>
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
                         @endif
 

@@ -23,12 +23,15 @@ class FormPemeriksaan extends Model
         'kondisi',
         'kondisi_keterangan',
         'notes',
+        'tindakan_categories',
+        'tindakan_solution',
         'status',
         'submitted_at',
     ];
 
     protected $casts = [
         'submitted_at' => 'datetime',
+        'tindakan_categories' => 'array',
     ];
 
     public function teknisi(): BelongsTo

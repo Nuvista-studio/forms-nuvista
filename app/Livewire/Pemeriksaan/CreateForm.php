@@ -21,7 +21,7 @@ class CreateForm extends Component
     use WithFileUploads;
 
     public int $currentStep = 1;
-    public const TOTAL_STEPS = 8;
+    public const TOTAL_STEPS = 9;
 
     public array $stepTitles = [
         1 => 'Info Pengguna',
@@ -31,7 +31,8 @@ class CreateForm extends Component
         5 => 'Pemeriksaan Aplikasi',
         6 => 'Operating System',
         7 => 'Tindakan',
-        8 => 'Review & Submit',
+        8 => 'Catatan',
+        9 => 'Review & Submit',
     ];
 
     public array $stepIcons = [
@@ -42,7 +43,8 @@ class CreateForm extends Component
         5 => 'app-window',
         6 => 'terminal',
         7 => 'wrench',
-        8 => 'check-circle',
+        8 => 'pencil',
+        9 => 'check-circle',
     ];
 
     // Step 1: Info Pengguna
@@ -75,7 +77,11 @@ class CreateForm extends Component
     public array $aplikasiItems = [];
     public array $osItems = [];
 
-    // Step 7: Tindakan
+    // Step 7: Tindakan (Kategori)
+    public array $tindakanCategories = [];
+    public string $tindakanSolution = '';
+
+    // Step 8: Catatan
     public string $notes = '';
     public array $tindakanItems = [];
 
@@ -146,6 +152,8 @@ class CreateForm extends Component
         $this->teknisiBusinessUnit = $user->business_unit ?? '';
         $this->teknisiSite = $user->site ?? '';
 
+        $this->initTindakanCategories();
+
         if (request('formId')) {
             $formId = request('formId');
         }
@@ -154,6 +162,32 @@ class CreateForm extends Component
 
         if ($formId) {
             $this->loadFormData($formId);
+        }
+    }
+
+    private function initTindakanCategories(): void
+    {
+        $this->tindakanCategories = [
+            ['key' => 'operating_system', 'label' => 'Operating System', 'options' => ['Re-Install', 'Repairing', 'Troubleshoot', 'Resetting'], 'selected' => []],
+            ['key' => 'software', 'label' => 'Software', 'options' => ['Re-Install', 'Uninstall', 'Install'], 'selected' => []],
+            ['key' => 'hardware', 'label' => 'Hardware', 'options' => ['Service Internal', 'Service External', 'Change Spareparts'], 'selected' => []],
+            ['key' => 'performance', 'label' => 'Performance', 'options' => ['Check', 'Update', 'Upgrade'], 'selected' => []],
+            ['key' => 'account_profile', 'label' => 'Account Profile', 'options' => ['Create New', 'Delete', 'Re-Created'], 'selected' => []],
+            ['key' => 'other', 'label' => 'Other', 'options' => ['Dispose', 'Instore', 'Check for Exit'], 'selected' => []],
+        ];
+    }
+
+    public function toggleTindakanOption(int $categoryIndex, string $option): void
+    {
+        if (!isset($this->tindakanCategories[$categoryIndex])) return;
+
+        $selected = &$this->tindakanCategories[$categoryIndex]['selected'];
+        $key = array_search($option, $selected);
+        if ($key !== false) {
+            unset($selected[$key]);
+            $this->tindakanCategories[$categoryIndex]['selected'] = array_values($selected);
+        } else {
+            $this->tindakanCategories[$categoryIndex]['selected'][] = $option;
         }
     }
 
@@ -187,6 +221,17 @@ class CreateForm extends Component
         $this->kondisi = $form->kondisi ?? '';
         $this->kondisiKeterangan = $form->kondisi_keterangan ?? '';
         $this->notes = $form->notes ?? '';
+        $this->tindakanSolution = $form->tindakan_solution ?? '';
+
+        if ($form->tindakan_categories) {
+            foreach ($form->tindakan_categories as $saved) {
+                foreach ($this->tindakanCategories as &$cat) {
+                    if ($cat['key'] === $saved['key']) {
+                        $cat['selected'] = $saved['selected'] ?? [];
+                    }
+                }
+            }
+        }
 
         foreach ($form->items as $item) {
             $category = $item->category;
@@ -391,6 +436,17 @@ class CreateForm extends Component
             $this->noSerial = $asset->no_serial ?? '';
             $this->assetSearch = $asset->no_asset;
             $this->showAssetDropdown = false;
+
+            $this->updateOsHostname($asset->nama_perangkat);
+        }
+    }
+
+    private function updateOsHostname(string $hostname): void
+    {
+        foreach ($this->osItems as $index => $item) {
+            if ($item['name'] === 'Nama Perangkat (Hostname)') {
+                $this->osItems[$index]['value'] = $hostname;
+            }
         }
     }
 
@@ -454,6 +510,8 @@ class CreateForm extends Component
         $this->showAssetDropdown = false;
         $this->showCreateAsset = false;
         $this->resetNewAssetFields();
+
+        $this->updateOsHostname($asset->nama_perangkat);
 
         $this->dispatch('assetCreated', name: $asset->nama_perangkat);
     }
@@ -558,6 +616,8 @@ class CreateForm extends Component
             if ($form) {
                 $form->update($data);
                 $this->syncItems($form);
+                $this->dispatch('draftSaved');
+                $this->redirect(route('forms.search'));
                 return;
             }
         }
@@ -574,6 +634,7 @@ class CreateForm extends Component
         $this->syncItems($form);
 
         $this->dispatch('draftSaved');
+        $this->redirect(route('forms.search'));
     }
 
     private function getFormData(): array
@@ -585,6 +646,8 @@ class CreateForm extends Component
             'kondisi' => $this->kondisi ?: null,
             'kondisi_keterangan' => $this->kondisiKeterangan ?: null,
             'notes' => $this->notes ?: null,
+            'tindakan_categories' => $this->tindakanCategories,
+            'tindakan_solution' => $this->tindakanSolution ?: null,
         ];
     }
 
