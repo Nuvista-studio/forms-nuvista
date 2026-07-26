@@ -191,7 +191,7 @@
                                 </td>
                                 <td>{{ $item->keterangan ?? '' }}</td>
                             </tr>
-                            @if($item->name === 'Battery' && ($item->full_charge_capacity || $item->design_capacity))
+                            @if(($item->name === 'Battery' || $item->name === 'Battery Report') && ($item->full_charge_capacity || $item->design_capacity))
                                 <tr class="battery-detail">
                                     <td colspan="3" style="border-top: none; padding: 1px 4px 3px;">
                                         <table style="width: 100%; border-collapse: collapse;">

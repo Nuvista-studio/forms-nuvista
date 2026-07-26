@@ -299,7 +299,7 @@
                                 <textarea wire:model.live="hardwareItems.{{ $index }}.keterangan" rows="1" placeholder="Keterangan (opsional)..." class="glass-input w-full rounded-lg px-3 py-1.5 text-xs resize-none"></textarea>
 
                                 {{-- Battery Capacity Fields --}}
-                                @if($item['name'] === 'Battery')
+                                @if($item['name'] === 'Battery' || $item['name'] === 'Battery Report')
                                     <div class="grid grid-cols-2 gap-2">
                                         <div>
                                             <label class="text-xs" style="color: var(--color-text-muted);">Full Charge Capacity (mWh)</label>
