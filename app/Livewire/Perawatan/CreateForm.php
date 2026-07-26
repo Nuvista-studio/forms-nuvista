@@ -517,6 +517,8 @@ class CreateForm extends Component
             if ($form) {
                 $form->update($data);
                 $this->syncItems($form);
+                $this->dispatch('draftSaved');
+                $this->redirect(route('forms.search'));
                 return;
             }
         }
@@ -533,6 +535,7 @@ class CreateForm extends Component
         $this->syncItems($form);
 
         $this->dispatch('draftSaved');
+        $this->redirect(route('forms.search'));
     }
 
     private function getFormData(): array
