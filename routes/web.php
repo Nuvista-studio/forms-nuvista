@@ -72,6 +72,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Volt::route('sites/{idSite}/edit', 'admin.pages.sites.edit')
             ->name('sites.edit');
 
+        // Assets
+        Volt::route('assets', 'admin.pages.assets.index')
+            ->name('assets.index');
+
+        Volt::route('assets/create', 'admin.pages.assets.create')
+            ->name('assets.create');
+
+        Volt::route('assets/{id}/edit', 'admin.pages.assets.edit')
+            ->name('assets.edit');
+
         // Users
         Volt::route('users', 'admin.pages.users.index')
             ->name('users.index');
