@@ -37,27 +37,25 @@ class NotificationBell extends Component
 
     private function loadPemeriksaanNotifications($user): void
     {
-        if ($user->hasPermissionTo('approve-diketahui')) {
-            $forms = FormPemeriksaan::where('status', 'diketahui')
-                ->with(['teknisi', 'asset'])
-                ->get();
+        $queryDiketahui = FormPemeriksaan::where('status', 'diketahui')
+            ->with(['teknisi', 'asset'])
+            ->where('pengguna_id', $user->id);
 
-            foreach ($forms as $form) {
-                $this->notifications[] = [
-                    'type' => 'pemeriksaan',
-                    'id' => $form->id,
-                    'nomor_form' => $form->nomor_form,
-                    'submitted_by' => $form->teknisi->name,
-                    'device_name' => $form->asset->nama_perangkat,
-                    'level' => 'Diketahui Oleh',
-                    'level_key' => 'diketahui_oleh',
-                    'created_at' => $form->submitted_at?->diffForHumans() ?? '-',
-                ];
-                $this->pendingCount++;
-            }
+        foreach ($queryDiketahui->get() as $form) {
+            $this->notifications[] = [
+                'type' => 'pemeriksaan',
+                'id' => $form->id,
+                'nomor_form' => $form->nomor_form,
+                'submitted_by' => $form->teknisi->name,
+                'device_name' => $form->asset->nama_perangkat,
+                'level' => 'Diketahui Oleh',
+                'level_key' => 'diketahui_oleh',
+                'created_at' => $form->submitted_at?->diffForHumans() ?? '-',
+            ];
+            $this->pendingCount++;
         }
 
-        if ($user->hasPermissionTo('approve-disetujui')) {
+        if ($user->hasAnyRole(['supervisor_it', 'manager_it', 'admin'])) {
             $forms = FormPemeriksaan::where('status', 'disetujui')
                 ->with(['teknisi', 'asset'])
                 ->get();
@@ -80,27 +78,25 @@ class NotificationBell extends Component
 
     private function loadPerawatanNotifications($user): void
     {
-        if ($user->hasPermissionTo('approve-diketahui')) {
-            $forms = FormPerawatan::where('status', 'diketahui')
-                ->with(['teknisi', 'asset'])
-                ->get();
+        $queryDiketahui = FormPerawatan::where('status', 'diketahui')
+            ->with(['teknisi', 'asset'])
+            ->where('pengguna_id', $user->id);
 
-            foreach ($forms as $form) {
-                $this->notifications[] = [
-                    'type' => 'perawatan',
-                    'id' => $form->id,
-                    'nomor_form' => $form->nomor_form,
-                    'submitted_by' => $form->teknisi->name,
-                    'device_name' => $form->asset->nama_perangkat,
-                    'level' => 'Diketahui Oleh',
-                    'level_key' => 'diketahui_oleh',
-                    'created_at' => $form->submitted_at?->diffForHumans() ?? '-',
-                ];
-                $this->pendingCount++;
-            }
+        foreach ($queryDiketahui->get() as $form) {
+            $this->notifications[] = [
+                'type' => 'perawatan',
+                'id' => $form->id,
+                'nomor_form' => $form->nomor_form,
+                'submitted_by' => $form->teknisi->name,
+                'device_name' => $form->asset->nama_perangkat,
+                'level' => 'Diketahui Oleh',
+                'level_key' => 'diketahui_oleh',
+                'created_at' => $form->submitted_at?->diffForHumans() ?? '-',
+            ];
+            $this->pendingCount++;
         }
 
-        if ($user->hasPermissionTo('approve-disetujui')) {
+        if ($user->hasAnyRole(['supervisor_it', 'manager_it', 'admin'])) {
             $forms = FormPerawatan::where('status', 'disetujui')
                 ->with(['teknisi', 'asset'])
                 ->get();

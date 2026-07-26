@@ -20,42 +20,13 @@
     {{-- Report 1: Perawatan by Site --}}
     <div class="glass-card p-5">
         <h3 class="text-sm font-bold text-primary mb-4">Laporan Perawatan Perangkat by Site Lokasi</h3>
-        <div x-data="{
-            chart: null,
-            init() {
-                this.$nextTick(() => {
-                    const ctx = this.$refs.perawatanSiteChart;
-                    this.chart = new Chart(ctx, {
-                        type: 'bar',
-                        data: {
-                            labels: @json(array_column($perawatanBySite, 'site')),
-                            datasets: [{
-                                label: 'Jumlah Perawatan',
-                                data: @json(array_column($perawatanBySite, 'total')),
-                                backgroundColor: 'rgba(168, 85, 247, 0.6)',
-                                borderColor: 'rgba(168, 85, 247, 1)',
-                                borderWidth: 1,
-                                borderRadius: 4,
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            indexAxis: 'y',
-                            plugins: { legend: { display: false } },
-                            scales: {
-                                x: { ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--color-text-muted').trim(), stepSize: 1 }, grid: { color: getComputedStyle(document.documentElement).getPropertyValue('--color-border').trim() } },
-                                y: { ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--color-text-muted').trim(), font: { size: 11 } }, grid: { display: false } }
-                            }
-                        }
-                    });
-                });
-            },
-            destroy() { if (this.chart) this.chart.destroy(); }
-        }" wire:key="perawatan-site-{{ json_encode(array_column($perawatanBySite, 'site')) }}" style="height: {{ max(200, count($perawatanBySite) * 40 + 60) }}px;">
-            <canvas x-ref="perawatanSiteChart"></canvas>
-        </div>
-        @if(count($perawatanBySite) === 0)
+        @if(count($perawatanBySite) > 0)
+            <div x-data="dashboardBarChart('perawatanSiteChart', @json(array_column($perawatanBySite, 'site')), @json(array_column($perawatanBySite, 'total')), 'rgba(168, 85, 247, 0.6)', 'rgba(168, 85, 247, 1)')"
+                 wire:key="perawatan-{{ md5(json_encode($perawatanBySite)) }}"
+                 style="height: {{ max(200, count($perawatanBySite) * 40 + 60) }}px;">
+                <canvas x-ref="perawatanSiteChart"></canvas>
+            </div>
+        @else
             <p class="text-sm text-muted text-center py-4">Tidak ada data perawatan pada periode ini</p>
         @endif
     </div>
@@ -63,42 +34,13 @@
     {{-- Report 2: Pemeriksaan by Site --}}
     <div class="glass-card p-5">
         <h3 class="text-sm font-bold text-primary mb-4">Laporan Pemeriksaan Perangkat by Site Lokasi</h3>
-        <div x-data="{
-            chart: null,
-            init() {
-                this.$nextTick(() => {
-                    const ctx = this.$refs.pemeriksaanSiteChart;
-                    this.chart = new Chart(ctx, {
-                        type: 'bar',
-                        data: {
-                            labels: @json(array_column($pemeriksaanBySite, 'site')),
-                            datasets: [{
-                                label: 'Jumlah Pemeriksaan',
-                                data: @json(array_column($pemeriksaanBySite, 'total')),
-                                backgroundColor: 'rgba(59, 130, 246, 0.6)',
-                                borderColor: 'rgba(59, 130, 246, 1)',
-                                borderWidth: 1,
-                                borderRadius: 4,
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            indexAxis: 'y',
-                            plugins: { legend: { display: false } },
-                            scales: {
-                                x: { ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--color-text-muted').trim(), stepSize: 1 }, grid: { color: getComputedStyle(document.documentElement).getPropertyValue('--color-border').trim() } },
-                                y: { ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--color-text-muted').trim(), font: { size: 11 } }, grid: { display: false } }
-                            }
-                        }
-                    });
-                });
-            },
-            destroy() { if (this.chart) this.chart.destroy(); }
-        }" wire:key="pemeriksaan-site-{{ json_encode(array_column($pemeriksaanBySite, 'site')) }}" style="height: {{ max(200, count($pemeriksaanBySite) * 40 + 60) }}px;">
-            <canvas x-ref="pemeriksaanSiteChart"></canvas>
-        </div>
-        @if(count($pemeriksaanBySite) === 0)
+        @if(count($pemeriksaanBySite) > 0)
+            <div x-data="dashboardBarChart('pemeriksaanSiteChart', @json(array_column($pemeriksaanBySite, 'site')), @json(array_column($pemeriksaanBySite, 'total')), 'rgba(59, 130, 246, 0.6)', 'rgba(59, 130, 246, 1)')"
+                 wire:key="pemeriksaan-{{ md5(json_encode($pemeriksaanBySite)) }}"
+                 style="height: {{ max(200, count($pemeriksaanBySite) * 40 + 60) }}px;">
+                <canvas x-ref="pemeriksaanSiteChart"></canvas>
+            </div>
+        @else
             <p class="text-sm text-muted text-center py-4">Tidak ada data pemeriksaan pada periode ini</p>
         @endif
     </div>
@@ -158,46 +100,16 @@
     {{-- Report 4: Tren Perawatan per Bulan --}}
     <div class="glass-card p-5">
         <h3 class="text-sm font-bold text-primary mb-4">Tren Perawatan per Bulan (12 Bulan)</h3>
-        <div x-data="{
-            chart: null,
-            init() {
-                this.$nextTick(() => {
-                    const ctx = this.$refs.trendBulananChart;
-                    this.chart = new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: @json(array_keys($trendPerawatanBulanan)),
-                            datasets: [{
-                                label: 'Jumlah Perawatan',
-                                data: @json(array_values($trendPerawatanBulanan)),
-                                borderColor: 'rgba(168, 85, 247, 1)',
-                                backgroundColor: 'rgba(168, 85, 247, 0.1)',
-                                fill: true,
-                                tension: 0.4,
-                                pointBackgroundColor: 'rgba(168, 85, 247, 1)',
-                                pointBorderColor: '#fff',
-                                pointBorderWidth: 2,
-                                pointRadius: 4,
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: { legend: { display: false } },
-                            scales: {
-                                x: { ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--color-text-muted').trim(), font: { size: 10 } }, grid: { display: false } },
-                                y: { ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--color-text-muted').trim(), stepSize: 1 }, grid: { color: getComputedStyle(document.documentElement).getPropertyValue('--color-border').trim() } }
-                            }
-                        }
-                    });
-                });
-            },
-            destroy() { if (this.chart) this.chart.destroy(); }
-        }" style="height: 220px;">
-            <canvas x-ref="trendBulananChart"></canvas>
-        </div>
-        @if(count($trendPerawatanBulanan) === 0)
+        @if(count($trendPerawatanBulanan) > 0)
+            <div x-data="dashboardLineChart('trendBulananChart', @json(array_keys($trendPerawatanBulanan)), @json(array_values($trendPerawatanBulanan)))"
+                 wire:key="trend-{{ md5(json_encode($trendPerawatanBulanan)) }}"
+                 style="height: 220px;">
+                <canvas x-ref="trendBulananChart"></canvas>
+            </div>
+        @else
             <p class="text-sm text-muted text-center py-4">Tidak ada data tren perawatan</p>
         @endif
     </div>
 </div>
+
+

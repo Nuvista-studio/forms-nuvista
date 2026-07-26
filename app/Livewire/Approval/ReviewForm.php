@@ -81,19 +81,21 @@ class ReviewForm extends Component
 
     private function determineApprovalLevel($user, $form): void
     {
+        $pendingStatuses = [FormStatus::Diketahui->value, FormStatus::Submitted->value, FormStatus::Revisi->value];
+
         if ($this->formType === 'pemeriksaan') {
-            if ($user->hasPermissionTo('approve-diketahui') && in_array($form->status, [FormStatus::Diketahui->value, FormStatus::Submitted->value, FormStatus::Revisi->value])) {
+            if ($form->pengguna_id === $user->id && in_array($form->status, $pendingStatuses)) {
                 $this->approvalLevel = ApprovalLevel::DiketahuiOleh->value;
                 $this->canApprove = true;
-            } elseif ($user->hasPermissionTo('approve-disetujui') && $form->status === FormStatus::Disetujui->value) {
+            } elseif ($user->hasAnyRole(['supervisor_it', 'manager_it', 'admin']) && $form->status === FormStatus::Disetujui->value) {
                 $this->approvalLevel = ApprovalLevel::DisetujuiOleh->value;
                 $this->canApprove = true;
             }
         } else {
-            if ($user->hasPermissionTo('approve-diketahui') && in_array($form->status, [FormStatus::Diketahui->value, FormStatus::Submitted->value, FormStatus::Revisi->value])) {
+            if ($form->pengguna_id === $user->id && in_array($form->status, $pendingStatuses)) {
                 $this->approvalLevel = ApprovalLevel::DiketahuiOleh->value;
                 $this->canApprove = true;
-            } elseif ($user->hasPermissionTo('approve-disetujui') && $form->status === FormStatus::Disetujui->value) {
+            } elseif ($user->hasAnyRole(['supervisor_it', 'manager_it', 'admin']) && $form->status === FormStatus::Disetujui->value) {
                 $this->approvalLevel = ApprovalLevel::DisetujuiOleh->value;
                 $this->canApprove = true;
             }
@@ -287,7 +289,7 @@ class ReviewForm extends Component
     private function sendNextApprovalNotification($form): void
     {
         $approvers = User::whereHas('roles', function ($q) {
-            $q->whereIn('name', ['supervisor_it', 'manager_it']);
+            $q->whereIn('name', ['supervisor_it', 'manager_it', 'admin']);
         })->get();
 
         $notifClass = \App\Notifications\ApprovalRequestNotification::class;

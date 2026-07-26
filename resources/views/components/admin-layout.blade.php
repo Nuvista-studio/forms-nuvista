@@ -104,4 +104,83 @@
             </div>
         </div>
     </body>
+
+    <script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('dashboardBarChart', (refName, labels, data, bgColor, borderColor) => ({
+            chart: null,
+            init() {
+                const ctx = this.$refs[refName];
+                if (!ctx || typeof Chart === 'undefined') return;
+                this.chart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Jumlah',
+                            data: data,
+                            backgroundColor: bgColor,
+                            borderColor: borderColor,
+                            borderWidth: 1,
+                            borderRadius: 4,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        indexAxis: 'y',
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: {
+                                ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--color-text-muted').trim(), stepSize: 1 },
+                                grid: { color: getComputedStyle(document.documentElement).getPropertyValue('--color-border').trim() }
+                            },
+                            y: {
+                                ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--color-text-muted').trim(), font: { size: 11 } },
+                                grid: { display: false }
+                            }
+                        }
+                    }
+                });
+            },
+            destroy() { if (this.chart) this.chart.destroy(); }
+        }));
+
+        Alpine.data('dashboardLineChart', (refName, labels, data) => ({
+            chart: null,
+            init() {
+                const ctx = this.$refs[refName];
+                if (!ctx || typeof Chart === 'undefined') return;
+                this.chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Jumlah Perawatan',
+                            data: data,
+                            borderColor: 'rgba(168, 85, 247, 1)',
+                            backgroundColor: 'rgba(168, 85, 247, 0.1)',
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: 'rgba(168, 85, 247, 1)',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--color-text-muted').trim(), font: { size: 10 } }, grid: { display: false } },
+                            y: { ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--color-text-muted').trim(), stepSize: 1 }, grid: { color: getComputedStyle(document.documentElement).getPropertyValue('--color-border').trim() } }
+                        }
+                    }
+                });
+            },
+            destroy() { if (this.chart) this.chart.destroy(); }
+        }));
+    });
+    </script>
 </html>

@@ -57,6 +57,21 @@ class Index extends Component
         $this->loadPemeriksaanBySite();
         $this->loadTopAssets();
         $this->loadTrendPerawatanBulanan();
+        $this->dispatch('chartsUpdated');
+    }
+
+    private function resolveSiteLocation($form): string
+    {
+        if ($form->site_location) {
+            return $form->site_location;
+        }
+        if ($form->asset && $form->asset->site_location_asset) {
+            return $form->asset->site_location_asset;
+        }
+        if ($form->asset && $form->asset->operating_unit) {
+            return $form->asset->operating_unit;
+        }
+        return 'unknown';
     }
 
     private function loadPerawatanBySite(): void
@@ -64,20 +79,23 @@ class Index extends Component
         $start = $this->startDate ? Carbon::parse($this->startDate)->startOfDay() : now()->subDays(29)->startOfDay();
         $end = $this->endDate ? Carbon::parse($this->endDate)->endOfDay() : now()->endOfDay();
 
-        $data = FormPerawatan::whereNotNull('submitted_at')
+        $forms = FormPerawatan::whereNotNull('submitted_at')
             ->whereBetween('submitted_at', [$start, $end])
-            ->whereNotNull('site_location')
-            ->select('site_location', DB::raw('count(*) as total'))
-            ->groupBy('site_location')
-            ->pluck('total', 'site_location')
-            ->toArray();
+            ->with(['asset'])
+            ->get();
 
-        $siteNames = Site::whereIn('id_site', array_keys($data))
+        $counts = [];
+        foreach ($forms as $form) {
+            $site = $this->resolveSiteLocation($form);
+            $counts[$site] = ($counts[$site] ?? 0) + 1;
+        }
+
+        $siteNames = Site::whereIn('id_site', array_keys($counts))
             ->pluck('site', 'id_site')
             ->toArray();
 
         $result = [];
-        foreach ($data as $siteId => $count) {
+        foreach ($counts as $siteId => $count) {
             $result[] = [
                 'site' => $siteNames[$siteId] ?? $siteId,
                 'total' => (int) $count,
@@ -93,20 +111,23 @@ class Index extends Component
         $start = $this->startDate ? Carbon::parse($this->startDate)->startOfDay() : now()->subDays(29)->startOfDay();
         $end = $this->endDate ? Carbon::parse($this->endDate)->endOfDay() : now()->endOfDay();
 
-        $data = FormPemeriksaan::whereNotNull('submitted_at')
+        $forms = FormPemeriksaan::whereNotNull('submitted_at')
             ->whereBetween('submitted_at', [$start, $end])
-            ->whereNotNull('site_location')
-            ->select('site_location', DB::raw('count(*) as total'))
-            ->groupBy('site_location')
-            ->pluck('total', 'site_location')
-            ->toArray();
+            ->with(['asset'])
+            ->get();
 
-        $siteNames = Site::whereIn('id_site', array_keys($data))
+        $counts = [];
+        foreach ($forms as $form) {
+            $site = $this->resolveSiteLocation($form);
+            $counts[$site] = ($counts[$site] ?? 0) + 1;
+        }
+
+        $siteNames = Site::whereIn('id_site', array_keys($counts))
             ->pluck('site', 'id_site')
             ->toArray();
 
         $result = [];
-        foreach ($data as $siteId => $count) {
+        foreach ($counts as $siteId => $count) {
             $result[] = [
                 'site' => $siteNames[$siteId] ?? $siteId,
                 'total' => (int) $count,
@@ -119,7 +140,7 @@ class Index extends Component
 
     private function loadTopAssets(): void
     {
-        $query = Asset::select('assets.id', 'assets.nama_perangkat', 'assets.no_asset', 'assets.operating_unit', 'assets.site_location_asset')
+        $query = Asset::query()
             ->join('form_pemeriksaan', 'assets.id', '=', 'form_pemeriksaan.asset_id')
             ->selectRaw('assets.id, assets.nama_perangkat, assets.no_asset, assets.operating_unit, assets.site_location_asset, count(form_pemeriksaan.id) as total_pemeriksaan')
             ->groupBy('assets.id', 'assets.nama_perangkat', 'assets.no_asset', 'assets.operating_unit', 'assets.site_location_asset');

@@ -4,7 +4,6 @@ use App\Enums\ApprovalLevel;
 use App\Enums\FormStatus;
 use App\Models\FormApproval;
 use App\Models\FormPerawatan;
-use App\Models\User;
 use App\Notifications\ApprovalRequestNotification;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
@@ -57,12 +56,10 @@ new #[Layout('components.app-layout')] class extends Component
 
     private function sendDiketahuiNotification(): void
     {
-        $supervisorIt = User::whereHas('roles', function ($q) {
-            $q->where('name', 'supervisor_it');
-        })->first();
+        $pengguna = $this->form->pengguna;
 
-        if ($supervisorIt) {
-            $supervisorIt->notify(new ApprovalRequestNotification(
+        if ($pengguna) {
+            $pengguna->notify(new ApprovalRequestNotification(
                 formType: 'perawatan',
                 formId: $this->form->id,
                 nomorForm: $this->form->nomor_form,
