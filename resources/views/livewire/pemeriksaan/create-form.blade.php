@@ -289,7 +289,13 @@
                                         </div>
                                         <div>
                                             <label class="text-xs text-muted">Kategori</label>
-                                            <input type="text" wire:model.live="newAssetKategori" class="glass-input w-full rounded-lg px-3 py-1.5 text-sm mt-1" placeholder="Laptop, Printer, Monitor">
+                                            <select wire:model.live="newAssetKategori" class="glass-input w-full rounded-lg px-3 py-1.5 text-sm mt-1">
+                                                <option value="">Pilih Kategori</option>
+                                                <option value="PC Desktop">PC Desktop</option>
+                                                <option value="Laptop">Laptop</option>
+                                                <option value="Notebook">Notebook</option>
+                                                <option value="Mini PC">Mini PC</option>
+                                            </select>
                                         </div>
                                         <div>
                                             <label class="text-xs text-muted">Brand</label>
