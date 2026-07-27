@@ -127,12 +127,14 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                             </th>
                             <th class="text-left py-2 text-xs text-muted font-medium">Tipe</th>
                             <th class="text-left py-2 text-xs text-muted font-medium">Teknisi</th>
+                            <th class="text-left py-2 text-xs text-muted font-medium">Pengguna</th>
                             <th class="text-left py-2 text-xs text-muted font-medium">Perangkat</th>
                             <th class="text-left py-2 text-xs text-muted font-medium">No. Asset</th>
                             <th class="text-left py-2 text-xs text-muted font-medium">Kondisi</th>
                             <th wire:click="toggleSort('status')" class="text-left py-2 text-xs text-muted font-medium cursor-pointer hover:text-primary">
                                 Status @if($sortBy === 'status') {{ $sortDir === 'asc' ? '↑' : '↓' }} @endif
                             </th>
+                            <th class="text-left py-2 text-xs text-muted font-medium">Disetujui</th>
                             <th wire:click="toggleSort('submitted_at')" class="text-left py-2 text-xs text-muted font-medium cursor-pointer hover:text-primary">
                                 Tanggal @if($sortBy === 'submitted_at') {{ $sortDir === 'asc' ? '↑' : '↓' }} @endif
                             </th>
@@ -150,6 +152,7 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                                     </span>
                                 </td>
                                 <td class="py-2.5 text-primary">{{ $form['teknisi'] }}</td>
+                                <td class="py-2.5 text-primary">{{ $form['pengguna'] }}</td>
                                 <td class="py-2.5 text-primary">{{ $form['perangkat'] }}</td>
                                 <td class="py-2.5 font-mono text-xs text-primary">
                                     @if($form['asset_id'])
@@ -164,6 +167,7 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                                         {{ ucfirst($form['status']) }}
                                     </span>
                                 </td>
+                                <td class="py-2.5 text-primary">{{ $form['disetujui'] }}</td>
                                 <td class="py-2.5 text-muted text-xs">{{ $form['submitted_at_formatted'] }}</td>
                                 <td class="py-2.5">
                                     <div class="flex items-center gap-1">

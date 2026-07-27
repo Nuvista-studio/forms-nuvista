@@ -641,6 +641,13 @@ class CreateForm extends Component
 
             $this->syncItems($form);
 
+            if ($this->asset_id && $this->pengguna_id) {
+                Asset::where('id', $this->asset_id)->update([
+                    'assigned_user_id' => $this->pengguna_id,
+                    'status' => 'active',
+                ]);
+            }
+
             FormApproval::create([
                 'approvable_type' => FormPerawatan::class,
                 'approvable_id' => $form->id,

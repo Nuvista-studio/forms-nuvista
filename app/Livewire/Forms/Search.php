@@ -147,7 +147,7 @@ class Search extends Component
 
     private function getPemeriksaanQuery()
     {
-        $query = FormPemeriksaan::with(['teknisi', 'asset', 'pengguna']);
+        $query = FormPemeriksaan::with(['teknisi', 'asset', 'pengguna', 'approvals.user']);
         $this->applyRoleScope($query);
 
         if ($this->formType && $this->formType !== 'pemeriksaan') {
@@ -161,6 +161,7 @@ class Search extends Component
             $query->where(function ($q) {
                 $q->where('nomor_form', 'like', "%{$this->search}%")
                     ->orWhereHas('teknisi', fn($q2) => $q2->where('name', 'like', "%{$this->search}%"))
+                    ->orWhereHas('pengguna', fn($q2) => $q2->where('name', 'like', "%{$this->search}%"))
                     ->orWhereHas('asset', fn($q2) => $q2->where('nama_perangkat', 'like', "%{$this->search}%")
                         ->orWhere('no_asset', 'like', "%{$this->search}%"));
             });
@@ -178,10 +179,12 @@ class Search extends Component
             'asset_id' => $f->asset_id,
             'nomor_form' => $f->nomor_form,
             'teknisi' => $f->teknisi->name ?? '-',
+            'pengguna' => $f->pengguna->name ?? '-',
             'perangkat' => $f->asset->nama_perangkat ?? '-',
             'no_asset' => $f->asset->no_asset ?? '-',
             'kondisi' => $f->kondisi === 'baru' ? 'Baru' : 'Lama',
             'status' => $f->status,
+            'disetujui' => $f->approvals->where('approval_level', 'disetujui_oleh')->first()?->user->name ?? '-',
             'submitted_at' => $f->submitted_at,
             'submitted_at_formatted' => $f->submitted_at?->format('d M Y H:i') ?? '-',
         ]);
@@ -189,7 +192,7 @@ class Search extends Component
 
     private function getPerawatanQuery()
     {
-        $query = FormPerawatan::with(['teknisi', 'asset', 'pengguna']);
+        $query = FormPerawatan::with(['teknisi', 'asset', 'pengguna', 'approvals.user']);
         $this->applyRoleScope($query);
 
         if ($this->formType && $this->formType !== 'perawatan') {
@@ -200,6 +203,7 @@ class Search extends Component
             $query->where(function ($q) {
                 $q->where('nomor_form', 'like', "%{$this->search}%")
                     ->orWhereHas('teknisi', fn($q2) => $q2->where('name', 'like', "%{$this->search}%"))
+                    ->orWhereHas('pengguna', fn($q2) => $q2->where('name', 'like', "%{$this->search}%"))
                     ->orWhereHas('asset', fn($q2) => $q2->where('nama_perangkat', 'like', "%{$this->search}%")
                         ->orWhere('no_asset', 'like', "%{$this->search}%"));
             });
@@ -217,10 +221,12 @@ class Search extends Component
             'asset_id' => $f->asset_id,
             'nomor_form' => $f->nomor_form,
             'teknisi' => $f->teknisi->name ?? '-',
+            'pengguna' => $f->pengguna->name ?? '-',
             'perangkat' => $f->asset->nama_perangkat ?? '-',
             'no_asset' => $f->asset->no_asset ?? '-',
             'kondisi' => match($f->kondisi_akhir) { 'good' => 'Good', 'fair' => 'Fair', 'critical' => 'Critical', 'poor' => 'Poor', default => '-' },
             'status' => $f->status,
+            'disetujui' => $f->approvals->where('approval_level', 'disetujui_oleh')->first()?->user->name ?? '-',
             'submitted_at' => $f->submitted_at,
             'submitted_at_formatted' => $f->submitted_at?->format('d M Y H:i') ?? '-',
         ]);
