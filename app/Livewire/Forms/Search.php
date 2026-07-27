@@ -35,7 +35,6 @@ class Search extends Component
 
     protected $listeners = [
         'resetFilters' => 'resetFilters',
-        'deleteConfirmed' => 'deleteConfirmed',
     ];
 
     public function mount(): void
@@ -250,24 +249,12 @@ class Search extends Component
         $this->viewingForm = null;
     }
 
-    public ?int $deletingFormId = null;
-    public ?string $deletingFormType = null;
-
     public function deleteForm(int $id, string $type): void
     {
-        $this->deletingFormId = $id;
-        $this->deletingFormType = $type;
-        $this->dispatch('confirmDelete', id: $id, type: $type);
-    }
-
-    public function deleteConfirmed(): void
-    {
-        if (!$this->deletingFormId || !$this->deletingFormType) return;
-
-        if ($this->deletingFormType === 'pemeriksaan') {
-            $form = FormPemeriksaan::find($this->deletingFormId);
+        if ($type === 'pemeriksaan') {
+            $form = FormPemeriksaan::find($id);
         } else {
-            $form = FormPerawatan::find($this->deletingFormId);
+            $form = FormPerawatan::find($id);
         }
 
         if ($form) {
@@ -277,8 +264,6 @@ class Search extends Component
             $form->delete();
         }
 
-        $this->deletingFormId = null;
-        $this->deletingFormType = null;
         $this->dispatch('formDeleted');
     }
 
