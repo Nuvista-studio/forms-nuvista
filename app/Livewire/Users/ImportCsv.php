@@ -11,12 +11,12 @@ class ImportCsv extends Component
 {
     use WithFileUploads;
 
-    public $file = null;
+    public $file;
     public array $preview = [];
     public int $totalRows = 0;
     public int $successCount = 0;
     public int $errorCount = 0;
-    public array $errors = [];
+    public array $importErrors = [];
     public bool $imported = false;
 
     protected $listeners = ['resetImport' => 'resetImport'];
@@ -28,7 +28,7 @@ class ImportCsv extends Component
         $this->totalRows = 0;
         $this->successCount = 0;
         $this->errorCount = 0;
-        $this->errors = [];
+        $this->importErrors = [];
         $this->imported = false;
     }
 
@@ -36,7 +36,7 @@ class ImportCsv extends Component
     {
         $this->preview = [];
         $this->totalRows = 0;
-        $this->errors = [];
+        $this->importErrors = [];
         $this->imported = false;
 
         if (!$this->file) return;
@@ -54,7 +54,7 @@ class ImportCsv extends Component
         $header = fgetcsv($handle);
 
         if (!$header) {
-            $this->errors[] = 'File CSV kosong atau format tidak valid.';
+            $this->importErrors[] = 'File CSV kosong atau format tidak valid.';
             return;
         }
 
@@ -63,7 +63,7 @@ class ImportCsv extends Component
         $missingColumns = array_diff($requiredColumns, $normalizedHeader);
 
         if (!empty($missingColumns)) {
-            $this->errors[] = 'Kolom wajib tidak ditemukan: ' . implode(', ', $missingColumns);
+            $this->importErrors[] = 'Kolom wajib tidak ditemukan: ' . implode(', ', $missingColumns);
             return;
         }
 
@@ -98,7 +98,7 @@ class ImportCsv extends Component
 
         $this->successCount = 0;
         $this->errorCount = 0;
-        $this->errors = [];
+        $this->importErrors = [];
 
         $handle = fopen($this->file->getPathname(), 'r');
         $header = fgetcsv($handle);
@@ -116,19 +116,19 @@ class ImportCsv extends Component
                 $email = trim($data['email'] ?? '');
 
                 if (empty($name) || empty($email)) {
-                    $this->errors[] = "Baris {$rowNumber}: Nama dan email wajib diisi.";
+                    $this->importErrors[] = "Baris {$rowNumber}: Nama dan email wajib diisi.";
                     $this->errorCount++;
                     continue;
                 }
 
                 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                    $this->errors[] = "Baris {$rowNumber}: Format email tidak valid ({$email}).";
+                    $this->importErrors[] = "Baris {$rowNumber}: Format email tidak valid ({$email}).";
                     $this->errorCount++;
                     continue;
                 }
 
                 if (User::where('email', $email)->exists()) {
-                    $this->errors[] = "Baris {$rowNumber}: Email sudah terdaftar ({$email}).";
+                    $this->importErrors[] = "Baris {$rowNumber}: Email sudah terdaftar ({$email}).";
                     $this->errorCount++;
                     continue;
                 }
@@ -158,7 +158,7 @@ class ImportCsv extends Component
 
                 $this->successCount++;
             } catch (\Exception $e) {
-                $this->errors[] = "Baris {$rowNumber}: " . $e->getMessage();
+                $this->importErrors[] = "Baris {$rowNumber}: " . $e->getMessage();
                 $this->errorCount++;
             }
         }

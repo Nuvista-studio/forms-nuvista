@@ -36,7 +36,7 @@
         </div>
 
         {{-- Preview Section --}}
-        @if(!empty($preview) && empty($errors))
+        @if(!empty($preview) && empty($importErrors))
             <div class="glass-card p-6 space-y-4">
                 <div class="flex items-center justify-between">
                     <h3 class="font-semibold text-primary">Preview ({{ min($totalRows, 10) }} dari {{ $totalRows }} baris)</h3>
@@ -82,11 +82,11 @@
         @endif
 
         {{-- Errors --}}
-        @if(!empty($errors))
+        @if(!empty($importErrors))
             <div class="glass-card p-6 space-y-3">
                 <h3 class="font-semibold text-red-400">Error</h3>
                 <div class="space-y-1 max-h-60 overflow-y-auto">
-                    @foreach($errors as $error)
+                    @foreach($importErrors as $error)
                         <p class="text-xs text-red-400">{{ $error }}</p>
                     @endforeach
                 </div>
@@ -119,9 +119,9 @@
                 </div>
             </div>
 
-            @if(!empty($errors))
+            @if(!empty($importErrors))
                 <div class="text-left max-h-40 overflow-y-auto mt-4 p-3 rounded-lg" style="background: var(--color-glass-bg); border: 1px solid var(--color-border);">
-                    @foreach($errors as $error)
+                    @foreach($importErrors as $error)
                         <p class="text-xs text-red-400">{{ $error }}</p>
                     @endforeach
                 </div>
