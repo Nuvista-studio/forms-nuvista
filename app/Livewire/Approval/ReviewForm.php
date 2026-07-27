@@ -102,10 +102,10 @@ class ReviewForm extends Component
             }
         }
 
-        // Teknisi (creator) bisa edit saat status submitted atau revisi
+        // Teknisi (creator) bisa edit selama belum di-approve oleh Disetujui
         if (!$this->canApprove
             && $form->user_id === $user->id
-            && in_array($form->status, [FormStatus::Submitted->value, FormStatus::Revisi->value])) {
+            && !in_array($form->status, [FormStatus::Draft->value, FormStatus::Selesai->value])) {
             $this->canEditAsTeknisi = true;
         }
 
