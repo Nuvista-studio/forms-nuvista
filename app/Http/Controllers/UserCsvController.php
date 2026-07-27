@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class UserCsvController extends Controller
 {
-    public function export(): Response
+    public function export(): StreamedResponse
     {
         $users = User::with('roles')->orderBy('name')->get();
 
@@ -41,7 +41,7 @@ class UserCsvController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
-    public function template(): Response
+    public function template(): StreamedResponse
     {
         $headers = [
             'Content-Type' => 'text/csv',
