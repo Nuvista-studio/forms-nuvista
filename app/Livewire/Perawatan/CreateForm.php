@@ -83,8 +83,15 @@ class CreateForm extends Component
     public string $newPenggunaName = '';
     public string $newPenggunaNik = '';
     public string $newPenggunaDepartment = '';
+    public string $newPenggunaBusinessUnit = '';
+    public string $newPenggunaSite = '';
     public string $newPenggunaEmail = '';
     public string $newPenggunaPassword = '';
+
+    // Credentials info after pengguna created
+    public bool $showPenggunaCredentials = false;
+    public string $createdPenggunaEmail = '';
+    public string $createdPenggunaPassword = '';
 
     // Search - Asset
     public string $assetSearch = '';
@@ -319,6 +326,8 @@ class CreateForm extends Component
             'newPenggunaEmail' => 'required|email|max:255|unique:users,email',
             'newPenggunaNik' => 'nullable|string|max:50',
             'newPenggunaDepartment' => 'nullable|string|max:255',
+            'newPenggunaBusinessUnit' => 'nullable|string|max:255',
+            'newPenggunaSite' => 'nullable|string|max:255',
         ]);
 
         $password = $this->newPenggunaPassword ?: 'password';
@@ -329,8 +338,12 @@ class CreateForm extends Component
             'password' => bcrypt($password),
             'nik' => $this->newPenggunaNik ?: null,
             'department' => $this->newPenggunaDepartment ?: null,
+            'business_unit' => $this->newPenggunaBusinessUnit ?: null,
+            'site' => $this->newPenggunaSite ?: null,
             'theme_preference' => 'light',
         ]);
+
+        $user->assignRole('pengguna');
 
         $this->penggunaId = $user->id;
         $this->penggunaName = $user->name;
@@ -340,9 +353,21 @@ class CreateForm extends Component
         $this->penggunaSearch = $user->name;
         $this->showPenggunaDropdown = false;
         $this->showCreatePengguna = false;
+
+        $this->createdPenggunaEmail = $user->email;
+        $this->createdPenggunaPassword = $password;
+        $this->showPenggunaCredentials = true;
+
         $this->resetNewPenggunaFields();
 
         $this->dispatch('penggunaCreated', name: $user->name);
+    }
+
+    public function closePenggunaCredentials(): void
+    {
+        $this->showPenggunaCredentials = false;
+        $this->createdPenggunaEmail = '';
+        $this->createdPenggunaPassword = '';
     }
 
     private function resetNewPenggunaFields(): void
@@ -350,6 +375,8 @@ class CreateForm extends Component
         $this->newPenggunaName = '';
         $this->newPenggunaNik = '';
         $this->newPenggunaDepartment = '';
+        $this->newPenggunaBusinessUnit = '';
+        $this->newPenggunaSite = '';
         $this->newPenggunaEmail = '';
         $this->newPenggunaPassword = '';
     }

@@ -17,7 +17,11 @@ class CreateForm extends Component
     public string $business_unit = '';
     public string $site = '';
     public string $no_telepon = '';
-    public string $role = '';
+    public string $role = 'pengguna';
+
+    public bool $showCredentials = false;
+    public string $createdEmail = '';
+    public string $createdPassword = '';
 
     protected function rules(): array
     {
@@ -55,10 +59,12 @@ class CreateForm extends Component
         try {
             $this->validate();
 
+            $plainPassword = $this->password;
+
             $user = User::create([
                 'name' => $this->name,
                 'email' => $this->email,
-                'password' => Hash::make($this->password),
+                'password' => Hash::make($plainPassword),
                 'nik' => $this->nik ?: null,
                 'department' => $this->department ?: null,
                 'business_unit' => $this->business_unit ?: null,
@@ -68,8 +74,9 @@ class CreateForm extends Component
 
             $user->assignRole($this->role);
 
-            $this->dispatch('user-created');
-            $this->reset();
+            $this->createdEmail = $this->email;
+            $this->createdPassword = $plainPassword;
+            $this->showCredentials = true;
         } catch (\Illuminate\Validation\ValidationException $e) {
             $this->dispatch('validation-error', errors: $e->errors());
         }
