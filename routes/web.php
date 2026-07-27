@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ExportPdfController;
+use App\Http\Controllers\FormExportController;
 use App\Http\Controllers\UserCsvController;
 use App\Http\Controllers\SiteCsvController;
 use App\Http\Controllers\AssetCsvController;
@@ -120,6 +121,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::get('users/import/template', [UserCsvController::class, 'template'])
             ->name('users.import.template');
+
+        // Form Pemeriksaan (PMR)
+        Volt::route('pemeriksaan', 'admin.pages.pemeriksaan.index')
+            ->name('pemeriksaan.index');
+
+        Route::get('pemeriksaan/export/{format}', [FormExportController::class, 'exportPemeriksaan'])
+            ->name('pemeriksaan.export')
+            ->whereIn('format', ['pdf', 'xlsx', 'xls', 'html', 'csv']);
+
+        // Form Perawatan (PWT)
+        Volt::route('perawatan', 'admin.pages.perawatan.index')
+            ->name('perawatan.index');
+
+        Route::get('perawatan/export/{format}', [FormExportController::class, 'exportPerawatan'])
+            ->name('perawatan.export')
+            ->whereIn('format', ['pdf', 'xlsx', 'xls', 'html', 'csv']);
     });
 
     // ── Legacy user routes → redirect to admin ───────────────
