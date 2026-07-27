@@ -34,12 +34,18 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
             <div>
                 <h1 class="text-2xl font-bold text-primary">Review & Approval</h1>
                 <p class="text-sm text-muted mt-1">
-                    Approval Level: <span class="font-semibold text-primary">{{ $approvalLevel === 'diketahui_oleh' ? 'Diketahui Oleh' : 'Disetujui Oleh' }}</span>
+                    @if($approvalLevel === 'diketahui_oleh')
+                        Approval Level: <span class="font-semibold text-primary">Diketahui Oleh</span>
+                    @elseif($approvalLevel === 'disetujui_oleh')
+                        Approval Level: <span class="font-semibold text-primary">Disetujui Oleh</span>
+                    @else
+                        <span class="font-semibold text-primary">Mode Review</span>
+                    @endif
                 </p>
             </div>
             <div class="flex items-center gap-2 flex-wrap">
                 @php $form = $formType === 'pemeriksaan' ? $pemeriksaanForm : $perawatanForm; @endphp
-                @if($canApprove && !$editing)
+                @if(($canApprove || $canEditAsTeknisi) && !$editing)
                     <button wire:click="toggleEdit"
                         class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors duration-200"
                         style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);">

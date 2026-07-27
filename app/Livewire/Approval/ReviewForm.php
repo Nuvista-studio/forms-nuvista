@@ -23,6 +23,7 @@ class ReviewForm extends Component
     public ?FormApproval $currentApproval = null;
     public string $approvalLevel = '';
     public bool $canApprove = false;
+    public bool $canEditAsTeknisi = false;
     public string $catatan = '';
     public bool $saved = false;
     public bool $rejected = false;
@@ -99,6 +100,13 @@ class ReviewForm extends Component
                 $this->approvalLevel = ApprovalLevel::DisetujuiOleh->value;
                 $this->canApprove = true;
             }
+        }
+
+        // Teknisi (creator) bisa edit saat status submitted atau revisi
+        if (!$this->canApprove
+            && $form->user_id === $user->id
+            && in_array($form->status, [FormStatus::Submitted->value, FormStatus::Revisi->value])) {
+            $this->canEditAsTeknisi = true;
         }
 
         $this->currentApproval = $form->approvals()
