@@ -121,55 +121,55 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
             <div class="overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead>
-                        <tr class="border-b" style="border-color: var(--color-border);">
-                            <th wire:click="toggleSort('nomor_form')" class="text-left py-2 text-xs text-muted font-medium cursor-pointer hover:text-primary">
+                        <tr class="border-b whitespace-nowrap" style="border-color: var(--color-border);">
+                            <th wire:click="toggleSort('nomor_form')" class="text-left py-2 text-xs text-muted font-medium cursor-pointer hover:text-primary whitespace-nowrap">
                                 No. Form @if($sortBy === 'nomor_form') {{ $sortDir === 'asc' ? '↑' : '↓' }} @endif
                             </th>
-                            <th class="text-left py-2 text-xs text-muted font-medium">Tipe</th>
-                            <th class="text-left py-2 text-xs text-muted font-medium">Teknisi</th>
-                            <th class="text-left py-2 text-xs text-muted font-medium">Pengguna</th>
-                            <th class="text-left py-2 text-xs text-muted font-medium">Perangkat</th>
-                            <th class="text-left py-2 text-xs text-muted font-medium">No. Asset</th>
-                            <th class="text-left py-2 text-xs text-muted font-medium">Kondisi</th>
-                            <th wire:click="toggleSort('status')" class="text-left py-2 text-xs text-muted font-medium cursor-pointer hover:text-primary">
+                            <th class="text-left py-2 text-xs text-muted font-medium whitespace-nowrap">Tipe</th>
+                            <th class="text-left py-2 text-xs text-muted font-medium whitespace-nowrap">Teknisi</th>
+                            <th class="text-left py-2 text-xs text-muted font-medium whitespace-nowrap">Pengguna</th>
+                            <th class="text-left py-2 text-xs text-muted font-medium whitespace-nowrap">Perangkat</th>
+                            <th class="text-left py-2 text-xs text-muted font-medium whitespace-nowrap">No. Asset</th>
+                            <th class="text-left py-2 text-xs text-muted font-medium whitespace-nowrap">Kondisi</th>
+                            <th wire:click="toggleSort('status')" class="text-left py-2 text-xs text-muted font-medium cursor-pointer hover:text-primary whitespace-nowrap">
                                 Status @if($sortBy === 'status') {{ $sortDir === 'asc' ? '↑' : '↓' }} @endif
                             </th>
-                            <th class="text-left py-2 text-xs text-muted font-medium">Disetujui</th>
-                            <th wire:click="toggleSort('submitted_at')" class="text-left py-2 text-xs text-muted font-medium cursor-pointer hover:text-primary">
+                            <th class="text-left py-2 text-xs text-muted font-medium whitespace-nowrap">Disetujui</th>
+                            <th wire:click="toggleSort('submitted_at')" class="text-left py-2 text-xs text-muted font-medium cursor-pointer hover:text-primary whitespace-nowrap">
                                 Tanggal @if($sortBy === 'submitted_at') {{ $sortDir === 'asc' ? '↑' : '↓' }} @endif
                             </th>
-                            <th class="text-left py-2 text-xs text-muted font-medium">Aksi</th>
+                            <th class="text-left py-2 text-xs text-muted font-medium whitespace-nowrap">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y" style="border-color: var(--color-border);">
                         @foreach($results as $form)
-                            <tr class="transition-colors" onmouseover="this.style.backgroundColor='var(--color-bg-tertiary)'" onmouseout="this.style.backgroundColor=''">
-                                <td class="py-2.5 font-mono font-semibold text-primary text-xs">{{ $form['nomor_form'] }}</td>
-                                <td class="py-2.5">
+                            <tr class="transition-colors whitespace-nowrap" onmouseover="this.style.backgroundColor='var(--color-bg-tertiary)'" onmouseout="this.style.backgroundColor=''">
+                                <td class="py-2.5 font-mono font-semibold text-primary text-xs whitespace-nowrap">{{ $form['nomor_form'] }}</td>
+                                <td class="py-2.5 whitespace-nowrap">
                                     <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold
                                         {{ $form['type'] === 'pemeriksaan' ? 'bg-blue-500/15 text-blue-400' : 'bg-purple-500/15 text-purple-400' }}">
                                         {{ ucfirst($form['type']) }}
                                     </span>
                                 </td>
-                                <td class="py-2.5 text-primary">{{ $form['teknisi'] }}</td>
-                                <td class="py-2.5 text-primary">{{ $form['pengguna'] }}</td>
-                                <td class="py-2.5 text-primary">{{ $form['perangkat'] }}</td>
-                                <td class="py-2.5 font-mono text-xs text-primary">
+                                <td class="py-2.5 text-primary whitespace-nowrap">{{ $form['teknisi'] }}</td>
+                                <td class="py-2.5 text-primary whitespace-nowrap">{{ $form['pengguna'] }}</td>
+                                <td class="py-2.5 text-primary whitespace-nowrap">{{ $form['perangkat'] }}</td>
+                                <td class="py-2.5 font-mono text-xs text-primary whitespace-nowrap">
                                     @if($form['asset_id'])
                                         <a href="{{ route('assets.show', $form['asset_id']) }}" wire:navigate class="hover:underline">{{ $form['no_asset'] }}</a>
                                     @else
                                         <span class="text-muted">-</span>
                                     @endif
                                 </td>
-                                <td class="py-2.5 text-xs text-secondary">{{ $form['kondisi'] }}</td>
-                                <td class="py-2.5">
+                                <td class="py-2.5 text-xs text-secondary whitespace-nowrap">{{ $form['kondisi'] }}</td>
+                                <td class="py-2.5 whitespace-nowrap">
                                     <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold {{ $this->getStatusColor($form['status']) }}">
                                         {{ ucfirst($form['status']) }}
                                     </span>
                                 </td>
-                                <td class="py-2.5 text-primary">{{ $form['disetujui'] }}</td>
-                                <td class="py-2.5 text-muted text-xs">{{ $form['submitted_at_formatted'] }}</td>
-                                <td class="py-2.5">
+                                <td class="py-2.5 text-primary whitespace-nowrap">{{ $form['disetujui'] }}</td>
+                                <td class="py-2.5 text-muted text-xs whitespace-nowrap">{{ $form['submitted_at_formatted'] }}</td>
+                                <td class="py-2.5 whitespace-nowrap">
                                     <div class="flex items-center gap-1">
                                         <button wire:click="viewForm({{ $form['id'] }}, '{{ $form['type'] }}')"
                                             class="text-xs text-blue-400 hover:underline">View</button>
