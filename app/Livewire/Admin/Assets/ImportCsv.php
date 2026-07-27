@@ -72,7 +72,7 @@ class ImportCsv extends Component
         while (($row = fgetcsv($handle)) !== false) {
             if (count($row) < count($header)) continue;
 
-            $data = array_combine($normalizedHeader, $row);
+            $data = array_combine($normalizedHeader, array_slice($row, 0, count($normalizedHeader)));
             $rows[] = $data;
             $count++;
 
@@ -108,7 +108,7 @@ class ImportCsv extends Component
             $rowNumber++;
             if (count($row) < count($header)) continue;
 
-            $data = array_combine($normalizedHeader, $row);
+            $data = array_combine($normalizedHeader, array_slice($row, 0, count($normalizedHeader)));
 
             try {
                 $noAsset = trim($data['no_asset'] ?? '');
