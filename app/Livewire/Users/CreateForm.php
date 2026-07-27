@@ -10,8 +10,8 @@ class CreateForm extends Component
 {
     public string $name = '';
     public string $email = '';
-    public string $password = '';
-    public string $password_confirmation = '';
+    public string $password = 'password';
+    public string $password_confirmation = 'password';
     public string $nik = '';
     public string $department = '';
     public string $business_unit = '';
