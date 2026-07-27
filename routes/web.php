@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\ExportPdfController;
 use App\Http\Controllers\UserCsvController;
+use App\Http\Controllers\SiteCsvController;
+use App\Http\Controllers\AssetCsvController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
@@ -72,6 +74,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Volt::route('sites/{idSite}/edit', 'admin.pages.sites.edit')
             ->name('sites.edit');
 
+        Volt::route('sites/import', 'admin.pages.sites.import')
+            ->name('sites.import');
+
+        Route::get('sites/export-csv', [SiteCsvController::class, 'export'])
+            ->name('sites.export.csv');
+
+        Route::get('sites/import/template', [SiteCsvController::class, 'template'])
+            ->name('sites.import.template');
+
         // Assets
         Volt::route('assets', 'admin.pages.assets.index')
             ->name('assets.index');
@@ -81,6 +92,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Volt::route('assets/{id}/edit', 'admin.pages.assets.edit')
             ->name('assets.edit');
+
+        Volt::route('assets/import', 'admin.pages.assets.import')
+            ->name('assets.import');
+
+        Route::get('assets/export-csv', [AssetCsvController::class, 'export'])
+            ->name('assets.export.csv');
+
+        Route::get('assets/import/template', [AssetCsvController::class, 'template'])
+            ->name('assets.import.template');
 
         // Users
         Volt::route('users', 'admin.pages.users.index')
