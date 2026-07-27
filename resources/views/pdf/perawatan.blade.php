@@ -313,7 +313,7 @@
             {{-- PERAWATAN OLEH --}}
             <td style="width:33%;">
                 <div class="sig-label">Perawatan Oleh</div>
-                <div class="sig-role">Staff/Teknisi IT Operation</div>
+                <div class="sig-role">Teknisi IT Operation</div>
                 @if($diperiksa && $diperiksa->signature_path)
                     <img src="{{ $diperiksa->signature_path }}" class="sig-img" alt="TTD">
                 @else
@@ -326,7 +326,7 @@
             {{-- DIKETAHUI --}}
             <td style="width:33%;">
                 <div class="sig-label">Diketahui Oleh</div>
-                <div class="sig-role">Pengguna / Supervisor IT</div>
+                <div class="sig-role">Pengguna Perangkat</div>
                 @if($diketahui && $diketahui->signature_path)
                     <img src="{{ $diketahui->signature_path }}" class="sig-img" alt="TTD">
                 @else
@@ -339,7 +339,7 @@
             {{-- DISETUJUI --}}
             <td style="width:33%;">
                 <div class="sig-label">Disetujui Oleh</div>
-                <div class="sig-role">Manager IT Operation</div>
+                <div class="sig-role">Supervisor / Manager IT Operation</div>
                 @if($disetujui && $disetujui->signature_path)
                     <img src="{{ $disetujui->signature_path }}" class="sig-img" alt="TTD">
                 @else
