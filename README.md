@@ -1,59 +1,197 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# ASRI Form Perangkat
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Internal web application for managing IT device inspection (Pemeriksaan) and maintenance (Perawatan) workflows across ASRI's multiple business locations.
 
-## About Laravel
+## Tech Stack
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Backend:** Laravel 12, PHP 8.3+
+- **Frontend:** Livewire 3 + Volt, Tailwind CSS 4, Alpine.js
+- **Database:** MySQL 8.0+
+- **Build Tool:** Vite 7
+- **Charts:** Chart.js 4
+- **Auth:** Laravel Breeze + Spatie Permission
+- **Barcode:** picqer/php-barcode-generator
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Requirements
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- PHP 8.3 or higher
+- MySQL 8.0 or higher
+- Node.js 18 or higher
+- Composer
+- NPM
 
-## Learning Laravel
+## Installation
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### 1. Clone the repository
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```bash
+git clone <repository-url>
+cd forms-asri
+```
 
-## Laravel Sponsors
+### 2. Install PHP dependencies
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```bash
+composer install
+```
 
-### Premium Partners
+### 3. Install NPM dependencies
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+```bash
+npm install
+```
 
-## Contributing
+### 4. Environment setup
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-## Code of Conduct
+Edit `.env` and configure your database connection:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=forms_asri
+DB_USERNAME=root
+DB_PASSWORD=
+```
 
-## Security Vulnerabilities
+### 5. Database setup
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+php artisan migrate
+```
+
+### 6. Seed the database
+
+```bash
+php artisan db:seed
+```
+
+This will create:
+- 5 user roles with permissions
+- 6 checklist templates (3 for inspection, 3 for maintenance)
+- 16 ASRI business sites
+- 8 user accounts across all roles
+- 21 IT assets with site assignments
+- 20 sample inspection forms (2 per status)
+- 20 sample maintenance forms (2 per status)
+- Approval records for all submitted forms
+
+### 7. Build frontend assets
+
+```bash
+npm run build
+```
+
+For development with hot reload:
+
+```bash
+npm run dev
+```
+
+### 8. Start the development server
+
+```bash
+php artisan serve
+```
+
+Visit [http://localhost:8000](http://localhost:8000)
+
+## Default Accounts
+
+| Name | Email | Password | Role |
+|---|---|---|---|
+| Rizky Pratama | admin@asri.co.id | password | Admin |
+| Ahmad Fauzi | teknisi@asri.co.id | password | Teknisi |
+| Dedi Kurniawan | teknisi2@asri.co.id | password | Teknisi |
+| Siti Nurhaliza | user@asri.co.id | password | Pengguna |
+| Budi Santoso | user2@asri.co.id | password | Pengguna |
+| Maya Indah | user3@asri.co.id | password | Pengguna |
+| Andi Wijaya | supervisor@asri.co.id | password | Supervisor IT |
+| Dewi Kartika | manager@asri.co.id | password | Manager IT |
+
+## Project Structure
+
+```
+forms-asri/
+├── app/
+│   ├── Enums/                    # FormStatus, ApprovalLevel, etc.
+│   ├── Livewire/
+│   │   ├── Admin/                # Admin panel (Sites, Assets, Users)
+│   │   ├── Approval/             # Form review & approval
+│   │   ├── Assets/               # Public asset views
+│   │   ├── Dashboard/            # Reports & analytics
+│   │   ├── Forms/                # Form search & listing
+│   │   ├── Layout/               # Navbar, sidebar, notifications
+│   │   ├── Pages/                # Form creation (Pemeriksaan, Perawatan)
+│   │   └── Profile/              # User profile & signature
+│   └── Models/                   # Eloquent models
+├── database/
+│   ├── factories/                # Model factories
+│   ├── migrations/               # Database migrations
+│   └── seeders/                  # Database seeders
+├── resources/
+│   ├── css/                      # Tailwind CSS
+│   ├── js/                       # JavaScript (Chart.js, HTML5QRCode)
+│   └── views/
+│       ├── components/           # Blade components & layouts
+│       └── livewire/             # Livewire & Volt views
+├── routes/
+│   └── web.php                   # Application routes
+└── public/
+    └── vendor/                   # Chart.js UMD build
+```
+
+## Features
+
+### Form Management
+- Create inspection (Pemeriksaan) and maintenance (Perawatan) forms
+- Digital checklist with real-time status tracking
+- File attachments for photo evidence
+- Digital signature support
+
+### Approval Workflow
+- Multi-level approval chain: Diperiksa → Diketahui → Disetujui
+- Role-based approval routing
+- Rejection with notes for revision
+- Real-time notification system
+
+### Asset Management
+- Full asset lifecycle tracking
+- Barcode generation (Code 128)
+- Site location mapping
+- User assignment with visibility control
+
+### Dashboard & Reports
+- Forms by site location
+- Top assets by form count
+- Monthly trends
+- Date range and operating unit filtering
+
+### Responsive Design
+- Mobile-first responsive layout
+- Dark/light theme support
+- Touch-optimized signature pads
+- PWA-ready with manifest.json
+
+## Roles & Permissions
+
+| Role | Key Permissions |
+|---|---|
+| Admin | Full access, manage users/assets/sites, view reports |
+| Teknisi | Create forms, view own forms |
+| Pengguna | Approve forms assigned to them, view assigned assets |
+| Supervisor IT | Approve all forms, view reports |
+| Manager IT | Final approval authority, view reports |
+
+## Documentation
+
+- [Product Requirements Document](PRD.md)
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Proprietary - ASRI Internal Use Only
