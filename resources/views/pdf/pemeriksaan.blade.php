@@ -370,7 +370,7 @@
     </table>
 
     <div class="footer">
-        Form Pemeriksaan Perangkat &mdash; {{ $form->nomor_form }} &mdash; {{ $form->asset->nama_perangkat ?? '' }}
+        FM-ASRI/ITE/08-00 - Form Pemeriksaan Perangkat &mdash; {{ $form->nomor_form }} &mdash; {{ $form->asset->nama_perangkat ?? '' }}
     </div>
 
 </body>

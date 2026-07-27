@@ -352,7 +352,7 @@
     </table>
 
     <div class="footer">
-        Form Perawatan Perangkat &mdash; {{ $form->nomor_form }} &mdash; {{ $form->asset->nama_perangkat ?? '' }}
+        FM/ASRI/ITE/09-00 - Form Perawatan Perangkat &mdash; {{ $form->nomor_form }} &mdash; {{ $form->asset->nama_perangkat ?? '' }}
     </div>
 
 </body>

@@ -69,7 +69,7 @@ Field mengikuti form fisik, meliputi:
 - **Approval berjenjang**: Perawatan Oleh (Teknisi) → Diketahui Oleh (Supervisor IT) → Disetujui Oleh (Manager IT Operation)
 
 ### 5.3 Fitur Umum (Shared)
-- **Nomor form otomatis** mengikuti format existing (`No: 005/IT/O99-FIN-NB061/240726`), auto-generate & unik
+- **Nomor form otomatis** mengikuti format existing (`No: 005/PMR/O99-FIN-NB061/240726`), auto-generate & unik
 - **Upload evidence foto** langsung dari kamera device (khusus mobile) per item pemeriksaan
 - **E-signature capture** (gambar tanda tangan via touch/mouse) untuk tiap approval level
 - **Scan barcode/QR aset** untuk auto-fill data perangkat dari master asset

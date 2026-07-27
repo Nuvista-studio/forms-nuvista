@@ -588,7 +588,7 @@ class CreateForm extends Component
 
         $assetCode = $this->noAsset ?? 'XXXX';
 
-        return "{$sequence}/IT/{$assetCode}/{$today}";
+        return "{$sequence}/PMR/{$assetCode}/{$today}";
     }
 
     public function nextStep(): void
@@ -773,11 +773,11 @@ class CreateForm extends Component
     {
         if ($this->noAsset) {
             $today = now()->format('dmY');
-            $count = FormPemeriksaan::where('nomor_form', 'like', "%/IT/{$this->noAsset}/{$today}")->count();
+            $count = FormPemeriksaan::where('nomor_form', 'like', "%/PMR/{$this->noAsset}/{$today}")->count();
             $seq = str_pad($count + 1, 3, '0', STR_PAD_LEFT);
-            return "{$seq}/IT/{$this->noAsset}/{$today}";
+            return "{$seq}/PMR/{$this->noAsset}/{$today}";
         }
-        return '---/IT/XXXX/' . now()->format('dmY');
+        return '---/PMR/XXXX/' . now()->format('dmY');
     }
 
     public function render()
