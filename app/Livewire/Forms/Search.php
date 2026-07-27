@@ -219,7 +219,7 @@ class Search extends Component
             'teknisi' => $f->teknisi->name ?? '-',
             'perangkat' => $f->asset->nama_perangkat ?? '-',
             'no_asset' => $f->asset->no_asset ?? '-',
-            'kondisi' => $f->kondisi_akhir === 'good_normal' ? 'Good / Normal' : 'Caution / Poor',
+            'kondisi' => match($f->kondisi_akhir) { 'good' => 'Good', 'fair' => 'Fair', 'critical' => 'Critical', 'poor' => 'Poor', default => '-' },
             'status' => $f->status,
             'submitted_at' => $f->submitted_at,
             'submitted_at_formatted' => $f->submitted_at?->format('d M Y H:i') ?? '-',

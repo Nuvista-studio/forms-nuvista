@@ -484,18 +484,34 @@
                 <div class="px-4 pb-4 space-y-4 border-t" style="border-color: var(--color-border);">
                     <div class="pt-4">
                         <label class="text-xs font-semibold text-muted uppercase tracking-wider">Kondisi Akhir Perangkat</label>
-                        <div class="flex gap-3 mt-2">
-                            <button wire:click="$set('kondisiAkhir', 'good_normal')" type="button"
-                                class="flex-1 p-3 rounded-lg border-2 text-sm font-semibold text-center transition-all"
-                                :class="$wire.kondisiAkhir === 'good_normal' ? 'border-emerald-500 bg-emerald-500/10 text-emerald-400' : 'border-transparent'"
-                                style="{{ $kondisiAkhir !== 'good_normal' ? 'background: var(--color-bg-tertiary); color: var(--color-text-secondary);' : '' }}">
-                                Good / Normal
+                        <div class="grid grid-cols-4 gap-2 mt-2">
+                            <button wire:click="$set('kondisiAkhir', 'good')" type="button"
+                                class="flex flex-col items-center p-3 rounded-lg border-2 text-sm font-semibold text-center transition-all"
+                                :class="$wire.kondisiAkhir === 'good' ? 'border-emerald-500 bg-emerald-500/10 text-emerald-400' : 'border-transparent'"
+                                style="{{ $kondisiAkhir !== 'good' ? 'background: var(--color-bg-tertiary); color: var(--color-text-secondary);' : '' }}">
+                                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                Good
                             </button>
-                            <button wire:click="$set('kondisiAkhir', 'caution_poor')" type="button"
-                                class="flex-1 p-3 rounded-lg border-2 text-sm font-semibold text-center transition-all"
-                                :class="$wire.kondisiAkhir === 'caution_poor' ? 'border-amber-500 bg-amber-500/10 text-amber-400' : 'border-transparent'"
-                                style="{{ $kondisiAkhir !== 'caution_poor' ? 'background: var(--color-bg-tertiary); color: var(--color-text-secondary);' : '' }}">
-                                Caution / Poor
+                            <button wire:click="$set('kondisiAkhir', 'fair')" type="button"
+                                class="flex flex-col items-center p-3 rounded-lg border-2 text-sm font-semibold text-center transition-all"
+                                :class="$wire.kondisiAkhir === 'fair' ? 'border-blue-500 bg-blue-500/10 text-blue-400' : 'border-transparent'"
+                                style="{{ $kondisiAkhir !== 'fair' ? 'background: var(--color-bg-tertiary); color: var(--color-text-secondary);' : '' }}">
+                                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                Fair
+                            </button>
+                            <button wire:click="$set('kondisiAkhir', 'critical')" type="button"
+                                class="flex flex-col items-center p-3 rounded-lg border-2 text-sm font-semibold text-center transition-all"
+                                :class="$wire.kondisiAkhir === 'critical' ? 'border-red-500 bg-red-500/10 text-red-400' : 'border-transparent'"
+                                style="{{ $kondisiAkhir !== 'critical' ? 'background: var(--color-bg-tertiary); color: var(--color-text-secondary);' : '' }}">
+                                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                Critical
+                            </button>
+                            <button wire:click="$set('kondisiAkhir', 'poor')" type="button"
+                                class="flex flex-col items-center p-3 rounded-lg border-2 text-sm font-semibold text-center transition-all"
+                                :class="$wire.kondisiAkhir === 'poor' ? 'border-amber-500 bg-amber-500/10 text-amber-400' : 'border-transparent'"
+                                style="{{ $kondisiAkhir !== 'poor' ? 'background: var(--color-bg-tertiary); color: var(--color-text-secondary);' : '' }}">
+                                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                Poor
                             </button>
                         </div>
                         <div class="mt-3">
@@ -611,9 +627,23 @@
                                 <span class="text-xs font-semibold text-muted uppercase">Kondisi Akhir</span>
                                 <button wire:click="goToStep(6)" type="button" class="text-xs" style="color: var(--color-text-secondary);">Edit</button>
                             </div>
-                            <p class="text-sm font-semibold {{ $kondisiAkhir === 'good_normal' ? 'text-emerald-400' : 'text-amber-400' }}">
-                                {{ $kondisiAkhir === 'good_normal' ? 'Good / Normal' : ($kondisiAkhir === 'caution_poor' ? 'Caution / Poor' : '-') }}
-                            </p>
+                            <div class="flex items-center gap-1.5">
+                                @if($kondisiAkhir === 'good')
+                                    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    <p class="text-sm font-semibold text-emerald-400">Good</p>
+                                @elseif($kondisiAkhir === 'fair')
+                                    <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    <p class="text-sm font-semibold text-blue-400">Fair</p>
+                                @elseif($kondisiAkhir === 'critical')
+                                    <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    <p class="text-sm font-semibold text-red-400">Critical</p>
+                                @elseif($kondisiAkhir === 'poor')
+                                    <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                    <p class="text-sm font-semibold text-amber-400">Poor</p>
+                                @else
+                                    <p class="text-sm font-semibold text-secondary">-</p>
+                                @endif
+                            </div>
                             @if($kondisiAkhirNotes)
                                 <p class="text-xs text-muted mt-1">{{ $kondisiAkhirNotes }}</p>
                             @endif

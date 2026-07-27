@@ -123,7 +123,7 @@ class CreateForm extends Component
             'aplikasiItems.*.keterangan' => 'nullable|string|max:1000',
             'osItems.*.status' => 'nullable|in:baik,tidak_baik',
             'osItems.*.keterangan' => 'nullable|string|max:1000',
-            'kondisiAkhir' => 'required|in:good_normal,caution_poor',
+            'kondisiAkhir' => 'required|in:good,fair,critical,poor',
             'kondisiAkhirNotes' => 'nullable|string|max:2000',
             'notes' => 'nullable|string|max:2000',
         ];

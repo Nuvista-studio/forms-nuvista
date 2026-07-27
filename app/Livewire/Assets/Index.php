@@ -56,8 +56,10 @@ class Index extends Component
         return match ($kondisi) {
             'baru' => 'Baru',
             'lama' => 'Lama',
-            'good_normal' => 'Good / Normal',
-            'caution_poor' => 'Caution / Poor',
+            'good' => 'Good',
+            'fair' => 'Fair',
+            'critical' => 'Critical',
+            'poor' => 'Poor',
             default => '-',
         };
     }

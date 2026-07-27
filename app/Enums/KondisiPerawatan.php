@@ -4,14 +4,28 @@ namespace App\Enums;
 
 enum KondisiPerawatan: string
 {
-    case GoodNormal = 'good_normal';
-    case CautionPoor = 'caution_poor';
+    case Good = 'good';
+    case Fair = 'fair';
+    case Critical = 'critical';
+    case Poor = 'poor';
 
     public function label(): string
     {
         return match ($this) {
-            self::GoodNormal => 'Good / Normal',
-            self::CautionPoor => 'Caution / Poor',
+            self::Good => 'Good',
+            self::Fair => 'Fair',
+            self::Critical => 'Critical',
+            self::Poor => 'Poor',
+        };
+    }
+
+    public function color(): string
+    {
+        return match ($this) {
+            self::Good => 'emerald',
+            self::Fair => 'blue',
+            self::Critical => 'red',
+            self::Poor => 'amber',
         };
     }
 }

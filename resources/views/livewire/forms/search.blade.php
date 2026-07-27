@@ -49,8 +49,10 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                     <option value="">Semua</option>
                     <option value="baru">Baru</option>
                     <option value="lama">Lama</option>
-                    <option value="good_normal">Good / Normal</option>
-                    <option value="caution_poor">Caution / Poor</option>
+                    <option value="good">Good</option>
+                    <option value="fair">Fair</option>
+                    <option value="critical">Critical</option>
+                    <option value="poor">Poor</option>
                 </select>
             </div>
 

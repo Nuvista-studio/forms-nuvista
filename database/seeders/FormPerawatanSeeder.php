@@ -54,7 +54,7 @@ class FormPerawatanSeeder extends Seeder
                     'asset_id' => $asset->id,
                     'site_location' => $asset->operating_unit,
                     'location_detail' => 'Lantai ' . rand(1, 5),
-                    'kondisi_akhir' => rand(0, 1) ? 'good_normal' : 'caution_poor',
+                    'kondisi_akhir' => ['good', 'fair', 'critical', 'poor'][rand(0, 3)],
                     'notes' => 'Perawatan rutin untuk ' . $asset->nama_perangkat,
                     'status' => $status,
                     'submitted_at' => $submittedAt,

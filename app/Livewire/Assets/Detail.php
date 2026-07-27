@@ -60,8 +60,10 @@ class Detail extends Component
         return match ($kondisi) {
             'baru' => 'Baru',
             'lama' => 'Lama',
-            'good_normal' => 'Good / Normal',
-            'caution_poor' => 'Caution / Poor',
+            'good' => 'Good',
+            'fair' => 'Fair',
+            'critical' => 'Critical',
+            'poor' => 'Poor',
             default => '-',
         };
     }
@@ -69,8 +71,10 @@ class Detail extends Component
     public function getKondisiColor(?string $kondisi): string
     {
         return match ($kondisi) {
-            'baru', 'good_normal' => 'text-emerald-400',
-            'lama', 'caution_poor' => 'text-amber-400',
+            'baru', 'good' => 'text-emerald-400',
+            'fair' => 'text-blue-400',
+            'critical' => 'text-red-400',
+            'lama', 'poor' => 'text-amber-400',
             default => 'text-secondary',
         };
     }

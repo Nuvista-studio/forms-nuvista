@@ -4,9 +4,10 @@
     <meta charset="utf-8">
     <title>Form Pemeriksaan {{ $form->nomor_form }}</title>
     <style>
-        @page { margin: 20mm 20mm 20mm 20mm; size: A4 portrait; }
+        @page { margin: 0; size: A4 portrait; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 12px; color: #1a1a1a; line-height: 1.4; padding: 0 5mm; }
+        body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 12px; color: #1a1a1a; line-height: 1.4; }
+        .pdf-content { margin: 15mm 15mm 15mm 15mm; }
         table { border-collapse: collapse; }
         td, th { padding: 3px 6px; }
 
@@ -72,6 +73,7 @@
     </style>
 </head>
 <body>
+<div class="pdf-content">
 
     {{-- HEADER --}}
     <table class="header-table">
@@ -373,5 +375,6 @@
         FM-ASRI/ITE/08-00 - Form Pemeriksaan Perangkat &mdash; {{ $form->nomor_form }} &mdash; {{ $form->asset->nama_perangkat ?? '' }}
     </div>
 
+</div>
 </body>
 </html>

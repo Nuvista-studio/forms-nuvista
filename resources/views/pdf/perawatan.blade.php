@@ -4,9 +4,11 @@
     <meta charset="utf-8">
     <title>Form Perawatan {{ $form->nomor_form }}</title>
     <style>
-        @page { margin: 20mm 20mm 20mm 20mm; size: A4 portrait; }
+        @page { margin: 0; size: A4 portrait; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 12px; color: #1a1a1a; line-height: 1.4; padding: 0 5mm; }
+        body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 12px; color: #1a1a1a; line-height: 1.4; }
+        .pdf-content { margin: 15mm 15mm 15mm 15mm; }
+        .pdf-section { margin-bottom: 6px; }
         table { border-collapse: collapse; }
         td, th { padding: 3px 6px; }
 
@@ -34,7 +36,8 @@
         .device-table .lbl { background: #f0f0f0; font-weight: 600; font-size: 10px; }
 
         .two-col { width: 100%; margin-bottom: 6px; }
-        .two-col > td { vertical-align: top; padding: 0 4px 0 0; border: none; width: 50%; }
+        .two-col tr { vertical-align: top !important; }
+        .two-col > td { vertical-align: top !important; padding: 0 4px 0 0; border: none; width: 50%; }
         .two-col > td:last-child { padding: 0 0 0 4px; }
 
         .checklist-table { width: 100%; border: 1px solid #999; margin-bottom: 4px; table-layout: fixed; }
@@ -73,8 +76,10 @@
     </style>
 </head>
 <body>
+<div class="pdf-content">
 
     {{-- HEADER --}}
+    <div class="pdf-section">
     <table class="header-table">
         <tr>
             <td class="header-logo">
@@ -87,16 +92,20 @@
             <td style="width: 55px; border: none;"></td>
         </tr>
     </table>
+    </div>
 
     {{-- NO. FORM --}}
+    <div class="pdf-section">
     <table class="form-row">
         <tr>
             <td class="form-no">No : {{ $form->nomor_form }}</td>
             <td class="form-date">Tanggal : {{ $form->submitted_at ? $form->submitted_at->format('d/m/Y') : '-' }}</td>
         </tr>
     </table>
+    </div>
 
     {{-- INFORMASI PENGGUNA --}}
+    <div class="pdf-section">
     <div class="section-title">Informasi Pengguna</div>
     <table class="info-table">
         <tr>
@@ -118,33 +127,31 @@
             <td>{{ $form->pengguna->email ?? '-' }}</td>
         </tr>
     </table>
+    <div class="section-sub-title">Location Perawatan
+        Site : {{ $form->site->site ?? $form->site_location ?? '-' }}, {{ $form->location_detail ?? '-' }}
+    </div>
+    </div>
 
     {{-- INFORMASI PERANGKAT --}}
+    <div class="pdf-section">
     <div class="section-title">Informasi Perangkat</div>
     <table class="device-table">
         <tr>
             <td class="lbl" style="width:12%;">Kategori</td>
-            <td style="width:14%;">{{ $form->asset->kategori ?? '-' }}</td>
-            <td class="lbl" style="width:10%;">Brand</td>
-            <td style="width:14%;">{{ $form->asset->brand ?? '-' }}</td>
-            <td class="lbl" style="width:10%;">Tipe</td>
-            <td style="width:14%;">{{ $form->asset->tipe ?? '-' }}</td>
+                <td class="lbl" style="width:10%;">Brand, Tipe</td>
             <td class="lbl" style="width:13%;">Nama Perangkat</td>
-            <td style="width:13%;">{{ $form->asset->nama_perangkat ?? '-' }}</td>
+            <td class="lbl" style="width:10%;">No. Serial</td>
+            <td class="lbl" style="width:10%;">No. Asset</td>
         </tr>
         <tr>
-            <td class="lbl">No. Serial</td>
-            <td>{{ $form->asset->no_serial ?? '-' }}</td>
-            <td class="lbl">No. Asset</td>
-            <td>{{ $form->asset->no_asset ?? '-' }}</td>
-            <td class="lbl">Site Location</td>
-            <td colspan="3">{{ $form->site->site ?? $form->site_location ?? '-' }}</td>
-        </tr>
-        <tr>
-            <td class="lbl">Location Detail</td>
-            <td colspan="7">{{ $form->location_detail ?? '-' }}</td>
+            <td style="width:14%;">{{ $form->asset->kategori ?? '-' }}</td>
+            <td style="width:14%;">{{ $form->asset->brand . ', ' . $form->asset->tipe ?? '-' }}</td>
+            <td style="width:14%;">{{ $form->asset->nama_perangkat ?? '-' }}</td>
+            <td style="width:13%;">{{ $form->asset->no_serial ?? '-' }}</td>
+            <td style="width:14%;">{{ $form->asset->no_asset ?? '-' }}</td>
         </tr>
     </table>
+    </div>
 
     {{-- PEMERIKSAAN PERANGKAT --}}
     @php
@@ -154,6 +161,7 @@
     @endphp
 
     {{-- HARDWARE + OS (left) | APLIKASI (right) --}}
+    <div class="pdf-section">
     <table class="two-col">
         <tr>
             {{-- LEFT: HARDWARE + OS --}}
@@ -231,6 +239,32 @@
                         @endforelse
                     </tbody>
                 </table>
+
+                <div class="section-title">Kondisi Setelah Perawatan</div>
+                <table class="kondisi-checklist">
+                    @php
+                        $kondisiOptions = [
+                            'good' => ['label' => 'Good', 'color' => '#10b981'],
+                            'fair' => ['label' => 'Fair', 'color' => '#3b82f6'],
+                            'critical' => ['label' => 'Critical', 'color' => '#ef4444'],
+                            'poor' => ['label' => 'Poor', 'color' => '#f59e0b'],
+                        ];
+                    @endphp
+                    @foreach($kondisiOptions as $key => $option)
+                        <tr>
+                            <td class="lbl" style="width: 25%;">{{ $option['label'] }}</td>
+                            <td class="val" style="text-align:center; {{ $form->kondisi_akhir === $key ? "font-weight: bold;" : '' }}">
+                                @if($form->kondisi_akhir === $key)
+                                    <span style="display:inline-block; width:14px; height:14px; border-radius:50%; background:{{ $option['color'] }}; vertical-align:middle; margin-right:4px;"></span>
+                                    <span style="color:{{ $option['color'] }};">V</span>
+                                @else
+                                    <span style="display:inline-block; width:14px; height:14px; border-radius:50%; border:1.5px solid #ccc; background:transparent; vertical-align:middle; margin-right:4px;"></span>
+                                    <span style="color:#ccc;">&mdash;</span>
+                                @endif
+                            </td>
+                        </tr>
+                    @endforeach
+                </table>
             </td>
 
             {{-- RIGHT: APLIKASI --}}
@@ -260,43 +294,29 @@
                         @endforelse
                     </tbody>
                 </table>
-
-                <div class="section-title">Kondisi Setelah Perawatan</div>
-                <table class="kondisi-checklist">
-                    <tr>
-                        <td class="lbl">Good / Normal</td>
-                        <td class="val" style="text-align:center;">
-                            @if($form->kondisi_akhir === 'good_normal') [V] @else [ ] @endif
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="lbl">Caution / Poor</td>
-                        <td class="val" style="text-align:center;">
-                            @if($form->kondisi_akhir === 'caution_poor') [V] @else [ ] @endif
-                        </td>
-                    </tr>
-                </table>
-
-                @if($form->kondisi_akhir_notes)
-                    <div style="font-size:10px; margin-top:4px;">
-                        <strong>Keterangan:</strong> {{ $form->kondisi_akhir_notes }}
-                    </div>
-                @endif
-
-                <div class="catatan" style="margin-top:8px;">
-                    <strong>Catatan Tambahan :</strong>
-                    {{ $form->notes ?? '-' }}
+                {{-- KONDISI LEGEND --}}
+                <div class="kondisi-legend">
+                    <strong style="font-size:11px;">Kondisi :</strong>
+                    <span>V : DONE</span>
+                    <span>X : NOT YET</span>
                 </div>
+
+                {{-- CATATAN --}}
+    @if($form->kondisi_akhir_notes)
+        <div style="font-size:10px; margin-top:4px;">
+            <strong>Keterangan:</strong> {{ $form->kondisi_akhir_notes }}
+        </div>
+    @endif
+    <div class="catatan" style="margin-top:8px;">
+        <strong>Catatan Tambahan :</strong>
+        {{ $form->notes ?? '-' }}
+    </div>
             </td>
         </tr>
     </table>
-
-    {{-- KONDISI LEGEND --}}
-    <div class="kondisi-legend">
-        <strong style="font-size:11px;">Kondisi :</strong>
-        <span>V : DONE</span>
-        <span>X : NOT YET</span>
     </div>
+    
+    
 
     {{-- KOTA & TANGGAL --}}
     <div style="font-size:11px; margin-top:8px;">Jakarta, {{ $form->submitted_at ? $form->submitted_at->format('d F Y') : '_______________' }}</div>
@@ -308,6 +328,7 @@
         $disetujui = $form->approvals->firstWhere('approval_level', 'disetujui_oleh');
     @endphp
 
+    <div class="pdf-section">
     <table class="signatures">
         <tr>
             {{-- PERAWATAN OLEH --}}
@@ -350,10 +371,12 @@
             </td>
         </tr>
     </table>
+    </div>
 
     <div class="footer">
         FM/ASRI/ITE/09-00 - Form Perawatan Perangkat &mdash; {{ $form->nomor_form }} &mdash; {{ $form->asset->nama_perangkat ?? '' }}
     </div>
 
+</div>
 </body>
 </html>

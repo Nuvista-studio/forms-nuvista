@@ -199,8 +199,10 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                                 <option value="">Pilih Kondisi</option>
                                 <option value="baru">Baru</option>
                                 <option value="lama">Lama</option>
-                                <option value="good_normal">Good / Normal</option>
-                                <option value="caution_poor">Caution / Poor</option>
+                                <option value="good">Good</option>
+                                <option value="fair">Fair</option>
+                                <option value="critical">Critical</option>
+                                <option value="poor">Poor</option>
                             </select>
                         </div>
                         <div>
@@ -240,8 +242,10 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                                 class="w-full px-3 py-2 rounded-lg text-sm mt-1 transition-colors duration-200"
                                 style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
                                 <option value="">Pilih Kondisi</option>
-                                <option value="good_normal">Good / Normal</option>
-                                <option value="caution_poor">Caution / Poor</option>
+                                <option value="good">Good</option>
+                                <option value="fair">Fair</option>
+                                <option value="critical">Critical</option>
+                                <option value="poor">Poor</option>
                             </select>
                         </div>
                         <div>
@@ -302,8 +306,10 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                                             <option value="">Pilih Status</option>
                                             <option value="baik">Baik</option>
                                             <option value="tidak_baik">Tidak Baik</option>
-                                            <option value="good_normal">Good / Normal</option>
-                                            <option value="caution_poor">Caution / Poor</option>
+                                            <option value="good">Good</option>
+                                            <option value="fair">Fair</option>
+                                            <option value="critical">Critical</option>
+                                            <option value="poor">Poor</option>
                                             <option value="baru">Baru</option>
                                             <option value="lama">Lama</option>
                                         </select>

@@ -406,8 +406,10 @@ class ReviewForm extends Component
         return match ($status) {
             'baik' => 'Baik',
             'tidak_baik' => 'Tidak Baik',
-            'good_normal' => 'Good / Normal',
-            'caution_poor' => 'Caution / Poor',
+            'good' => 'Good',
+            'fair' => 'Fair',
+            'critical' => 'Critical',
+            'poor' => 'Poor',
             'baru' => 'Baru',
             'lama' => 'Lama',
             default => $status,
@@ -417,8 +419,10 @@ class ReviewForm extends Component
     public function getStatusColor(string $status): string
     {
         return match ($status) {
-            'baik', 'good_normal', 'baru' => 'text-emerald-400',
-            'tidak_baik', 'caution_poor' => 'text-red-400',
+            'baik', 'good', 'baru' => 'text-emerald-400',
+            'fair' => 'text-blue-400',
+            'critical' => 'text-red-400',
+            'tidak_baik', 'poor' => 'text-amber-400',
             default => 'text-secondary',
         };
     }
