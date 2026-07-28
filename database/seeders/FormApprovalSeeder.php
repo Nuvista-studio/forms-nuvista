@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Enums\ApprovalLevel;
-use App\Models\FormApproval;
 use App\Models\FormPemeriksaan;
 use App\Models\FormPerawatan;
 use App\Models\User;
@@ -14,115 +13,93 @@ class FormApprovalSeeder extends Seeder
 {
     public function run(): void
     {
-        $this->seedPemeriksaanApprovals();
-        $this->seedPerawatanApprovals();
+        $this->seedFormApprovals(FormPemeriksaan::class, 'pemeriksaan');
+        $this->seedFormApprovals(FormPerawatan::class, 'perawatan');
     }
 
-    private function seedPemeriksaanApprovals(): void
+    private function seedFormApprovals(string $modelClass, string $label): void
     {
-        $forms = FormPemeriksaan::with(['teknisi', 'pengguna'])->get();
+        $forms = $modelClass::with(['teknisi', 'pengguna'])->get();
+
+        $supervisor = User::role('supervisor_it')->first();
+        $manager = User::role('manager_it')->first();
 
         foreach ($forms as $form) {
             $submittedAt = $form->submitted_at;
             if (!$submittedAt) continue;
 
-            $supervisor = User::whereHas('role', fn($q) => $q->where('name', 'supervisor_it'))->first();
-            $manager = User::whereHas('role', fn($q) => $q->where('name', 'manager_it'))->first();
-
-            // Diperiksa oleh (teknisi) - always approved when form is submitted
-            if (in_array($form->status, ['submitted', 'diketahui', 'disetujui', 'selesai'])) {
+            // Diperiksa oleh (teknisi) - auto-approved when submitted
+            if (in_array($form->status, ['submitted', 'diketahui', 'disetujui', 'selesai', 'revisi'])) {
                 $form->approvals()->create([
                     'approval_level' => ApprovalLevel::DiperiksaOleh->value,
                     'user_id' => $form->teknisi->id,
                     'status' => 'approved',
                     'approved_at' => $submittedAt->copy()->addMinutes(rand(5, 30)),
-                    'catatan' => 'Pemeriksaan selesai',
+                    'catatan' => ucfirst($label) . ' selesai dilakukan',
                 ]);
             }
 
-            // Diketahui oleh (pengguna)
+            // Diketahui oleh (pengguna) - for forms that have been acknowledged
             if (in_array($form->status, ['diketahui', 'disetujui', 'selesai'])) {
                 $form->approvals()->create([
                     'approval_level' => ApprovalLevel::DiketahuiOleh->value,
                     'user_id' => $form->pengguna_id,
                     'status' => 'approved',
                     'approved_at' => $submittedAt->copy()->addHours(rand(1, 24)),
-                    'catatan' => 'Diketahui, sesuai kondisi',
+                    'catatan' => 'Mengetahui hasil ' . $label . ' dan kondisi sesuai',
                 ]);
+
+                // Disetujui oleh - pending (waiting for approval)
+                if ($form->status === 'diketahui') {
+                    $form->approvals()->create([
+                        'approval_level' => ApprovalLevel::DisetujuiOleh->value,
+                        'user_id' => $supervisor?->id,
+                        'custom_signer_name' => $supervisor ? null : 'Supervisor IT',
+                        'status' => 'pending',
+                    ]);
+                }
             }
 
-            if ($form->status === 'diketahui') {
-                $form->approvals()->create([
-                    'approval_level' => ApprovalLevel::DisetujuiOleh->value,
-                    'user_id' => $supervisor?->id,
-                    'status' => 'pending',
-                ]);
-            }
-
-            // Disetujui oleh (supervisor/manager)
+            // Disetujui oleh (supervisor/manager) - for fully approved forms
             if (in_array($form->status, ['disetujui', 'selesai'])) {
-                $approver = $manager ?? $supervisor;
+                $approver = fake()->boolean(60) ? $manager : $supervisor;
+
                 $form->approvals()->create([
                     'approval_level' => ApprovalLevel::DisetujuiOleh->value,
                     'user_id' => $approver?->id,
+                    'custom_signer_name' => $approver ? null : ($manager ? null : 'Manager IT'),
                     'status' => 'approved',
                     'approved_at' => $submittedAt->copy()->addDays(rand(1, 3)),
-                    'catatan' => 'Disetujui untuk diproses',
-                ]);
-            }
-        }
-    }
-
-    private function seedPerawatanApprovals(): void
-    {
-        $forms = FormPerawatan::with(['teknisi', 'pengguna'])->get();
-
-        foreach ($forms as $form) {
-            $submittedAt = $form->submitted_at;
-            if (!$submittedAt) continue;
-
-            $supervisor = User::whereHas('role', fn($q) => $q->where('name', 'supervisor_it'))->first();
-            $manager = User::whereHas('role', fn($q) => $q->where('name', 'manager_it'))->first();
-
-            // Diperiksa oleh (teknisi)
-            if (in_array($form->status, ['submitted', 'diketahui', 'disetujui', 'selesai'])) {
-                $form->approvals()->create([
-                    'approval_level' => ApprovalLevel::DiperiksaOleh->value,
-                    'user_id' => $form->teknisi->id,
-                    'status' => 'approved',
-                    'approved_at' => $submittedAt->copy()->addMinutes(rand(5, 30)),
-                    'catatan' => 'Perawatan selesai',
+                    'catatan' => 'Disetujui, ' . $label . ' sudah sesuai prosedur',
                 ]);
             }
 
-            // Diketahui oleh (pengguna)
-            if (in_array($form->status, ['diketahui', 'disetujui', 'selesai'])) {
+            // Revisi - create approval with rejection note
+            if ($form->status === 'revisi') {
+                // Diketahui but rejected (needs revision)
                 $form->approvals()->create([
                     'approval_level' => ApprovalLevel::DiketahuiOleh->value,
                     'user_id' => $form->pengguna_id,
                     'status' => 'approved',
                     'approved_at' => $submittedAt->copy()->addHours(rand(1, 24)),
-                    'catatan' => 'Diketahui, perawatan sudah sesuai',
+                    'catatan' => 'Mengetahui hasil ' . $label,
                 ]);
-            }
 
-            if ($form->status === 'diketahui') {
+                // Disetujui - rejected with revision notes
+                $rejector = fake()->boolean(50) ? $manager : $supervisor;
                 $form->approvals()->create([
                     'approval_level' => ApprovalLevel::DisetujuiOleh->value,
-                    'user_id' => $supervisor?->id,
-                    'status' => 'pending',
-                ]);
-            }
-
-            // Disetujui oleh (supervisor/manager)
-            if (in_array($form->status, ['disetujui', 'selesai'])) {
-                $approver = $manager ?? $supervisor;
-                $form->approvals()->create([
-                    'approval_level' => ApprovalLevel::DisetujuiOleh->value,
-                    'user_id' => $approver?->id,
-                    'status' => 'approved',
-                    'approved_at' => $submittedAt->copy()->addDays(rand(1, 3)),
-                    'catatan' => 'Disetujui',
+                    'user_id' => $rejector?->id,
+                    'custom_signer_name' => $rejector ? null : 'Approver',
+                    'status' => 'rejected',
+                    'approved_at' => $submittedAt->copy()->addDays(rand(1, 2)),
+                    'catatan' => 'Perlu revisi: ' . fake()->randomElement([
+                        'Data kondisi tidak lengkap',
+                        'Foto pendukung belum dilampirkan',
+                        'Terdapat item yang belum diperiksa',
+                        'Mohon dilengkapi keterangan untuk item yang tidak baik',
+                        'Tanda tangan pengguna belum ada',
+                    ]),
                 ]);
             }
         }

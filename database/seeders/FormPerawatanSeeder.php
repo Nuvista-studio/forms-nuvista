@@ -13,8 +13,8 @@ class FormPerawatanSeeder extends Seeder
 {
     public function run(): void
     {
-        $teknisiUsers = User::whereHas('role', fn($q) => $q->where('name', 'teknisi'))->get();
-        $penggunaUsers = User::whereHas('role', fn($q) => $q->where('name', 'pengguna'))->get();
+        $teknisiUsers = User::role('teknisi')->get();
+        $penggunaUsers = User::role('pengguna')->get();
         $assets = Asset::whereNotNull('assigned_user_id')->get();
 
         if ($teknisiUsers->isEmpty() || $penggunaUsers->isEmpty() || $assets->isEmpty()) {
@@ -25,18 +25,21 @@ class FormPerawatanSeeder extends Seeder
         $aplikasiItems = ChecklistTemplate::where('form_type', 'perawatan')->where('category', 'aplikasi')->first()?->items ?? collect();
         $osItems = ChecklistTemplate::where('form_type', 'perawatan')->where('category', 'operating_system')->first()?->items ?? collect();
 
-        $statuses = [
+        $statusConfig = [
             'draft' => 2,
             'submitted' => 2,
-            'diketahui' => 2,
-            'disetujui' => 2,
+            'diketahui' => 1,
+            'disetujui' => 1,
             'selesai' => 2,
+            'revisi' => 1,
         ];
+
+        $kondisiAkhirOptions = ['good', 'fair', 'critical', 'poor'];
 
         $formNumber = 1;
         $now = Carbon::now();
 
-        foreach ($statuses as $status => $count) {
+        foreach ($statusConfig as $status => $count) {
             for ($i = 0; $i < $count; $i++) {
                 $teknisi = $teknisiUsers->random();
                 $pengguna = $penggunaUsers->random();
@@ -47,15 +50,19 @@ class FormPerawatanSeeder extends Seeder
                     default => $now->copy()->subDays(rand(1, 30))->subHours(rand(0, 23)),
                 };
 
+                $kondisiAkhir = fake()->randomElement($kondisiAkhirOptions);
+
                 $form = FormPerawatan::create([
                     'nomor_form' => 'PRW-' . str_pad($formNumber++, 4, '0', STR_PAD_LEFT),
                     'user_id' => $teknisi->id,
                     'pengguna_id' => $pengguna->id,
                     'asset_id' => $asset->id,
                     'site_location' => $asset->operating_unit,
-                    'location_detail' => 'Lantai ' . rand(1, 5),
-                    'kondisi_akhir' => ['good', 'fair', 'critical', 'poor'][rand(0, 3)],
-                    'notes' => 'Perawatan rutin untuk ' . $asset->nama_perangkat,
+                    'location_detail' => 'Lantai ' . rand(1, 5) . ' Ruang ' . fake()->randomElement(['A', 'B', 'C', 'D']) . '-' . rand(1, 20),
+                    'kondisi_akhir' => $kondisiAkhir,
+                    'kondisi_akhir_notes' => in_array($kondisiAkhir, ['critical', 'poor']) ? fake()->sentence() : null,
+                    'barcode_fisik' => fake()->boolean(80),
+                    'notes' => 'Perawatan rutin ' . $asset->nama_perangkat . ' (' . $asset->no_asset . ')',
                     'status' => $status,
                     'submitted_at' => $submittedAt,
                 ]);
@@ -70,12 +77,14 @@ class FormPerawatanSeeder extends Seeder
     private function createItems($form, $items, string $category): void
     {
         foreach ($items as $idx => $item) {
+            $status = fake()->boolean(85) ? 'baik' : 'tidak_baik';
+
             $form->items()->create([
                 'template_item_id' => $item->id,
                 'category' => $category,
                 'name' => $item->name,
-                'status' => rand(0, 1) ? 'baik' : 'tidak_baik',
-                'keterangan' => null,
+                'status' => $status,
+                'keterangan' => $status === 'tidak_baik' ? fake()->sentence() : null,
                 'sort_order' => $idx,
             ]);
         }

@@ -200,7 +200,7 @@ class SiteSeeder extends Seeder
         ];
 
         foreach ($sites as $site) {
-            Site::create($site);
+            Site::firstOrCreate(['id_site' => $site['id_site']], $site);
         }
     }
 }
