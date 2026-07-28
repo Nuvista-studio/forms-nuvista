@@ -206,7 +206,7 @@ class CreateForm extends Component
     private function loadFormData(int $formId): void
     {
         $form = FormPerawatan::with(['items', 'pengguna', 'asset'])->find($formId);
-        if (! $form || ($form->status !== 'draft' && $form->status !== 'revisi')) {
+        if (! $form || in_array($form->status, [FormStatus::Disetujui->value, FormStatus::Selesai->value])) {
             return;
         }
 

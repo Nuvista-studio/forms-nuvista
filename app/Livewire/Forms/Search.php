@@ -24,7 +24,6 @@ class Search extends Component
     public string $dateTo = '';
     public string $sortBy = 'submitted_at';
     public string $sortDir = 'desc';
-    public string $sidebarFilter = 'all';
 
     public string $userSearch = '';
     public array $userResults = [];
@@ -55,11 +54,6 @@ class Search extends Component
     }
 
     public function updatedStatus(): void
-    {
-        $this->resetPage();
-    }
-
-    public function updatedSidebarFilter(): void
     {
         $this->resetPage();
     }
@@ -121,7 +115,6 @@ class Search extends Component
         $this->dateFrom = '';
         $this->dateTo = '';
         $this->userSearch = '';
-        $this->sidebarFilter = 'all';
         $this->resetPage();
     }
 
@@ -156,7 +149,6 @@ class Search extends Component
     {
         $query = FormPemeriksaan::with(['teknisi', 'asset', 'pengguna', 'approvals.user']);
         $this->applyRoleScope($query);
-        $this->applySidebarFilter($query);
 
         if ($this->formType && $this->formType !== 'pemeriksaan') {
             return collect();
@@ -202,7 +194,6 @@ class Search extends Component
     {
         $query = FormPerawatan::with(['teknisi', 'asset', 'pengguna', 'approvals.user']);
         $this->applyRoleScope($query);
-        $this->applySidebarFilter($query);
 
         if ($this->formType && $this->formType !== 'perawatan') {
             return collect();
@@ -317,20 +308,5 @@ class Search extends Component
         if ($user->hasPermissionTo('view-own-forms')) {
             $query->where('user_id', $user->id);
         }
-    }
-
-    private function applySidebarFilter($query): void
-    {
-        match ($this->sidebarFilter) {
-            'draft_submitted' => $query->whereIn('status', ['draft', 'submitted']),
-            'diperiksa' => $query->whereHas('approvals', function ($q) {
-                $q->where('approval_level', 'diperiksa_oleh')
-                  ->where('status', 'approved');
-            }),
-            'diketahui' => $query->where('status', 'diketahui'),
-            'disetujui' => $query->where('status', 'disetujui'),
-            'selesai' => $query->where('status', 'selesai'),
-            default => null,
-        };
     }
 }
