@@ -5,7 +5,7 @@ use Livewire\Volt\Component;
 
 new #[Layout('components.app-layout')] class extends Component {}; ?>
 
-<div class="max-w-7xl mx-auto px-4 py-6 space-y-4" x-data @form-deleted.window="window.location.reload()">
+<div class="max-w-7xl mx-auto px-4 py-6 space-y-4" x-data="columnManager()" x-init="init(['status','nomor_form','tipe','teknisi','pengguna','perangkat','no_asset','kondisi','disetujui','tanggal','aksi'])" @form-deleted.window="window.location.reload()">
     <h1 class="text-2xl font-bold text-primary">Cari & Filter Form</h1>
 
     <div class="flex flex-col lg:flex-row gap-6">
@@ -172,6 +172,35 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
     <div class="glass-card p-4">
         <div class="flex items-center justify-between mb-3">
             <p class="text-sm text-muted">Menampilkan {{ count($results) }} form</p>
+            <div class="relative" x-data="{ colOpen: false }">
+                <button @click="colOpen = !colOpen"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors duration-200"
+                    style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 4h6m-3 12v6m-7-4l4-4m0 0l4 4m-4-4V4"/>
+                    </svg>
+                    Columns
+                </button>
+                <div x-show="colOpen" @click.away="colOpen = false" x-cloak
+                    class="absolute right-0 mt-1 w-56 rounded-lg shadow-lg z-30 py-2"
+                    style="background: var(--color-card-bg); border: 1px solid var(--color-card-border);"
+                    x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100">
+                    <div class="px-3 pb-1.5 text-[10px] font-semibold text-muted uppercase tracking-wider">Show / Hide Columns</div>
+                    <template x-for="(col, idx) in columns" :key="col.key">
+                        <label class="flex items-center gap-2 px-3 py-1.5 text-xs cursor-pointer hover:bg-[var(--color-bg-tertiary)] transition-colors">
+                            <span @mousedown.prevent @mousedown="startDrag(idx, $event)" class="cursor-grab active:cursor-grabbing text-muted hover:text-primary shrink-0" title="Drag to reorder">
+                                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 6h2v2H8V6zm6 0h2v2h-2V6zM8 11h2v2H8v-2zm6 0h2v2h-2v-2zm-6 5h2v2H8v-2zm6 0h2v2h-2v-2z"/></svg>
+                            </span>
+                            <input type="checkbox" x-model="col.visible" class="rounded border-gray-400 text-blue-500 focus:ring-blue-500">
+                            <span x-text="col.label" class="text-primary"></span>
+                            <span class="ml-auto text-[10px] text-muted" x-text="idx + 1"></span>
+                        </label>
+                    </template>
+                    <div class="border-t mt-1 pt-1.5 px-3" style="border-color: var(--color-border);">
+                        <button @click="resetColumns()" class="text-xs text-blue-400 hover:text-blue-300 transition-colors">Reset Default</button>
+                    </div>
+                </div>
+            </div>
         </div>
 
         @if(count($results) === 0)
@@ -186,54 +215,54 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                 <table class="w-full text-sm">
                     <thead>
                         <tr class="border-b whitespace-nowrap" style="border-color: var(--color-border);">
-                            <th wire:click="toggleSort('nomor_form')" class="text-left py-2 px-3 text-xs text-muted font-medium cursor-pointer hover:text-primary whitespace-nowrap">
-                                No. Form @if($sortBy === 'nomor_form') {{ $sortDir === 'asc' ? '↑' : '↓' }} @endif
-                            </th>
-                            <th class="text-left py-2 px-3 text-xs text-muted font-medium whitespace-nowrap">Tipe</th>
-                            <th class="text-left py-2 px-3 text-xs text-muted font-medium whitespace-nowrap">Teknisi</th>
-                            <th class="text-left py-2 px-3 text-xs text-muted font-medium whitespace-nowrap">Pengguna</th>
-                            <th class="text-left py-2 px-3 text-xs text-muted font-medium whitespace-nowrap">Perangkat</th>
-                            <th class="text-left py-2 px-3 text-xs text-muted font-medium whitespace-nowrap">No. Asset</th>
-                            <th class="text-left py-2 px-3 text-xs text-muted font-medium whitespace-nowrap">Kondisi</th>
-                            <th wire:click="toggleSort('status')" class="text-left py-2 px-3 text-xs text-muted font-medium cursor-pointer hover:text-primary whitespace-nowrap">
+                            <th x-show="isVisible('status')" wire:click="toggleSort('status')" class="text-left py-2 px-3 text-xs text-muted font-medium cursor-pointer hover:text-primary whitespace-nowrap">
                                 Status @if($sortBy === 'status') {{ $sortDir === 'asc' ? '↑' : '↓' }} @endif
                             </th>
-                            <th class="text-left py-2 px-3 text-xs text-muted font-medium whitespace-nowrap">Disetujui</th>
-                            <th wire:click="toggleSort('submitted_at')" class="text-left py-2 px-3 text-xs text-muted font-medium cursor-pointer hover:text-primary whitespace-nowrap">
+                            <th x-show="isVisible('nomor_form')" wire:click="toggleSort('nomor_form')" class="text-left py-2 px-3 text-xs text-muted font-medium cursor-pointer hover:text-primary whitespace-nowrap">
+                                No. Form @if($sortBy === 'nomor_form') {{ $sortDir === 'asc' ? '↑' : '↓' }} @endif
+                            </th>
+                            <th x-show="isVisible('tipe')" class="text-left py-2 px-3 text-xs text-muted font-medium whitespace-nowrap">Tipe</th>
+                            <th x-show="isVisible('teknisi')" class="text-left py-2 px-3 text-xs text-muted font-medium whitespace-nowrap">Teknisi</th>
+                            <th x-show="isVisible('pengguna')" class="text-left py-2 px-3 text-xs text-muted font-medium whitespace-nowrap">Pengguna</th>
+                            <th x-show="isVisible('perangkat')" class="text-left py-2 px-3 text-xs text-muted font-medium whitespace-nowrap">Perangkat</th>
+                            <th x-show="isVisible('no_asset')" class="text-left py-2 px-3 text-xs text-muted font-medium whitespace-nowrap">No. Asset</th>
+                            <th x-show="isVisible('kondisi')" class="text-left py-2 px-3 text-xs text-muted font-medium whitespace-nowrap">Kondisi</th>
+                            <th x-show="isVisible('disetujui')" class="text-left py-2 px-3 text-xs text-muted font-medium whitespace-nowrap">Disetujui</th>
+                            <th x-show="isVisible('tanggal')" wire:click="toggleSort('submitted_at')" class="text-left py-2 px-3 text-xs text-muted font-medium cursor-pointer hover:text-primary whitespace-nowrap">
                                 Tanggal @if($sortBy === 'submitted_at') {{ $sortDir === 'asc' ? '↑' : '↓' }} @endif
                             </th>
-                            <th class="text-left py-2 px-3 text-xs text-muted font-medium whitespace-nowrap">Aksi</th>
+                            <th x-show="isVisible('aksi')" class="text-left py-2 px-3 text-xs text-muted font-medium whitespace-nowrap">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y" style="border-color: var(--color-border);">
                         @foreach($results as $form)
                             <tr class="transition-colors whitespace-nowrap" onmouseover="this.style.backgroundColor='var(--color-bg-tertiary)'" onmouseout="this.style.backgroundColor=''">
-                                <td class="py-2.5 px-3 font-mono font-semibold text-primary text-xs whitespace-nowrap">{{ $form['nomor_form'] }}</td>
-                                <td class="py-2.5 px-3 whitespace-nowrap">
+                                <td x-show="isVisible('status')" class="py-2.5 px-3 whitespace-nowrap">
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold {{ $this->getStatusColor($form['status']) }}">
+                                        {{ ucfirst($form['status']) }}
+                                    </span>
+                                </td>
+                                <td x-show="isVisible('nomor_form')" class="py-2.5 px-3 font-mono font-semibold text-primary text-xs whitespace-nowrap">{{ $form['nomor_form'] }}</td>
+                                <td x-show="isVisible('tipe')" class="py-2.5 px-3 whitespace-nowrap">
                                     <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold
                                         {{ $form['type'] === 'pemeriksaan' ? 'bg-blue-500/15 text-blue-400' : 'bg-purple-500/15 text-purple-400' }}">
                                         {{ ucfirst($form['type']) }}
                                     </span>
                                 </td>
-                                <td class="py-2.5 px-3 text-primary whitespace-nowrap">{{ $form['teknisi'] }}</td>
-                                <td class="py-2.5 px-3 text-primary whitespace-nowrap">{{ $form['pengguna'] }}</td>
-                                <td class="py-2.5 px-3 text-primary whitespace-nowrap">{{ $form['perangkat'] }}</td>
-                                <td class="py-2.5 px-3 font-mono text-xs text-primary whitespace-nowrap">
+                                <td x-show="isVisible('teknisi')" class="py-2.5 px-3 text-primary whitespace-nowrap">{{ $form['teknisi'] }}</td>
+                                <td x-show="isVisible('pengguna')" class="py-2.5 px-3 text-primary whitespace-nowrap">{{ $form['pengguna'] }}</td>
+                                <td x-show="isVisible('perangkat')" class="py-2.5 px-3 text-primary whitespace-nowrap">{{ $form['perangkat'] }}</td>
+                                <td x-show="isVisible('no_asset')" class="py-2.5 px-3 font-mono text-xs text-primary whitespace-nowrap">
                                     @if($form['asset_id'])
                                         <a href="{{ route('assets.show', $form['asset_id']) }}" wire:navigate class="hover:underline">{{ $form['no_asset'] }}</a>
                                     @else
                                         <span class="text-muted">-</span>
                                     @endif
                                 </td>
-                                <td class="py-2.5 px-3 text-xs text-secondary whitespace-nowrap">{{ $form['kondisi'] }}</td>
-                                <td class="py-2.5 px-3 whitespace-nowrap">
-                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold {{ $this->getStatusColor($form['status']) }}">
-                                        {{ ucfirst($form['status']) }}
-                                    </span>
-                                </td>
-                                <td class="py-2.5 px-3 text-primary whitespace-nowrap">{{ $form['disetujui'] }}</td>
-                                <td class="py-2.5 px-3 text-muted text-xs whitespace-nowrap">{{ $form['submitted_at_formatted'] }}</td>
-                                <td class="py-2.5 px-3 whitespace-nowrap">
+                                <td x-show="isVisible('kondisi')" class="py-2.5 px-3 text-xs text-secondary whitespace-nowrap">{{ $form['kondisi'] }}</td>
+                                <td x-show="isVisible('disetujui')" class="py-2.5 px-3 text-primary whitespace-nowrap">{{ $form['disetujui'] }}</td>
+                                <td x-show="isVisible('tanggal')" class="py-2.5 px-3 text-muted text-xs whitespace-nowrap">{{ $form['submitted_at_formatted'] }}</td>
+                                <td x-show="isVisible('aksi')" class="py-2.5 px-3 whitespace-nowrap">
                                     <div class="flex items-center gap-1">
                                         <button wire:click="viewForm({{ $form['id'] }}, '{{ $form['type'] }}')"
                                             class="text-xs text-blue-400 hover:underline">View</button>
@@ -353,3 +382,73 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
     </div> {{-- End Main Content --}}
     </div> {{-- End Flex Container --}}
 </div>
+
+@push('scripts')
+<script>
+function columnManager() {
+    return {
+        columns: [],
+        init(defaults) {
+            const stored = localStorage.getItem('search_columns');
+            if (stored) {
+                try { this.columns = JSON.parse(stored); } catch(e) { this.columns = this.defaultColumns(defaults); }
+            } else {
+                this.columns = this.defaultColumns(defaults);
+            }
+        },
+        defaultColumns(keys) {
+            const labels = {
+                status: 'Status', nomor_form: 'No. Form', tipe: 'Tipe',
+                teknisi: 'Teknisi', pengguna: 'Pengguna', perangkat: 'Perangkat',
+                no_asset: 'No. Asset', kondisi: 'Kondisi', disetujui: 'Disetujui',
+                tanggal: 'Tanggal', aksi: 'Aksi'
+            };
+            return keys.map(k => ({ key: k, label: labels[k] || k, visible: true }));
+        },
+        isVisible(key) {
+            const col = this.columns.find(c => c.key === key);
+            return col ? col.visible : true;
+        },
+        startDrag(idx, event) {
+            const dragEl = event.target.closest('label');
+            const clone = dragEl.cloneNode(true);
+            clone.style.position = 'fixed'; clone.style.pointerEvents = 'none';
+            clone.style.opacity = '0.6'; clone.style.zIndex = '1000';
+            clone.style.width = dragEl.offsetWidth + 'px';
+            document.body.appendChild(clone);
+            const offsetY = event.clientY - dragEl.getBoundingClientRect().top;
+            const offsetX = event.clientX - dragEl.getBoundingClientRect().left;
+            const onMove = (e) => {
+                clone.style.left = (e.clientX - offsetX) + 'px';
+                clone.style.top = (e.clientY - offsetY) + 'px';
+                const items = [...dragEl.closest('div').querySelectorAll('label')];
+                const target = items.find(item => {
+                    if (item === dragEl) return false;
+                    const rect = item.getBoundingClientRect();
+                    return e.clientY < rect.top + rect.height / 2;
+                });
+                if (target) dragEl.parentNode.insertBefore(dragEl, target);
+                else { const last = items[items.length - 1]; if (last && last !== dragEl) dragEl.parentNode.appendChild(dragEl); }
+            };
+            const onUp = () => {
+                document.removeEventListener('mousemove', onMove);
+                document.removeEventListener('mouseup', onUp);
+                clone.remove();
+                const items = [...dragEl.closest('div').querySelectorAll('label')];
+                const newOrder = items.map(label => parseInt(label.querySelector('span:last-child')?.textContent || '1') - 1);
+                const sorted = newOrder.map(i => this.columns[i]).filter(Boolean);
+                if (sorted.length === this.columns.length) this.columns = sorted;
+                this.save();
+            };
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onUp);
+        },
+        save() { localStorage.setItem('search_columns', JSON.stringify(this.columns)); },
+        resetColumns() {
+            localStorage.removeItem('search_columns');
+            this.columns = this.defaultColumns(['status','nomor_form','tipe','teknisi','pengguna','perangkat','no_asset','kondisi','disetujui','tanggal','aksi']);
+        }
+    };
+}
+</script>
+@endpush
