@@ -109,8 +109,8 @@
                                             'good' => 'background: rgba(16,185,129,0.15); color: #10b981;',
                                             'good_normal' => 'background: rgba(16,185,129,0.15); color: #10b981;',
                                             'fair' => 'background: rgba(59,130,246,0.15); color: #3b82f6;',
-                                            'critical' => 'background: rgba(239,68,68,0.15); color: #ef4444;',
-                                            'poor' => 'background: rgba(245,158,11,0.15); color: #f59e0b;',
+                                            'critical' => 'background: rgba(245,158,11,0.15); color: #f59e0b;',
+                                            'poor' => 'background: rgba(239,68,68,0.15); color: #ef4444;',
                                             'caution_poor' => 'background: rgba(245,158,11,0.15); color: #f59e0b;',
                                         ];
                                         $kondisiLabels = [

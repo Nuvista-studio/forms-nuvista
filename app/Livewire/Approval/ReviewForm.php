@@ -10,6 +10,8 @@ use App\Models\FormPemeriksaanItem;
 use App\Models\FormPerawatan;
 use App\Models\FormPerawatanItem;
 use App\Models\User;
+use App\Notifications\ApprovalRequestNotification;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
@@ -17,31 +19,49 @@ use Livewire\Component;
 class ReviewForm extends Component
 {
     public ?FormPemeriksaan $pemeriksaanForm = null;
+
     public ?FormPerawatan $perawatanForm = null;
+
     public string $formType = '';
+
     public ?int $formId = null;
+
     public ?FormApproval $currentApproval = null;
+
     public string $approvalLevel = '';
+
     public bool $canApprove = false;
+
     public bool $canEditAsTeknisi = false;
+
     public string $catatan = '';
+
     public bool $saved = false;
+
     public bool $rejected = false;
 
     public string $rejectReason = '';
+
     public bool $showRejectModal = false;
 
     // Signer mode for Diketahui
     public string $signerMode = 'me';
+
     public string $customSignerName = '';
+
     public array $signerResults = [];
+
     public bool $showSignerDropdown = false;
 
     // Edit mode
     public bool $editing = false;
+
     public string $editNotes = '';
+
     public string $editKondisi = '';
+
     public string $editKondisiKeterangan = '';
+
     public array $editItems = [];
 
     // User saved signature
@@ -103,9 +123,9 @@ class ReviewForm extends Component
         }
 
         // Teknisi (creator) bisa edit selama belum di-approve oleh Disetujui
-        if (!$this->canApprove
+        if (! $this->canApprove
             && $form->user_id === $user->id
-            && !in_array($form->status, [FormStatus::Draft->value, FormStatus::Selesai->value])) {
+            && ! in_array($form->status, [FormStatus::Draft->value, FormStatus::Selesai->value])) {
             $this->canEditAsTeknisi = true;
         }
 
@@ -118,10 +138,10 @@ class ReviewForm extends Component
 
     public function toggleEdit(): void
     {
-        if (!$this->editing) {
+        if (! $this->editing) {
             $this->loadEditData();
         }
-        $this->editing = !$this->editing;
+        $this->editing = ! $this->editing;
     }
 
     private function loadEditData(): void
@@ -190,7 +210,7 @@ class ReviewForm extends Component
             $this->dispatch('edit-saved');
         } catch (\Exception $e) {
             DB::rollBack();
-            $this->dispatch('error', message: 'Gagal menyimpan perubahan: ' . $e->getMessage());
+            $this->dispatch('error', message: 'Gagal menyimpan perubahan: '.$e->getMessage());
         }
     }
 
@@ -216,13 +236,15 @@ class ReviewForm extends Component
 
     public function approveForm(string $signaturePath): void
     {
-        if (!$this->canApprove) {
+        if (! $this->canApprove) {
             $this->dispatch('error', message: 'Anda tidak memiliki akses untuk approve.');
+
             return;
         }
 
         if ($this->approvalLevel === ApprovalLevel::DiketahuiOleh->value && $this->signerMode === 'custom' && empty($this->customSignerName)) {
             $this->dispatch('error', message: 'Nama penandatangan harus diisi.');
+
             return;
         }
 
@@ -253,7 +275,7 @@ class ReviewForm extends Component
                 $userId = Auth::id();
             }
 
-            if (!$approval) {
+            if (! $approval) {
                 $approval = FormApproval::create([
                     'approvable_type' => $this->formType === 'pemeriksaan' ? FormPemeriksaan::class : FormPerawatan::class,
                     'approvable_id' => $form->id,
@@ -290,7 +312,7 @@ class ReviewForm extends Component
             $this->saved = true;
         } catch (\Exception $e) {
             DB::rollBack();
-            $this->dispatch('error', message: 'Gagal approve: ' . $e->getMessage());
+            $this->dispatch('error', message: 'Gagal approve: '.$e->getMessage());
         }
     }
 
@@ -300,7 +322,7 @@ class ReviewForm extends Component
             $q->whereIn('name', ['supervisor_it', 'manager_it', 'admin']);
         })->get();
 
-        $notifClass = \App\Notifications\ApprovalRequestNotification::class;
+        $notifClass = ApprovalRequestNotification::class;
 
         foreach ($approvers as $approver) {
             $approver->notify(new $notifClass(
@@ -316,13 +338,15 @@ class ReviewForm extends Component
 
     public function rejectForm(): void
     {
-        if (!$this->canApprove) {
+        if (! $this->canApprove) {
             $this->dispatch('error', message: 'Anda tidak memiliki akses untuk reject.');
+
             return;
         }
 
         if (empty($this->rejectReason)) {
             $this->dispatch('error', message: 'Alasan reject harus diisi.');
+
             return;
         }
 
@@ -351,13 +375,13 @@ class ReviewForm extends Component
             $this->rejected = true;
         } catch (\Exception $e) {
             DB::rollBack();
-            $this->dispatch('error', message: 'Gagal reject: ' . $e->getMessage());
+            $this->dispatch('error', message: 'Gagal reject: '.$e->getMessage());
         }
     }
 
     public function toggleRejectModal(): void
     {
-        $this->showRejectModal = !$this->showRejectModal;
+        $this->showRejectModal = ! $this->showRejectModal;
     }
 
     public function setSignerMode(string $mode): void
@@ -375,6 +399,7 @@ class ReviewForm extends Component
         if (strlen($this->customSignerName) < 2) {
             $this->signerResults = [];
             $this->showSignerDropdown = false;
+
             return;
         }
 
@@ -421,13 +446,13 @@ class ReviewForm extends Component
         return match ($status) {
             'baik', 'good', 'baru' => 'text-emerald-400',
             'fair' => 'text-blue-400',
-            'critical' => 'text-red-400',
-            'tidak_baik', 'poor' => 'text-amber-400',
+            'critical' => 'text-amber-400',
+            'tidak_baik', 'poor' => 'text-red-400',
             default => 'text-secondary',
         };
     }
 
-    public function getDisetujuiApprovers(): \Illuminate\Support\Collection
+    public function getDisetujuiApprovers(): Collection
     {
         return User::whereHas('roles', function ($q) {
             $q->whereIn('name', ['supervisor_it', 'manager_it']);
@@ -439,6 +464,7 @@ class ReviewForm extends Component
         if ($approval->custom_signer_name) {
             return $approval->custom_signer_name;
         }
+
         return $approval->user->name ?? '-';
     }
 

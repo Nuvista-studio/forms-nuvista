@@ -24,8 +24,8 @@ enum KondisiPerawatan: string
         return match ($this) {
             self::Good => 'emerald',
             self::Fair => 'blue',
-            self::Critical => 'red',
-            self::Poor => 'amber',
+            self::Critical => 'amber',
+            self::Poor => 'red',
         };
     }
 }

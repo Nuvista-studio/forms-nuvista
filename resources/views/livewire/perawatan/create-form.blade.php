@@ -270,7 +270,7 @@
                                     </div>
                                     <div class="grid grid-cols-2 gap-2">
                                         <div>
-                                            <label class="text-xs text-muted">No. Asset <span class="text-red-400">*</span></label>
+                                            <label class="text-xs text-muted">Barcode Asset <span class="text-red-400">*</span></label>
                                             <input type="text" wire:model.live="newAssetNoAsset" class="glass-input w-full rounded-lg px-3 py-1.5 text-sm mt-1" placeholder="Contoh: ASR-2024-001">
                                             @error('newAssetNoAsset') <span class="text-xs text-red-400">{{ $message }}</span> @enderror
                                         </div>
@@ -294,11 +294,11 @@
                                         </div>
                                         <div>
                                             <label class="text-xs text-muted">Nama Perangkat</label>
-                                            <input type="text" wire:model.live="newAssetNamaPerangkat" class="glass-input w-full rounded-lg px-3 py-1.5 text-sm mt-1" placeholder="Laptop Kantor">
+                                            <input type="text" wire:model.live="newAssetNamaPerangkat" class="glass-input w-full rounded-lg px-3 py-1.5 text-sm mt-1" placeholder="O99-ITD-NB001">
                                         </div>
                                         <div>
                                             <label class="text-xs text-muted">No. Serial</label>
-                                            <input type="text" wire:model.live="newAssetNoSerial" class="glass-input w-full rounded-lg px-3 py-1.5 text-sm mt-1" placeholder="SN-12345678">
+                                            <input type="text" wire:model.live="newAssetNoSerial" class="glass-input w-full rounded-lg px-3 py-1.5 text-sm mt-1" placeholder="Contoh: 5CD1234">
                                         </div>
                                     </div>
                                     <button wire:click="createAsset" type="button" class="glass-button-primary text-xs w-full py-1.5 mt-1">
@@ -542,16 +542,16 @@
                             </button>
                             <button wire:click="$set('kondisiAkhir', 'critical')" type="button"
                                 class="flex flex-col items-center p-3 rounded-lg border-2 text-sm font-semibold text-center transition-all"
-                                :class="$wire.kondisiAkhir === 'critical' ? 'border-red-500 bg-red-500/10 text-red-400' : 'border-transparent'"
+                                :class="$wire.kondisiAkhir === 'critical' ? 'border-amber-500 bg-amber-500/10 text-amber-400' : 'border-transparent'"
                                 style="{{ $kondisiAkhir !== 'critical' ? 'background: var(--color-bg-tertiary); color: var(--color-text-secondary);' : '' }}">
-                                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                                 Critical
                             </button>
                             <button wire:click="$set('kondisiAkhir', 'poor')" type="button"
                                 class="flex flex-col items-center p-3 rounded-lg border-2 text-sm font-semibold text-center transition-all"
-                                :class="$wire.kondisiAkhir === 'poor' ? 'border-amber-500 bg-amber-500/10 text-amber-400' : 'border-transparent'"
+                                :class="$wire.kondisiAkhir === 'poor' ? 'border-red-500 bg-red-500/10 text-red-400' : 'border-transparent'"
                                 style="{{ $kondisiAkhir !== 'poor' ? 'background: var(--color-bg-tertiary); color: var(--color-text-secondary);' : '' }}">
-                                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                 Poor
                             </button>
                         </div>
@@ -685,11 +685,11 @@
                                     <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                     <p class="text-sm font-semibold text-blue-400">Fair</p>
                                 @elseif($kondisiAkhir === 'critical')
-                                    <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                    <p class="text-sm font-semibold text-red-400">Critical</p>
-                                @elseif($kondisiAkhir === 'poor')
                                     <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                                    <p class="text-sm font-semibold text-amber-400">Poor</p>
+                                    <p class="text-sm font-semibold text-amber-400">Critical</p>
+                                @elseif($kondisiAkhir === 'poor')
+                                    <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    <p class="text-sm font-semibold text-red-400">Poor</p>
                                 @else
                                     <p class="text-sm font-semibold text-secondary">-</p>
                                 @endif

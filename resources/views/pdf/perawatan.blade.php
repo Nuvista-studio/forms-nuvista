@@ -246,8 +246,8 @@
                         $kondisiOptions = [
                             'good' => ['label' => 'Good', 'color' => '#10b981'],
                             'fair' => ['label' => 'Fair', 'color' => '#3b82f6'],
-                            'critical' => ['label' => 'Critical', 'color' => '#ef4444'],
-                            'poor' => ['label' => 'Poor', 'color' => '#f59e0b'],
+                            'critical' => ['label' => 'Critical', 'color' => '#f59e0b'],
+                            'poor' => ['label' => 'Poor', 'color' => '#ef4444'],
                         ];
                     @endphp
                     @foreach($kondisiOptions as $key => $option)
