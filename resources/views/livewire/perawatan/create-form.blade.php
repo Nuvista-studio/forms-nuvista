@@ -271,7 +271,7 @@
                                     <div class="grid grid-cols-2 gap-2">
                                         <div>
                                             <label class="text-xs text-muted">Barcode Asset <span class="text-red-400">*</span></label>
-                                            <input type="text" wire:model.live="newAssetNoAsset" class="glass-input w-full rounded-lg px-3 py-1.5 text-sm mt-1" placeholder="Contoh: ASR-2024-001">
+                                            <input type="text" wire:model.live="newAssetNoAsset" class="glass-input w-full rounded-lg px-3 py-1.5 text-sm mt-1" placeholder="Contoh: MASHEQPLPT0210016">
                                             @error('newAssetNoAsset') <span class="text-xs text-red-400">{{ $message }}</span> @enderror
                                         </div>
                                         <div>
