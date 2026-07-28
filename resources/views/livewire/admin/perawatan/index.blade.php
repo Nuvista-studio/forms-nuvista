@@ -1,4 +1,4 @@
-<div class="space-y-6" x-data="columnManager()" x-init="init(['status','nomor_form','teknisi','pengguna','perangkat','site','kondisi_akhir','tanggal','aksi'])" x-on:form-deleted.window="$wire.$refresh()">
+<div class="space-y-6" x-data x-on:form-deleted.window="$wire.$refresh()">
     {{-- Header --}}
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
@@ -7,36 +7,6 @@
         </div>
         <div class="flex items-center gap-2 flex-wrap">
             <span class="text-sm text-muted">{{ $forms->total() }} form</span>
-            {{-- Column Manager --}}
-            <div class="relative" x-data="{ colOpen: false }">
-                <button @click="colOpen = !colOpen"
-                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors duration-200"
-                    style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 4h6m-3 12v6m-7-4l4-4m0 0l4 4m-4-4V4"/>
-                    </svg>
-                    Columns
-                </button>
-                <div x-show="colOpen" @click.away="colOpen = false" x-cloak
-                    class="absolute right-0 mt-1 w-56 rounded-lg shadow-lg z-30 py-2"
-                    style="background: var(--color-card-bg); border: 1px solid var(--color-card-border);"
-                    x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100">
-                    <div class="px-3 pb-1.5 text-[10px] font-semibold text-muted uppercase tracking-wider">Show / Hide Columns</div>
-                    <template x-for="(col, idx) in columns" :key="col.key">
-                        <label class="flex items-center gap-2 px-3 py-1.5 text-xs cursor-pointer hover:bg-[var(--color-bg-tertiary)] transition-colors">
-                            <span @mousedown.prevent @mousedown="startDrag(idx, $event)" class="cursor-grab active:cursor-grabbing text-muted hover:text-primary shrink-0" title="Drag to reorder">
-                                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 6h2v2H8V6zm6 0h2v2h-2V6zM8 11h2v2H8v-2zm6 0h2v2h-2v-2zm-6 5h2v2H8v-2zm6 0h2v2h-2v-2z"/></svg>
-                            </span>
-                            <input type="checkbox" x-model="col.visible" class="rounded border-gray-400 text-blue-500 focus:ring-blue-500">
-                            <span x-text="col.label" class="text-primary"></span>
-                            <span class="ml-auto text-[10px] text-muted" x-text="idx + 1"></span>
-                        </label>
-                    </template>
-                    <div class="border-t mt-1 pt-1.5 px-3" style="border-color: var(--color-border);">
-                        <button @click="resetColumns()" class="text-xs text-blue-400 hover:text-blue-300 transition-colors">Reset Default</button>
-                    </div>
-                </div>
-            </div>
             <div class="relative" x-data="{ open: false }">
                 <button @click="open = !open"
                     class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors duration-200"
@@ -109,46 +79,31 @@
                 <table class="w-full text-sm">
                     <thead>
                         <tr class="border-b" style="border-color: var(--color-border);">
-                            <th x-show="isVisible('status')" class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Status</th>
-                            <th x-show="isVisible('nomor_form')" class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">No. Form</th>
-                            <th x-show="isVisible('teknisi')" class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden sm:table-cell">Teknisi</th>
-                            <th x-show="isVisible('pengguna')" class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden md:table-cell">Pengguna</th>
-                            <th x-show="isVisible('perangkat')" class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden lg:table-cell">Perangkat</th>
-                            <th x-show="isVisible('site')" class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden lg:table-cell">Site</th>
-                            <th x-show="isVisible('kondisi_akhir')" class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Kondisi Akhir</th>
-                            <th x-show="isVisible('tanggal')" class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden xl:table-cell">Tanggal</th>
-                            <th x-show="isVisible('aksi')" class="px-4 py-3 text-right text-xs font-medium text-muted uppercase tracking-wider">Aksi</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">No. Form</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden sm:table-cell">Teknisi</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden md:table-cell">Pengguna</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden lg:table-cell">Perangkat</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden lg:table-cell">Site</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Kondisi Akhir</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Status</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden xl:table-cell">Tanggal</th>
+                            <th class="px-4 py-3 text-right text-xs font-medium text-muted uppercase tracking-wider">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y" style="border-color: var(--color-border);">
                         @foreach($forms as $form)
                             <tr class="transition-colors duration-150" style="hover: background: var(--color-glass-bg);">
-                                <td x-show="isVisible('status')" class="px-4 py-3">
-                                    @php
-                                        $statusColors = [
-                                            'draft' => 'background: rgba(107,114,128,0.15); color: #6b7280;',
-                                            'submitted' => 'background: rgba(59,130,246,0.15); color: #3b82f6;',
-                                            'diketahui' => 'background: rgba(234,179,8,0.15); color: #eab308;',
-                                            'disetujui' => 'background: rgba(34,197,94,0.15); color: #22c55e;',
-                                            'selesai' => 'background: rgba(16,185,129,0.15); color: #10b981;',
-                                            'revisi' => 'background: rgba(239,68,68,0.15); color: #ef4444;',
-                                        ];
-                                    @endphp
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold" style="{{ $statusColors[$form->status] ?? '' }}">
-                                        {{ ucfirst($form->status) }}
-                                    </span>
-                                </td>
-                                <td x-show="isVisible('nomor_form')" class="px-4 py-3 font-mono text-secondary text-xs">{{ $form->nomor_form }}</td>
-                                <td x-show="isVisible('teknisi')" class="px-4 py-3 text-primary hidden sm:table-cell">{{ $form->teknisi->name ?? '-' }}</td>
-                                <td x-show="isVisible('pengguna')" class="px-4 py-3 text-primary hidden md:table-cell">{{ $form->pengguna->name ?? '-' }}</td>
-                                <td x-show="isVisible('perangkat')" class="px-4 py-3 hidden lg:table-cell">
+                                <td class="px-4 py-3 font-mono text-secondary text-xs">{{ $form->nomor_form }}</td>
+                                <td class="px-4 py-3 text-primary hidden sm:table-cell">{{ $form->teknisi->name ?? '-' }}</td>
+                                <td class="px-4 py-3 text-primary hidden md:table-cell">{{ $form->pengguna->name ?? '-' }}</td>
+                                <td class="px-4 py-3 hidden lg:table-cell">
                                     <div class="font-medium text-primary text-xs">{{ $form->asset->nama_perangkat ?? '-' }}</div>
                                     @if($form->asset)
                                         <div class="text-xs text-muted mt-0.5 font-mono">{{ $form->asset->no_asset }}</div>
                                     @endif
                                 </td>
-                                <td x-show="isVisible('site')" class="px-4 py-3 text-secondary text-xs hidden lg:table-cell">{{ $form->site->site ?? $form->site_location ?? '-' }}</td>
-                                <td x-show="isVisible('kondisi_akhir')" class="px-4 py-3">
+                                <td class="px-4 py-3 text-secondary text-xs hidden lg:table-cell">{{ $form->site->site ?? $form->site_location ?? '-' }}</td>
+                                <td class="px-4 py-3">
                                     @php
                                         $kondisiColors = [
                                             'good' => 'background: rgba(16,185,129,0.15); color: #10b981;',
@@ -171,8 +126,23 @@
                                         <span class="text-xs text-muted">-</span>
                                     @endif
                                 </td>
-                                <td x-show="isVisible('tanggal')" class="px-4 py-3 text-muted text-xs hidden xl:table-cell">{{ $form->submitted_at?->format('d/m/Y') ?? '-' }}</td>
-                                <td x-show="isVisible('aksi')" class="px-4 py-3 text-right">
+                                <td class="px-4 py-3">
+                                    @php
+                                        $statusColors = [
+                                            'draft' => 'background: rgba(107,114,128,0.15); color: #6b7280;',
+                                            'submitted' => 'background: rgba(59,130,246,0.15); color: #3b82f6;',
+                                            'diketahui' => 'background: rgba(234,179,8,0.15); color: #eab308;',
+                                            'disetujui' => 'background: rgba(34,197,94,0.15); color: #22c55e;',
+                                            'selesai' => 'background: rgba(16,185,129,0.15); color: #10b981;',
+                                            'revisi' => 'background: rgba(239,68,68,0.15); color: #ef4444;',
+                                        ];
+                                    @endphp
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold" style="{{ $statusColors[$form->status] ?? '' }}">
+                                        {{ ucfirst($form->status) }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3 text-muted text-xs hidden xl:table-cell">{{ $form->submitted_at?->format('d/m/Y') ?? '-' }}</td>
+                                <td class="px-4 py-3 text-right">
                                     <div class="flex items-center justify-end gap-1">
                                         <button wire:click="viewForm({{ $form->id }})"
                                             class="p-1.5 rounded-lg transition-colors duration-200"
@@ -333,76 +303,3 @@
         </div>
     @endif
 </div>
-
-@push('scripts')
-<script>
-function columnManager() {
-    return {
-        columns: [],
-        init(defaults) {
-            const stored = localStorage.getItem('perawatan_columns');
-            if (stored) {
-                try { this.columns = JSON.parse(stored); } catch(e) { this.columns = this.defaultColumns(defaults); }
-            } else {
-                this.columns = this.defaultColumns(defaults);
-            }
-        },
-        defaultColumns(keys) {
-            const labels = {
-                status: 'Status', nomor_form: 'No. Form', teknisi: 'Teknisi',
-                pengguna: 'Pengguna', perangkat: 'Perangkat', site: 'Site',
-                kondisi_akhir: 'Kondisi Akhir', tanggal: 'Tanggal', aksi: 'Aksi'
-            };
-            return keys.map(k => ({ key: k, label: labels[k] || k, visible: true }));
-        },
-        isVisible(key) {
-            const col = this.columns.find(c => c.key === key);
-            return col ? col.visible : true;
-        },
-        startDrag(idx, event) {
-            const dragEl = event.target.closest('label');
-            const clone = dragEl.cloneNode(true);
-            clone.style.position = 'fixed'; clone.style.pointerEvents = 'none';
-            clone.style.opacity = '0.6'; clone.style.zIndex = '1000';
-            clone.style.width = dragEl.offsetWidth + 'px';
-            document.body.appendChild(clone);
-            const offsetY = event.clientY - dragEl.getBoundingClientRect().top;
-            const offsetX = event.clientX - dragEl.getBoundingClientRect().left;
-            const onMove = (e) => {
-                clone.style.left = (e.clientX - offsetX) + 'px';
-                clone.style.top = (e.clientY - offsetY) + 'px';
-                const items = [...dragEl.closest('div').querySelectorAll('label')];
-                const target = items.find(item => {
-                    if (item === dragEl) return false;
-                    const rect = item.getBoundingClientRect();
-                    return e.clientY < rect.top + rect.height / 2;
-                });
-                if (target) dragEl.parentNode.insertBefore(dragEl, target);
-                else { const last = items[items.length - 1]; if (last && last !== dragEl) dragEl.parentNode.appendChild(dragEl); }
-            };
-            const onUp = () => {
-                document.removeEventListener('mousemove', onMove);
-                document.removeEventListener('mouseup', onUp);
-                clone.remove();
-                const items = [...dragEl.closest('div').querySelectorAll('label')];
-                const newOrder = items.map(label => {
-                    const spans = label.querySelectorAll('span:not([x-text])');
-                    const idxSpan = label.querySelector('span:last-child');
-                    return parseInt(idxSpan?.textContent || '1') - 1;
-                });
-                const sorted = newOrder.map(i => this.columns[i]).filter(Boolean);
-                if (sorted.length === this.columns.length) this.columns = sorted;
-                this.save();
-            };
-            document.addEventListener('mousemove', onMove);
-            document.addEventListener('mouseup', onUp);
-        },
-        save() { localStorage.setItem('perawatan_columns', JSON.stringify(this.columns)); },
-        resetColumns() {
-            localStorage.removeItem('perawatan_columns');
-            this.columns = this.defaultColumns(['status','nomor_form','teknisi','pengguna','perangkat','site','kondisi_akhir','tanggal','aksi']);
-        }
-    };
-}
-</script>
-@endpush

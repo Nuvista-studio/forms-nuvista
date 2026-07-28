@@ -1,4 +1,5 @@
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6" x-data="columnManager()" x-init="init(['nama','nik','department','business_unit','role','site','aksi'])" x-on:user-deleted.window="$wire.$refresh()" x-on:user-updated.window="$wire.$refresh()">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6"
+    x-data x-on:user-deleted.window="$wire.$refresh()" x-on:user-updated.window="$wire.$refresh()">
     {{-- Toast --}}
     @if (session()->has('success'))
         <div class="p-3 rounded-lg text-sm"
@@ -14,36 +15,6 @@
         </div>
         <div class="flex items-center gap-2 flex-wrap">
             <span class="text-sm text-muted">{{ $users->total() }} user</span>
-            {{-- Column Manager --}}
-            <div class="relative" x-data="{ colOpen: false }">
-                <button @click="colOpen = !colOpen"
-                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors duration-200"
-                    style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 4h6m-3 12v6m-7-4l4-4m0 0l4 4m-4-4V4"/>
-                    </svg>
-                    Columns
-                </button>
-                <div x-show="colOpen" @click.away="colOpen = false" x-cloak
-                    class="absolute right-0 mt-1 w-56 rounded-lg shadow-lg z-30 py-2"
-                    style="background: var(--color-card-bg); border: 1px solid var(--color-card-border);"
-                    x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100">
-                    <div class="px-3 pb-1.5 text-[10px] font-semibold text-muted uppercase tracking-wider">Show / Hide Columns</div>
-                    <template x-for="(col, idx) in columns" :key="col.key">
-                        <label class="flex items-center gap-2 px-3 py-1.5 text-xs cursor-pointer hover:bg-[var(--color-bg-tertiary)] transition-colors">
-                            <span @mousedown.prevent @mousedown="startDrag(idx, $event)" class="cursor-grab active:cursor-grabbing text-muted hover:text-primary shrink-0" title="Drag to reorder">
-                                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 6h2v2H8V6zm6 0h2v2h-2V6zM8 11h2v2H8v-2zm6 0h2v2h-2v-2zm-6 5h2v2H8v-2zm6 0h2v2h-2v-2z"/></svg>
-                            </span>
-                            <input type="checkbox" x-model="col.visible" class="rounded border-gray-400 text-blue-500 focus:ring-blue-500">
-                            <span x-text="col.label" class="text-primary"></span>
-                            <span class="ml-auto text-[10px] text-muted" x-text="idx + 1"></span>
-                        </label>
-                    </template>
-                    <div class="border-t mt-1 pt-1.5 px-3" style="border-color: var(--color-border);">
-                        <button @click="resetColumns()" class="text-xs text-blue-400 hover:text-blue-300 transition-colors">Reset Default</button>
-                    </div>
-                </div>
-            </div>
             <a href="{{ route('admin.users.export.csv') }}"
                 class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors duration-200"
                 style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);">
@@ -108,7 +79,7 @@
                 <table class="w-full text-sm">
                     <thead>
                         <tr class="border-b" style="border-color: var(--color-border);">
-                            <th x-show="isVisible('nama')" class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider cursor-pointer hover:text-secondary transition-colors"
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider cursor-pointer hover:text-secondary transition-colors"
                                 wire:click="toggleSort('name')">
                                 <span class="flex items-center gap-1">
                                     Nama
@@ -120,18 +91,18 @@
                                     @endif
                                 </span>
                             </th>
-                            <th x-show="isVisible('nik')" class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden sm:table-cell">NIK</th>
-                            <th x-show="isVisible('department')" class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden md:table-cell">Department</th>
-                            <th x-show="isVisible('business_unit')" class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden lg:table-cell">Business Unit</th>
-                            <th x-show="isVisible('role')" class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Role</th>
-                            <th x-show="isVisible('site')" class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden lg:table-cell">Site</th>
-                            <th x-show="isVisible('aksi')" class="px-4 py-3 text-right text-xs font-medium text-muted uppercase tracking-wider">Aksi</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden sm:table-cell">NIK</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden md:table-cell">Department</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden lg:table-cell">Business Unit</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Role</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden lg:table-cell">Site</th>
+                            <th class="px-4 py-3 text-right text-xs font-medium text-muted uppercase tracking-wider">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y" style="border-color: var(--color-border);">
                         @foreach($users as $user)
                             <tr class="transition-colors duration-150" style="hover: background: var(--color-glass-bg);">
-                                <td x-show="isVisible('nama')" class="px-4 py-3">
+                                <td class="px-4 py-3">
                                     <div class="flex items-center gap-3">
                                         <div class="shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold"
                                              style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-primary);">
@@ -143,10 +114,10 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td x-show="isVisible('nik')" class="px-4 py-3 font-mono text-secondary hidden sm:table-cell">{{ $user->nik ?? '-' }}</td>
-                                <td x-show="isVisible('department')" class="px-4 py-3 text-secondary hidden md:table-cell">{{ $user->department ?? '-' }}</td>
-                                <td x-show="isVisible('business_unit')" class="px-4 py-3 text-secondary hidden lg:table-cell">{{ $user->business_unit ?? '-' }}</td>
-                                <td x-show="isVisible('role')" class="px-4 py-3">
+                                <td class="px-4 py-3 font-mono text-secondary hidden sm:table-cell">{{ $user->nik ?? '-' }}</td>
+                                <td class="px-4 py-3 text-secondary hidden md:table-cell">{{ $user->department ?? '-' }}</td>
+                                <td class="px-4 py-3 text-secondary hidden lg:table-cell">{{ $user->business_unit ?? '-' }}</td>
+                                <td class="px-4 py-3">
                                     @forelse($user->roles as $role)
                                         <span class="inline-block px-2 py-0.5 rounded-full text-xs font-medium {{ $this->getRoleBadge($role->name) }}">
                                             {{ $this->getRoleLabel($role->name) }}
@@ -155,8 +126,8 @@
                                         <span class="text-xs text-muted">-</span>
                                     @endforelse
                                 </td>
-                                <td x-show="isVisible('site')" class="px-4 py-3 text-secondary hidden lg:table-cell">{{ $user->site ?? '-' }}</td>
-                                <td x-show="isVisible('aksi')" class="px-4 py-3 text-right">
+                                <td class="px-4 py-3 text-secondary hidden lg:table-cell">{{ $user->site ?? '-' }}</td>
+                                <td class="px-4 py-3 text-right">
                                     <div class="flex items-center justify-end gap-1">
                                         <a href="{{ route('admin.users.edit', $user->id) }}" wire:navigate
                                             class="p-1.5 rounded-lg transition-colors duration-200"
@@ -205,71 +176,3 @@
         </div>
     @endif
 </div>
-
-@push('scripts')
-<script>
-function columnManager() {
-    return {
-        columns: [],
-        init(defaults) {
-            const stored = localStorage.getItem('users_columns');
-            if (stored) {
-                try { this.columns = JSON.parse(stored); } catch(e) { this.columns = this.defaultColumns(defaults); }
-            } else {
-                this.columns = this.defaultColumns(defaults);
-            }
-        },
-        defaultColumns(keys) {
-            const labels = {
-                nama: 'Nama', nik: 'NIK', department: 'Department',
-                business_unit: 'Business Unit', role: 'Role', site: 'Site', aksi: 'Aksi'
-            };
-            return keys.map(k => ({ key: k, label: labels[k] || k, visible: true }));
-        },
-        isVisible(key) {
-            const col = this.columns.find(c => c.key === key);
-            return col ? col.visible : true;
-        },
-        startDrag(idx, event) {
-            const dragEl = event.target.closest('label');
-            const clone = dragEl.cloneNode(true);
-            clone.style.position = 'fixed'; clone.style.pointerEvents = 'none';
-            clone.style.opacity = '0.6'; clone.style.zIndex = '1000';
-            clone.style.width = dragEl.offsetWidth + 'px';
-            document.body.appendChild(clone);
-            const offsetY = event.clientY - dragEl.getBoundingClientRect().top;
-            const offsetX = event.clientX - dragEl.getBoundingClientRect().left;
-            const onMove = (e) => {
-                clone.style.left = (e.clientX - offsetX) + 'px';
-                clone.style.top = (e.clientY - offsetY) + 'px';
-                const items = [...dragEl.closest('div').querySelectorAll('label')];
-                const target = items.find(item => {
-                    if (item === dragEl) return false;
-                    const rect = item.getBoundingClientRect();
-                    return e.clientY < rect.top + rect.height / 2;
-                });
-                if (target) dragEl.parentNode.insertBefore(dragEl, target);
-                else { const last = items[items.length - 1]; if (last && last !== dragEl) dragEl.parentNode.appendChild(dragEl); }
-            };
-            const onUp = () => {
-                document.removeEventListener('mousemove', onMove);
-                document.removeEventListener('mouseup', onUp);
-                clone.remove();
-                const items = [...dragEl.closest('div').querySelectorAll('label')];
-                const newOrder = items.map(label => parseInt(label.querySelector('span:last-child')?.textContent || '1') - 1);
-                const sorted = newOrder.map(i => this.columns[i]).filter(Boolean);
-                if (sorted.length === this.columns.length) this.columns = sorted;
-                this.save();
-            };
-            document.addEventListener('mousemove', onMove);
-            document.addEventListener('mouseup', onUp);
-        },
-        save() { localStorage.setItem('users_columns', JSON.stringify(this.columns)); },
-        resetColumns() {
-            localStorage.removeItem('users_columns');
-            this.columns = this.defaultColumns(['nama','nik','department','business_unit','role','site','aksi']);
-        }
-    };
-}
-</script>
-@endpush
