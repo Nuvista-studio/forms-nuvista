@@ -11,8 +11,11 @@ class Index extends Component
     use WithPagination;
 
     public string $search = '';
+
     public bool $showDeleteModal = false;
+
     public ?int $deleteAssetId = null;
+
     public string $deleteAssetName = '';
 
     protected $queryString = [
@@ -48,7 +51,7 @@ class Index extends Component
 
     public function render()
     {
-        $query = Asset::with('assignedUser')
+        $query = Asset::with('assignedUser', 'operatingUnitSite', 'siteAsset')
             ->when($this->search, fn ($q) => $q->where(function ($q) {
                 $q->where('no_asset', 'like', "%{$this->search}%")
                     ->orWhere('nama_perangkat', 'like', "%{$this->search}%")

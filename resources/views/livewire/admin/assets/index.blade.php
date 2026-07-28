@@ -63,6 +63,8 @@
                             <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden sm:table-cell">Kategori</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden md:table-cell">Brand / Tipe</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden lg:table-cell">No Serial</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden xl:table-cell">Operating Unit</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden xl:table-cell">Site (Location)</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden lg:table-cell">Pengguna</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Status</th>
                             <th class="px-4 py-3 text-right text-xs font-medium text-muted uppercase tracking-wider">Aksi</th>
@@ -70,17 +72,37 @@
                     </thead>
                     <tbody class="divide-y" style="border-color: var(--color-border);">
                         @foreach($assets as $a)
-                            <tr class="transition-colors duration-150" style="hover: background: var(--color-glass-bg);">
-                                <td class="px-4 py-3 font-mono text-secondary">{{ $a->no_asset }}</td>
-                                <td class="px-4 py-3">
-                                    <div class="font-medium text-primary">{{ $a->nama_perangkat }}</div>
+                            <tr class="transition-colors duration-150 cursor-pointer" style="hover: background: var(--color-glass-bg);" onclick="window.location='{{ route('admin.assets.edit', $a->id) }}'">
+                                <td class="px-4 py-3 font-mono text-secondary whitespace-nowrap">{{ $a->no_asset }}</td>
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <div class="font-medium text-primary truncate max-w-[180px]">{{ $a->nama_perangkat }}</div>
                                     @if($a->brand)
-                                        <div class="text-xs text-muted mt-0.5">{{ $a->brand }} {{ $a->tipe }}</div>
+                                        <div class="text-xs text-muted mt-0.5 truncate max-w-[180px]">{{ $a->brand }} {{ $a->tipe }}</div>
                                     @endif
                                 </td>
-                                <td class="px-4 py-3 text-secondary hidden sm:table-cell">{{ $a->kategori }}</td>
-                                <td class="px-4 py-3 text-secondary hidden md:table-cell">{{ $a->brand }} {{ $a->tipe }}</td>
-                                <td class="px-4 py-3 text-secondary hidden lg:table-cell font-mono text-xs">{{ $a->no_serial ?? '-' }}</td>
+                                <td class="px-4 py-3 text-secondary hidden sm:table-cell whitespace-nowrap">{{ $a->kategori }}</td>
+                                <td class="px-4 py-3 text-secondary hidden md:table-cell whitespace-nowrap">{{ $a->brand }} {{ $a->tipe }}</td>
+                                <td class="px-4 py-3 text-secondary hidden lg:table-cell font-mono text-xs whitespace-nowrap">{{ $a->no_serial ?? '-' }}</td>
+                                <td class="px-4 py-3 hidden xl:table-cell whitespace-nowrap">
+                                    @if($a->operatingUnitSite)
+                                        <div class="font-medium text-primary truncate max-w-[150px]">{{ $a->operatingUnitSite->site }}</div>
+                                        @if($a->operatingUnitSite->country)
+                                            <div class="text-xs text-muted mt-0.5 truncate max-w-[150px]">{{ $a->operatingUnitSite->country }}</div>
+                                        @endif
+                                    @else
+                                        <span class="text-secondary">-</span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-3 hidden xl:table-cell whitespace-nowrap">
+                                    @if($a->siteAsset)
+                                        <div class="font-medium text-primary truncate max-w-[150px]">{{ $a->siteAsset->site }}</div>
+                                        @if($a->siteAsset->city)
+                                            <div class="text-xs text-muted mt-0.5 truncate max-w-[150px]">{{ $a->siteAsset->city }}</div>
+                                        @endif
+                                    @else
+                                        <span class="text-secondary">-</span>
+                                    @endif
+                                </td>
                                 <td class="px-4 py-3 text-secondary hidden lg:table-cell">{{ $a->assignedUser->name ?? '-' }}</td>
                                 <td class="px-4 py-3">
                                     @if($a->is_active)
@@ -91,7 +113,7 @@
                                         <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium" style="background: rgba(234,179,8,0.15); color: #eab308;">Inactive</span>
                                     @endif
                                 </td>
-                                <td class="px-4 py-3 text-right">
+                                <td class="px-4 py-3 text-right" onclick="event.stopPropagation()">
                                     <div class="flex items-center justify-end gap-1">
                                         <a href="{{ route('admin.assets.edit', $a->id) }}" wire:navigate
                                             class="p-1.5 rounded-lg transition-colors duration-200"
