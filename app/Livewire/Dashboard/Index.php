@@ -13,14 +13,24 @@ use Livewire\Component;
 class Index extends Component
 {
     public string $startDate = '';
+
     public string $endDate = '';
+
     public ?string $filterOperatingUnit = '';
 
     public array $perawatanBySite = [];
+
     public array $pemeriksaanBySite = [];
+
     public array $topAssets = [];
+
     public array $trendPerawatanBulanan = [];
+
     public array $operatingUnits = [];
+
+    public array $perawatanVsBelum = [];
+
+    public string $filterAssetStatus = '';
 
     public function mount(): void
     {
@@ -31,7 +41,7 @@ class Index extends Component
             ->pluck('operating_unit'))
             ->orderBy('site')
             ->get()
-            ->map(fn($s) => ['id' => $s->id_site, 'name' => $s->site])
+            ->map(fn ($s) => ['id' => $s->id_site, 'name' => $s->site])
             ->toArray();
         $this->loadAll();
     }
@@ -51,12 +61,18 @@ class Index extends Component
         $this->loadTopAssets();
     }
 
+    public function updatedFilterAssetStatus(): void
+    {
+        $this->loadPerawatanVsBelumByOperatingUnit();
+    }
+
     private function loadAll(): void
     {
         $this->loadPerawatanBySite();
         $this->loadPemeriksaanBySite();
         $this->loadTopAssets();
         $this->loadTrendPerawatanBulanan();
+        $this->loadPerawatanVsBelumByOperatingUnit();
         $this->dispatch('chartsUpdated');
     }
 
@@ -71,6 +87,7 @@ class Index extends Component
         if ($form->asset && $form->asset->operating_unit) {
             return $form->asset->operating_unit;
         }
+
         return 'unknown';
     }
 
@@ -102,7 +119,7 @@ class Index extends Component
             ];
         }
 
-        usort($result, fn($a, $b) => $b['total'] <=> $a['total']);
+        usort($result, fn ($a, $b) => $b['total'] <=> $a['total']);
         $this->perawatanBySite = $result;
     }
 
@@ -134,7 +151,7 @@ class Index extends Component
             ];
         }
 
-        usort($result, fn($a, $b) => $b['total'] <=> $a['total']);
+        usort($result, fn ($a, $b) => $b['total'] <=> $a['total']);
         $this->pemeriksaanBySite = $result;
     }
 
@@ -194,6 +211,54 @@ class Index extends Component
             ->toArray();
 
         $this->trendPerawatanBulanan = $trend;
+    }
+
+    private function loadPerawatanVsBelumByOperatingUnit(): void
+    {
+        $assetIds = FormPerawatan::whereNotNull('submitted_at')
+            ->distinct()
+            ->pluck('asset_id')
+            ->filter()
+            ->toArray();
+
+        $query = Asset::whereNotNull('operating_unit')
+            ->where('operating_unit', '!=', '');
+
+        if ($this->filterAssetStatus !== '') {
+            $query->where('status', $this->filterAssetStatus);
+        }
+
+        $allAssets = $query->get();
+
+        $counts = [];
+        foreach ($allAssets as $asset) {
+            $ou = $asset->operating_unit;
+            if (! isset($counts[$ou])) {
+                $counts[$ou] = ['dilakukan' => 0, 'belum' => 0];
+            }
+            if (in_array($asset->id, $assetIds)) {
+                $counts[$ou]['dilakukan']++;
+            } else {
+                $counts[$ou]['belum']++;
+            }
+        }
+
+        $siteNames = Site::whereIn('id_site', array_keys($counts))
+            ->pluck('site', 'id_site')
+            ->toArray();
+
+        $result = [];
+        foreach ($counts as $ouId => $data) {
+            $result[] = [
+                'operating_unit' => $siteNames[$ouId] ?? $ouId,
+                'dilakukan' => $data['dilakukan'],
+                'belum' => $data['belum'],
+                'total' => $data['dilakukan'] + $data['belum'],
+            ];
+        }
+
+        usort($result, fn ($a, $b) => $b['total'] <=> $a['total']);
+        $this->perawatanVsBelum = $result;
     }
 
     public function render()

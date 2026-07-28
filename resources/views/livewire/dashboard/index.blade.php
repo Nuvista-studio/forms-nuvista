@@ -218,4 +218,136 @@
             <p class="text-sm text-muted text-center py-4">Tidak ada data tren perawatan</p>
         @endif
     </div>
+
+    {{-- Report 5: Perawatan vs Belum by Operating Unit --}}
+    <div class="glass-card p-5">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+            <h3 class="text-sm font-bold text-primary">Perangkat Dilakukan Perawatan vs Belum Perawatan by Operating Unit</h3>
+            <div class="flex items-center gap-2">
+                <label class="text-xs text-muted">Status Asset:</label>
+                <select wire:model.live.debounce.300ms="filterAssetStatus"
+                    class="px-3 py-1.5 rounded-lg text-xs transition-colors duration-200"
+                    style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
+                    <option value="">Semua</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+            </div>
+        </div>
+        @if(count($perawatanVsBelum) > 0)
+            @php
+                $pvbLabels = json_encode(array_column($perawatanVsBelum, 'operating_unit'));
+                $pvbDilakukan = json_encode(array_column($perawatanVsBelum, 'dilakukan'));
+                $pvbBelum = json_encode(array_column($perawatanVsBelum, 'belum'));
+                $chartHeight = max(260, count($perawatanVsBelum) * 50 + 80);
+            @endphp
+            <div x-data="{
+                chart: null,
+                init() {
+                    this.$nextTick(() => {
+                        const ctx = this.$refs.chartPerawatanVsBelum;
+                        if (!ctx || typeof Chart === 'undefined') return;
+                        this.chart = new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: {{ $pvbLabels }},
+                                datasets: [
+                                    {
+                                        label: 'Dilakukan Perawatan',
+                                        data: {{ $pvbDilakukan }},
+                                        backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                                        borderColor: 'rgba(16, 185, 129, 1)',
+                                        borderWidth: 1,
+                                        borderRadius: 4,
+                                    },
+                                    {
+                                        label: 'Belum Perawatan',
+                                        data: {{ $pvbBelum }},
+                                        backgroundColor: 'rgba(239, 68, 68, 0.5)',
+                                        borderColor: 'rgba(239, 68, 68, 1)',
+                                        borderWidth: 1,
+                                        borderRadius: 4,
+                                    }
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                indexAxis: 'y',
+                                plugins: {
+                                    legend: {
+                                        display: true,
+                                        position: 'top',
+                                        labels: { color: 'rgb(156,163,175)', font: { size: 11 }, usePointStyle: true, pointStyle: 'rectRounded' }
+                                    }
+                                },
+                                scales: {
+                                    x: {
+                                        stacked: true,
+                                        ticks: { color: 'rgb(156,163,175)', stepSize: 1 },
+                                        grid: { color: 'rgb(229,231,235)' },
+                                        title: { display: true, text: 'Jumlah Asset', color: 'rgb(156,163,175)', font: { size: 11 } }
+                                    },
+                                    y: {
+                                        stacked: true,
+                                        ticks: { color: 'rgb(156,163,175)', font: { size: 11 } },
+                                        grid: { display: false }
+                                    }
+                                }
+                            }
+                        });
+                    });
+                },
+                destroy() { if (this.chart) this.chart.destroy(); }
+            }" style="height: {{ $chartHeight }}px;">
+                <canvas x-ref="chartPerawatanVsBelum"></canvas>
+            </div>
+
+            {{-- Summary Table --}}
+            <div class="mt-4 overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b" style="border-color: var(--color-border);">
+                            <th class="text-left py-2 text-xs text-muted font-medium">Operating Unit</th>
+                            <th class="text-right py-2 text-xs text-muted font-medium">Total Asset</th>
+                            <th class="text-right py-2 text-xs text-muted font-medium">Dilakukan</th>
+                            <th class="text-right py-2 text-xs text-muted font-medium">Belum</th>
+                            <th class="text-right py-2 text-xs text-muted font-medium">% Selesai</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y" style="border-color: var(--color-border);">
+                        @foreach($perawatanVsBelum as $row)
+                            @php
+                                $pct = $row['total'] > 0 ? round(($row['dilakukan'] / $row['total']) * 100, 1) : 0;
+                            @endphp
+                            <tr class="transition-colors" onmouseover="this.style.backgroundColor='var(--color-bg-tertiary)'" onmouseout="this.style.backgroundColor=''">
+                                <td class="py-2.5 font-medium text-primary">{{ $row['operating_unit'] }}</td>
+                                <td class="py-2.5 text-right text-secondary">{{ $row['total'] }}</td>
+                                <td class="py-2.5 text-right">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold" style="background: rgba(16,185,129,0.15); color: #10b981;">
+                                        {{ $row['dilakukan'] }}
+                                    </span>
+                                </td>
+                                <td class="py-2.5 text-right">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold" style="background: rgba(239,68,68,0.15); color: #ef4444;">
+                                        {{ $row['belum'] }}
+                                    </span>
+                                </td>
+                                <td class="py-2.5 text-right">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <div class="w-16 h-1.5 rounded-full overflow-hidden" style="background: var(--color-bg-tertiary);">
+                                            <div class="h-full rounded-full" style="width: {{ $pct }}%; background: {{ $pct >= 80 ? '#10b981' : ($pct >= 50 ? '#eab308' : '#ef4444') }};"></div>
+                                        </div>
+                                        <span class="text-xs text-secondary w-10 text-right">{{ $pct }}%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @else
+            <p class="text-sm text-muted text-center py-4">Tidak ada data asset</p>
+        @endif
+    </div>
 </div>
