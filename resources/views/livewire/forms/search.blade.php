@@ -8,6 +8,70 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
 <div class="max-w-7xl mx-auto px-4 py-6 space-y-4" x-data @form-deleted.window="window.location.reload()">
     <h1 class="text-2xl font-bold text-primary">Cari & Filter Form</h1>
 
+    <div class="flex flex-col lg:flex-row gap-6">
+        {{-- Sidebar --}}
+        <aside class="w-full lg:w-56 shrink-0">
+            <div class="glass-card p-2 sticky top-24">
+                <div class="px-3 py-2 mb-1">
+                    <h2 class="text-sm font-bold text-primary">Status Form</h2>
+                </div>
+                <nav class="space-y-0.5">
+                    <button wire:click="$set('sidebarFilter', 'all')"
+                        class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 w-full text-left {{ $sidebarFilter === 'all' ? 'admin-nav-active' : '' }}"
+                        style="{{ $sidebarFilter !== 'all' ? 'color: var(--color-text-secondary);' : '' }}">
+                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                        </svg>
+                        Semua
+                    </button>
+                    <button wire:click="$set('sidebarFilter', 'draft_submitted')"
+                        class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 w-full text-left {{ $sidebarFilter === 'draft_submitted' ? 'admin-nav-active' : '' }}"
+                        style="{{ $sidebarFilter !== 'draft_submitted' ? 'color: var(--color-text-secondary);' : '' }}">
+                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                        </svg>
+                        Draft & Submitted
+                    </button>
+                    <button wire:click="$set('sidebarFilter', 'diperiksa')"
+                        class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 w-full text-left {{ $sidebarFilter === 'diperiksa' ? 'admin-nav-active' : '' }}"
+                        style="{{ $sidebarFilter !== 'diperiksa' ? 'color: var(--color-text-secondary);' : '' }}">
+                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Diperiksa
+                    </button>
+                    <button wire:click="$set('sidebarFilter', 'diketahui')"
+                        class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 w-full text-left {{ $sidebarFilter === 'diketahui' ? 'admin-nav-active' : '' }}"
+                        style="{{ $sidebarFilter !== 'diketahui' ? 'color: var(--color-text-secondary);' : '' }}">
+                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                        Diketahui
+                    </button>
+                    <button wire:click="$set('sidebarFilter', 'disetujui')"
+                        class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 w-full text-left {{ $sidebarFilter === 'disetujui' ? 'admin-nav-active' : '' }}"
+                        style="{{ $sidebarFilter !== 'disetujui' ? 'color: var(--color-text-secondary);' : '' }}">
+                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                        Disetujui
+                    </button>
+                    <button wire:click="$set('sidebarFilter', 'selesai')"
+                        class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 w-full text-left {{ $sidebarFilter === 'selesai' ? 'admin-nav-active' : '' }}"
+                        style="{{ $sidebarFilter !== 'selesai' ? 'color: var(--color-text-secondary);' : '' }}">
+                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Selesai
+                    </button>
+                </nav>
+            </div>
+        </aside>
+
+        {{-- Main Content --}}
+        <div class="flex-1 min-w-0 space-y-4">
+
     {{-- Filters --}}
     <div class="glass-card p-4">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -286,4 +350,6 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
             </div>
         </div>
     @endif
+    </div> {{-- End Main Content --}}
+    </div> {{-- End Flex Container --}}
 </div>
