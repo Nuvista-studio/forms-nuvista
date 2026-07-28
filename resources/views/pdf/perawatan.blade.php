@@ -241,30 +241,23 @@
                 </table>
 
                 <div class="section-title">Kondisi Setelah Perawatan</div>
-                <table class="kondisi-checklist">
-                    @php
-                        $kondisiOptions = [
-                            'good' => ['label' => 'Good', 'color' => '#10b981'],
-                            'fair' => ['label' => 'Fair', 'color' => '#3b82f6'],
-                            'critical' => ['label' => 'Critical', 'color' => '#f59e0b'],
-                            'poor' => ['label' => 'Poor', 'color' => '#ef4444'],
-                        ];
-                    @endphp
-                    @foreach($kondisiOptions as $key => $option)
-                        <tr>
-                            <td class="lbl" style="width: 25%;">{{ $option['label'] }}</td>
-                            <td class="val" style="text-align:center; {{ $form->kondisi_akhir === $key ? "font-weight: bold;" : '' }}">
-                                @if($form->kondisi_akhir === $key)
-                                    <span style="display:inline-block; width:14px; height:14px; border-radius:50%; background:{{ $option['color'] }}; vertical-align:middle; margin-right:4px;"></span>
-                                    <span style="color:{{ $option['color'] }};">V</span>
-                                @else
-                                    <span style="display:inline-block; width:14px; height:14px; border-radius:50%; border:1.5px solid #ccc; background:transparent; vertical-align:middle; margin-right:4px;"></span>
-                                    <span style="color:#ccc;">&mdash;</span>
-                                @endif
-                            </td>
-                        </tr>
-                    @endforeach
-                </table>
+                @php
+                    $kondisiOptions = [
+                        'good' => ['label' => 'Good', 'color' => '#10b981'],
+                        'fair' => ['label' => 'Fair', 'color' => '#3b82f6'],
+                        'critical' => ['label' => 'Critical', 'color' => '#f59e0b'],
+                        'poor' => ['label' => 'Poor', 'color' => '#ef4444'],
+                    ];
+                    $selected = $kondisiOptions[$form->kondisi_akhir] ?? null;
+                @endphp
+                @if($selected)
+                    <div style="padding: 6px; border: 1px solid #ccc; font-size: 12px; font-weight: bold; color: {{ $selected['color'] }};">
+                        <span style="display:inline-block; width:14px; height:14px; border-radius:50%; background:{{ $selected['color'] }}; vertical-align:middle; margin-right:6px;"></span>
+                        {{ $selected['label'] }}
+                    </div>
+                @else
+                    <div style="padding: 6px; border: 1px solid #ccc; font-size: 12px; color: #999;">-</div>
+                @endif
             </td>
 
             {{-- RIGHT: APLIKASI --}}
