@@ -442,7 +442,8 @@ class CreateForm extends Component
         $query = Asset::where('no_asset', 'like', "%{$this->assetSearch}%")
             ->orWhere('nama_perangkat', 'like', "%{$this->assetSearch}%")
             ->orWhere('brand', 'like', "%{$this->assetSearch}%")
-            ->orWhere('tipe', 'like', "%{$this->assetSearch}%");
+            ->orWhere('tipe', 'like', "%{$this->assetSearch}%")
+            ->orWhere('no_serial', 'like', "%{$this->assetSearch}%");
 
         $user = Auth::user();
         if ($user && ! $user->hasPermissionTo('view-all-forms') && $user->hasPermissionTo('view-assigned-forms')) {

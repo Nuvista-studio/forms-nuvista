@@ -3,8 +3,6 @@
 namespace App\Livewire\Pemeriksaan;
 
 use App\Enums\FormStatus;
-use App\Enums\ItemCheckStatus;
-use App\Enums\KondisiPerangkat;
 use App\Models\Asset;
 use App\Models\ChecklistTemplate;
 use App\Models\FormApproval;
@@ -13,7 +11,7 @@ use App\Models\Site;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Livewire\Attributes\On;
+use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -22,6 +20,7 @@ class CreateForm extends Component
     use WithFileUploads;
 
     public int $currentStep = 1;
+
     public const TOTAL_STEPS = 9;
 
     public array $stepTitles = [
@@ -50,72 +49,109 @@ class CreateForm extends Component
 
     // Step 1: Info Pengguna
     public ?int $penggunaId = null;
+
     public string $teknisiName = '';
+
     public string $teknisiNik = '';
+
     public string $teknisiDepartment = '';
+
     public string $teknisiBusinessUnit = '';
+
     public string $teknisiSite = '';
+
     public string $penggunaName = '';
+
     public string $penggunaNik = '';
+
     public string $penggunaDepartment = '';
+
     public string $penggunaEmail = '';
 
     // Step 2: Info Perangkat
     public ?int $assetId = null;
+
     public string $kategori = '';
+
     public string $brand = '';
+
     public string $tipe = '';
+
     public string $namaPerangkat = '';
+
     public string $noSerial = '';
+
     public string $noAsset = '';
+
     public string $siteLocation = '';
+
     public string $locationDetail = '';
 
     // Step 3: Kondisi
     public string $kondisi = '';
+
     public string $kondisiKeterangan = '';
 
     // Steps 4-6: Checklist items
     public array $hardwareItems = [];
+
     public array $aplikasiItems = [];
+
     public array $osItems = [];
 
     // Step 7: Tindakan (Kategori)
     public array $tindakanCategories = [];
+
     public string $tindakanSolution = '';
 
     // Step 8: Catatan
     public string $notes = '';
+
     public array $tindakanItems = [];
 
     // Draft
     public ?int $formId = null;
+
     public bool $isDraft = false;
+
     public string $nomorForm = '';
 
     // Search
     public string $penggunaSearch = '';
+
     public array $penggunaResults = [];
+
     public bool $showPenggunaDropdown = false;
 
     // Create new pengguna
     public bool $showCreatePengguna = false;
+
     public string $newPenggunaName = '';
+
     public string $newPenggunaNik = '';
+
     public string $newPenggunaDepartment = '';
+
     public string $newPenggunaBusinessUnit = '';
+
     public string $newPenggunaSite = '';
+
     public string $newPenggunaEmail = '';
+
     public string $newPenggunaPassword = '';
 
     // Credentials info after pengguna created
     public bool $showPenggunaCredentials = false;
+
     public string $createdPenggunaEmail = '';
+
     public string $createdPenggunaPassword = '';
 
     // Asset search
     public string $assetSearch = '';
+
     public array $assetResults = [];
+
     public bool $showAssetDropdown = false;
 
     // Sites
@@ -123,11 +159,17 @@ class CreateForm extends Component
 
     // Create new asset
     public bool $showCreateAsset = false;
+
     public string $newAssetNoAsset = '';
+
     public string $newAssetKategori = '';
+
     public string $newAssetBrand = '';
+
     public string $newAssetTipe = '';
+
     public string $newAssetNamaPerangkat = '';
+
     public string $newAssetNoSerial = '';
 
     // Photo uploads per item
@@ -194,7 +236,9 @@ class CreateForm extends Component
 
     public function toggleTindakanOption(int $categoryIndex, string $option): void
     {
-        if (!isset($this->tindakanCategories[$categoryIndex])) return;
+        if (! isset($this->tindakanCategories[$categoryIndex])) {
+            return;
+        }
 
         $selected = &$this->tindakanCategories[$categoryIndex]['selected'];
         $key = array_search($option, $selected);
@@ -209,7 +253,9 @@ class CreateForm extends Component
     private function loadFormData(int $formId): void
     {
         $form = FormPemeriksaan::with(['items', 'pengguna', 'asset'])->find($formId);
-        if (!$form || ($form->status !== 'draft' && $form->status !== 'revisi')) return;
+        if (! $form || ($form->status !== 'draft' && $form->status !== 'revisi')) {
+            return;
+        }
 
         $this->formId = $form->id;
         $this->nomorForm = $form->nomor_form;
@@ -277,7 +323,7 @@ class CreateForm extends Component
             ->first();
 
         if ($hwTemplate) {
-            $this->hardwareItems = $hwTemplate->items->sortBy('sort_order')->map(fn($item) => [
+            $this->hardwareItems = $hwTemplate->items->sortBy('sort_order')->map(fn ($item) => [
                 'template_item_id' => $item->id,
                 'name' => $item->name,
                 'status' => null,
@@ -295,7 +341,7 @@ class CreateForm extends Component
             ->first();
 
         if ($appTemplate) {
-            $this->aplikasiItems = $appTemplate->items->sortBy('sort_order')->map(fn($item) => [
+            $this->aplikasiItems = $appTemplate->items->sortBy('sort_order')->map(fn ($item) => [
                 'template_item_id' => $item->id,
                 'name' => $item->name,
                 'status' => null,
@@ -311,7 +357,7 @@ class CreateForm extends Component
             ->first();
 
         if ($osTemplate) {
-            $this->osItems = $osTemplate->items->sortBy('sort_order')->map(fn($item) => [
+            $this->osItems = $osTemplate->items->sortBy('sort_order')->map(fn ($item) => [
                 'template_item_id' => $item->id,
                 'name' => $item->name,
                 'status' => null,
@@ -327,6 +373,7 @@ class CreateForm extends Component
         if (strlen($this->penggunaSearch) < 2) {
             $this->penggunaResults = [];
             $this->showPenggunaDropdown = false;
+
             return;
         }
 
@@ -446,16 +493,18 @@ class CreateForm extends Component
         if (strlen($this->assetSearch) < 2) {
             $this->assetResults = [];
             $this->showAssetDropdown = false;
+
             return;
         }
 
         $query = Asset::where('no_asset', 'like', "%{$this->assetSearch}%")
             ->orWhere('nama_perangkat', 'like', "%{$this->assetSearch}%")
             ->orWhere('brand', 'like', "%{$this->assetSearch}%")
-            ->orWhere('tipe', 'like', "%{$this->assetSearch}%");
+            ->orWhere('tipe', 'like', "%{$this->assetSearch}%")
+            ->orWhere('no_serial', 'like', "%{$this->assetSearch}%");
 
         $user = Auth::user();
-        if ($user && !$user->hasPermissionTo('view-all-forms') && $user->hasPermissionTo('view-assigned-forms')) {
+        if ($user && ! $user->hasPermissionTo('view-all-forms') && $user->hasPermissionTo('view-assigned-forms')) {
             $query->where('assigned_user_id', $user->id);
         }
 
@@ -571,6 +620,7 @@ class CreateForm extends Component
     {
         if (empty($this->noAsset)) {
             $this->resetAssetFields();
+
             return;
         }
 
@@ -641,7 +691,9 @@ class CreateForm extends Component
 
     public function toggleItemStatus(string $list, int $index, string $status): void
     {
-        if (!isset($this->$list[$index])) return;
+        if (! isset($this->$list[$index])) {
+            return;
+        }
 
         $current = $this->$list[$index]['status'] ?? null;
         $this->$list[$index]['status'] = $current === $status ? null : $status;
@@ -659,11 +711,12 @@ class CreateForm extends Component
                 $this->syncItems($form);
                 $this->dispatch('draftSaved');
                 $this->redirect(route('forms.search'));
+
                 return;
             }
         }
 
-        if (!$this->nomorForm) {
+        if (! $this->nomorForm) {
             $this->nomorForm = $this->generateNomorForm();
         }
 
@@ -697,9 +750,9 @@ class CreateForm extends Component
     private function syncItems(FormPemeriksaan $form): void
     {
         $allItems = array_merge(
-            array_map(fn($i) => array_merge($i, ['category' => 'hardware']), $this->hardwareItems),
-            array_map(fn($i) => array_merge($i, ['category' => 'aplikasi']), $this->aplikasiItems),
-            array_map(fn($i) => array_merge($i, ['category' => 'operating_system']), $this->osItems),
+            array_map(fn ($i) => array_merge($i, ['category' => 'hardware']), $this->hardwareItems),
+            array_map(fn ($i) => array_merge($i, ['category' => 'aplikasi']), $this->aplikasiItems),
+            array_map(fn ($i) => array_merge($i, ['category' => 'operating_system']), $this->osItems),
         );
 
         foreach ($allItems as $item) {
@@ -723,13 +776,17 @@ class CreateForm extends Component
 
     private function resolveAsset(): void
     {
-        if ($this->assetId) return;
+        if ($this->assetId) {
+            return;
+        }
 
-        if (empty($this->noAsset)) return;
+        if (empty($this->noAsset)) {
+            return;
+        }
 
         $asset = Asset::where('no_asset', $this->noAsset)->first();
 
-        if (!$asset) {
+        if (! $asset) {
             $asset = Asset::create([
                 'no_asset' => $this->noAsset,
                 'kategori' => $this->kategori,
@@ -750,9 +807,10 @@ class CreateForm extends Component
 
         try {
             $this->validate();
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             $firstError = collect($e->errors())->first();
             $this->dispatch('submitError', message: $firstError ?? 'Mohon lengkapi semua field yang wajib diisi');
+
             return;
         }
 
@@ -808,9 +866,11 @@ class CreateForm extends Component
             $today = now()->format('dmY');
             $count = FormPemeriksaan::where('nomor_form', 'like', "%/PMR/{$this->noAsset}/{$today}")->count();
             $seq = str_pad($count + 1, 3, '0', STR_PAD_LEFT);
+
             return "{$seq}/PMR/{$this->noAsset}/{$today}";
         }
-        return '---/PMR/XXXX/' . now()->format('dmY');
+
+        return '---/PMR/XXXX/'.now()->format('dmY');
     }
 
     public function render()
