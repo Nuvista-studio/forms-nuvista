@@ -24,6 +24,7 @@ class FormPerawatan extends Model
         'location_detail',
         'kondisi_akhir',
         'kondisi_akhir_notes',
+        'barcode_fisik',
         'notes',
         'status',
         'submitted_at',

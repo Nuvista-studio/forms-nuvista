@@ -586,6 +586,15 @@
                 <div class="px-4 pb-4 border-t" style="border-color: var(--color-border);">
                     <div class="pt-4 space-y-4">
                         <div>
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                <input type="checkbox" wire:model.live="barcodeFisik"
+                                    class="w-4 h-4 rounded transition-colors duration-200"
+                                    style="accent-color: var(--color-primary);">
+                                <span class="text-sm text-primary group-hover:text-secondary transition-colors">Barcode Fisik</span>
+                            </label>
+                            <p class="text-xs text-muted mt-1 ml-7">Centang jika perangkat memiliki barcode fisik</p>
+                        </div>
+                        <div>
                             <label class="text-xs font-semibold text-muted uppercase tracking-wider">Catatan / Tindakan Lanjutan</label>
                             <textarea wire:model.live="notes" rows="4" class="glass-input w-full rounded-lg px-3 py-2 text-sm mt-2 resize-none" placeholder="Tuliskan catatan atau tindakan yang perlu dilakukan..."></textarea>
                         </div>
@@ -690,10 +699,26 @@
                             @endif
                         </div>
 
-                        @if($notes)
+                        @if($notes || $barcodeFisik)
                             <div class="glass-card p-3" style="background: var(--color-bg-tertiary); border: none;">
-                                <span class="text-xs font-semibold text-muted uppercase">Catatan</span>
-                                <p class="text-sm text-primary mt-1">{{ $notes }}</p>
+                                <span class="text-xs font-semibold text-muted uppercase">Catatan Tambahan</span>
+                                @if($barcodeFisik)
+                                    <div class="flex items-center gap-2 mt-2">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold" style="background: rgba(16,185,129,0.15); color: #10b981;">
+                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                            Barcode Fisik: Ada
+                                        </span>
+                                    </div>
+                                @else
+                                    <div class="flex items-center gap-2 mt-2">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold" style="background: rgba(239,68,68,0.15); color: #ef4444;">
+                                            Barcode Fisik: Tidak Ada
+                                        </span>
+                                    </div>
+                                @endif
+                                @if($notes)
+                                    <p class="text-sm text-primary mt-2">{{ $notes }}</p>
+                                @endif
                             </div>
                         @endif
 

@@ -53,6 +53,7 @@ class Index extends Component
             'kondisi_akhir_notes' => $form->kondisi_akhir_notes,
             'notes' => $form->notes,
             'location_detail' => $form->location_detail,
+            'barcode_fisik' => (bool) ($form->barcode_fisik ?? false),
             'teknisi' => $form->teknisi ? ['name' => $form->teknisi->name, 'email' => $form->teknisi->email] : null,
             'pengguna' => $form->pengguna ? ['name' => $form->pengguna->name, 'nik' => $form->pengguna->nik, 'department' => $form->pengguna->department] : null,
             'asset' => $form->asset ? [

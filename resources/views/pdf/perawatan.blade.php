@@ -309,6 +309,11 @@
     @endif
     <div class="catatan" style="margin-top:8px;">
         <strong>Catatan Tambahan :</strong>
+        @if($form->barcode_fisik)
+            <div style="margin: 2px 0;"><strong>Barcode Fisik :</strong> Ada</div>
+        @else
+            <div style="margin: 2px 0;"><strong>Barcode Fisik :</strong> Tidak Ada</div>
+        @endif
         {{ $form->notes ?? '-' }}
     </div>
             </td>

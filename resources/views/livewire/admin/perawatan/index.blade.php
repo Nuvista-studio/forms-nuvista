@@ -255,11 +255,23 @@
                     </div>
                 @endif
 
-                {{-- Notes --}}
-                @if($viewingForm['notes'])
+                {{-- Notes + Barcode --}}
+                @if($viewingForm['notes'] || $viewingForm['barcode_fisik'])
                     <div>
-                        <h3 class="text-xs font-semibold text-muted uppercase mb-1">Catatan</h3>
-                        <p class="text-sm text-primary px-3 py-2 rounded" style="background: var(--color-bg-tertiary);">{{ $viewingForm['notes'] }}</p>
+                        <h3 class="text-xs font-semibold text-muted uppercase mb-1">Catatan Tambahan</h3>
+                        <div class="px-3 py-2 rounded space-y-1" style="background: var(--color-bg-tertiary);">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs text-muted">Barcode Fisik:</span>
+                                @if($viewingForm['barcode_fisik'])
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold" style="background: rgba(16,185,129,0.15); color: #10b981;">Ada</span>
+                                @else
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold" style="background: rgba(239,68,68,0.15); color: #ef4444;">Tidak Ada</span>
+                                @endif
+                            </div>
+                            @if($viewingForm['notes'])
+                                <p class="text-sm text-primary">{{ $viewingForm['notes'] }}</p>
+                            @endif
+                        </div>
                     </div>
                 @endif
 
