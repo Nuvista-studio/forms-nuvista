@@ -35,7 +35,7 @@
         .device-table td { border: 1px solid #ccc; padding: 3px 6px; font-size: 11px; }
         .device-table .lbl { background: #f0f0f0; font-weight: 600; font-size: 10px; }
 
-        .two-col { width: 100%; margin-bottom: 6px; }
+        .two-col { width: 100%; margin-bottom: 6px; table-layout: fixed; }
         .two-col tr { vertical-align: top !important; }
         .two-col > td { vertical-align: top !important; padding: 0 4px 0 0; border: none; width: 50%; }
         .two-col > td:last-child { padding: 0 0 0 4px; }
@@ -310,9 +310,9 @@
     <div class="catatan" style="margin-top:8px;">
         <strong>Catatan Tambahan :</strong>
         @if($form->barcode_fisik)
-            <div style="margin: 2px 0;"><strong>Barcode Fisik :</strong> Ada</div>
+            <p class="form-text"> Barcode Fisik : Ada</p>
         @else
-            <div style="margin: 2px 0;"><strong>Barcode Fisik :</strong> Tidak Ada</div>
+            <p class="form-text"> Barcode Fisik : Tidak Ada</p>
         @endif
         {{ $form->notes ?? '-' }}
     </div>
