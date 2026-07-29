@@ -144,7 +144,14 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                     <tbody class="divide-y" style="border-color: var(--color-border);">
                         @foreach($results as $form)
                             <tr class="transition-colors whitespace-nowrap" onmouseover="this.style.backgroundColor='var(--color-bg-tertiary)'" onmouseout="this.style.backgroundColor=''">
-                                <td class="py-2.5 px-3 font-mono font-semibold text-primary text-xs whitespace-nowrap">{{ $form['nomor_form'] }}</td>
+                                <td class="py-2.5 px-3 font-mono font-semibold text-primary text-xs whitespace-nowrap">
+                                    @if($form['status'] !== 'draft')
+                                        <a href="{{ route('approval.show', ['type' => $form['type'], 'id' => $form['id']]) }}"
+                                            wire:navigate class="hover:text-blue-400 transition-colors">{{ $form['nomor_form'] }}</a>
+                                    @else
+                                        {{ $form['nomor_form'] }}
+                                    @endif
+                                </td>
                                 <td class="py-2.5 px-3 whitespace-nowrap">
                                     <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold
                                         {{ $form['type'] === 'pemeriksaan' ? 'bg-blue-500/15 text-blue-400' : 'bg-purple-500/15 text-purple-400' }}">

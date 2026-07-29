@@ -98,22 +98,22 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
 
         {{-- Info Ringkas --}}
         <div class="glass-card p-4">
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
-                <div>
+            <div class="grid grid-cols-2 sm:grid-cols-[2fr_1fr_1fr_1fr] gap-4 text-sm">
+                <div class="min-w-0">
                     <span class="text-xs text-muted">No. Form</span>
-                    <p class="font-mono font-semibold text-primary">{{ $form->nomor_form }}</p>
+                    <p class="font-mono font-semibold text-primary truncate" title="{{ $form->nomor_form }}">{{ $form->nomor_form }}</p>
                 </div>
-                <div>
+                <div class="min-w-0">
                     <span class="text-xs text-muted">Status</span>
-                    <p class="font-semibold text-primary">{{ ucfirst($form->status) }}</p>
+                    <p class="font-semibold text-primary truncate" title="{{ ucfirst($form->status) }}">{{ ucfirst($form->status) }}</p>
                 </div>
-                <div>
+                <div class="min-w-0">
                     <span class="text-xs text-muted">Teknisi</span>
-                    <p class="text-primary">{{ $form->teknisi->name }}</p>
+                    <p class="text-primary truncate" title="{{ $form->teknisi->name }}">{{ $form->teknisi->name }}</p>
                 </div>
-                <div>
+                <div class="min-w-0">
                     <span class="text-xs text-muted">Tanggal</span>
-                    <p class="text-primary">{{ $form->submitted_at ? $form->submitted_at->format('d M Y H:i') : '-' }}</p>
+                    <p class="text-primary truncate" title="{{ $form->submitted_at ? $form->submitted_at->format('d M Y H:i') : '-' }}">{{ $form->submitted_at ? $form->submitted_at->format('d M Y H:i') : '-' }}</p>
                 </div>
             </div>
         </div>
