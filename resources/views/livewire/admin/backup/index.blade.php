@@ -32,6 +32,30 @@
         </div>
     @endif
 
+    {{-- Upload & Restore --}}
+    <div class="glass-card p-4">
+        <div class="flex items-center justify-between gap-4 flex-wrap">
+            <div>
+                <h2 class="text-sm font-bold text-primary">Upload & Restore Database</h2>
+                <p class="text-xs text-muted mt-0.5">Upload file .sql atau .zip untuk mengembalikan database</p>
+            </div>
+            <form wire:submit="uploadAndRestore" class="flex items-center gap-2 flex-wrap">
+                <input type="file" wire:model="uploadedFile" accept=".sql,.zip"
+                    class="block text-xs file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:cursor-pointer"
+                    style="color: var(--color-text-secondary);">
+                @error('uploadedFile') <span class="text-xs" style="color: #ef4444;">{{ $message }}</span> @enderror
+                <button type="submit" wire:loading.attr="disabled"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors duration-200"
+                    style="background: #f59e0b; color: white;">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                    </svg>
+                    Restore
+                </button>
+            </form>
+        </div>
+    </div>
+
     @if($isRestoring || $isCreating)
         <div class="glass-card p-6 text-center">
             <svg class="w-8 h-8 mx-auto mb-3 animate-spin" style="color: var(--color-primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">

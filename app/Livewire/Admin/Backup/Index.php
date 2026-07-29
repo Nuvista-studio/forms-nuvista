@@ -3,15 +3,19 @@
 namespace App\Livewire\Admin\Backup;
 
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Storage;
 use ZipArchive;
 
 class Index extends Component
 {
+    use WithFileUploads;
+
     public bool $isCreating = false;
     public bool $isRestoring = false;
     public ?string $errorMessage = null;
     public ?string $successMessage = null;
+    public $uploadedFile = null;
 
     public function createBackup(): void
     {
@@ -156,6 +160,101 @@ class Index extends Component
             $this->successMessage = "Database berhasil direstore dari {$filename}";
         } catch (\Exception $e) {
             $this->errorMessage = $e->getMessage();
+        }
+
+        $this->isRestoring = false;
+    }
+
+    public function uploadAndRestore(): void
+    {
+        $this->errorMessage = null;
+        $this->successMessage = null;
+
+        $this->validate([
+            'uploadedFile' => 'required|file|mimes:sql,zip|max:51200',
+        ]);
+
+        $this->isRestoring = true;
+
+        try {
+            $mysql = $this->findMysql();
+            if (!$mysql) {
+                throw new \Exception('mysql client tidak ditemukan di sistem.');
+            }
+
+            $suffix = now()->format('Ymd_His');
+            $tempDir = storage_path("app/backups/_upload_{$suffix}");
+            if (!is_dir($tempDir)) {
+                mkdir($tempDir, 0755, true);
+            }
+
+            $originalName = $this->uploadedFile->getClientOriginalName();
+            $extension = strtolower($this->uploadedFile->getClientOriginalExtension());
+            $tempPath = $tempDir . '/upload.' . $extension;
+            copy($this->uploadedFile->getRealPath(), $tempPath);
+
+            $sqlFile = null;
+
+            if ($extension === 'zip') {
+                $zip = new ZipArchive();
+                if ($zip->open($tempPath) !== true) {
+                    throw new \Exception('Gagal membuka file arsip zip.');
+                }
+                $zip->extractTo($tempDir);
+                $zip->close();
+
+                $found = glob($tempDir . '/**/*.sql');
+                if (empty($found)) {
+                    $found = glob($tempDir . '/*.sql');
+                }
+                if (empty($found)) {
+                    throw new \Exception('Tidak ditemukan file .sql dalam arsip zip yang diupload.');
+                }
+                $sqlFile = $found[0];
+            } else {
+                $sqlFile = $tempPath;
+            }
+
+            $content = file_get_contents($sqlFile);
+            $clean = implode("\n", array_filter(explode("\n", $content), fn($line) => !str_starts_with(trim($line), 'mysqldump:')));
+            if ($clean !== $content) {
+                file_put_contents($sqlFile, $clean);
+            }
+
+            $host = config('database.connections.mysql.host');
+            $port = config('database.connections.mysql.port');
+            $database = config('database.connections.mysql.database');
+            $username = config('database.connections.mysql.username');
+            $password = config('database.connections.mysql.password');
+
+            $passwordArg = $password ? ' --password=' . escapeshellarg($password) : '';
+            $cmd = sprintf(
+                '%s --host=%s --port=%s --user=%s%s %s < %s 2>&1',
+                escapeshellarg($mysql),
+                escapeshellarg($host),
+                escapeshellarg($port),
+                escapeshellarg($username),
+                $passwordArg,
+                escapeshellarg($database),
+                escapeshellarg($sqlFile)
+            );
+
+            exec($cmd, $output, $exitCode);
+
+            $this->rrmdir($tempDir);
+
+            if ($exitCode !== 0) {
+                $error = implode("\n", $output);
+                throw new \Exception("Gagal merestore database dari file yang diupload" . ($error ? ": {$error}" : ''));
+            }
+
+            $this->uploadedFile = null;
+            $this->successMessage = "Database berhasil direstore dari {$originalName}";
+        } catch (\Exception $e) {
+            $this->errorMessage = $e->getMessage();
+            if (isset($tempDir) && is_dir($tempDir)) {
+                $this->rrmdir($tempDir);
+            }
         }
 
         $this->isRestoring = false;
