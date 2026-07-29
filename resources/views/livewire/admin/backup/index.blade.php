@@ -32,12 +32,12 @@
         </div>
     @endif
 
-    @if($isCreating)
+    @if($isRestoring || $isCreating)
         <div class="glass-card p-6 text-center">
             <svg class="w-8 h-8 mx-auto mb-3 animate-spin" style="color: var(--color-primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
             </svg>
-            <p class="text-sm text-muted">Sedang membuat backup, mohon tunggu...</p>
+            <p class="text-sm text-muted">{{ $isRestoring ? 'Sedang merestore database, mohon tunggu...' : 'Sedang membuat backup, mohon tunggu...' }}</p>
         </div>
     @endif
 
@@ -84,6 +84,16 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                                             </svg>
                                         </a>
+                                        <button wire:click="restoreBackup('{{ $backup['filename'] }}')"
+                                            wire:confirm="PERHATIAN! Merestore backup akan MENIMPA SELURUH DATA database saat ini. Lanjutkan?"
+                                            class="p-1.5 rounded transition-colors hover:opacity-80"
+                                            wire:loading.attr="disabled"
+                                            style="color: #f59e0b;"
+                                            title="Restore Database">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                            </svg>
+                                        </button>
                                         <button wire:click="deleteBackup('{{ $backup['filename'] }}')"
                                             wire:confirm="Yakin ingin menghapus backup {{ $backup['filename'] }}?"
                                             class="p-1.5 rounded transition-colors hover:opacity-80"

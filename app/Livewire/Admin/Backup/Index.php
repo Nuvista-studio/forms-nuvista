@@ -9,6 +9,7 @@ use ZipArchive;
 class Index extends Component
 {
     public bool $isCreating = false;
+    public bool $isRestoring = false;
     public ?string $errorMessage = null;
     public ?string $successMessage = null;
 
@@ -41,7 +42,7 @@ class Index extends Component
 
             $passwordArg = $password ? ' --password=' . escapeshellarg($password) : '';
             $cmd = sprintf(
-                '%s --host=%s --port=%s --user=%s%s %s --routines --single-transaction --quick > %s 2>&1',
+                '%s --host=%s --port=%s --user=%s%s %s --routines --single-transaction --quick > %s 2>/dev/null',
                 escapeshellarg($mysqldump),
                 escapeshellarg($host),
                 escapeshellarg($port),
@@ -81,6 +82,83 @@ class Index extends Component
         }
 
         $this->isCreating = false;
+    }
+
+    public function restoreBackup(string $filename): void
+    {
+        $this->isRestoring = true;
+        $this->errorMessage = null;
+        $this->successMessage = null;
+
+        try {
+            $mysql = $this->findMysql();
+            if (!$mysql) {
+                throw new \Exception('mysql client tidak ditemukan di sistem.');
+            }
+
+            $zipPath = storage_path('app/backups/' . basename($filename));
+            if (!file_exists($zipPath)) {
+                throw new \Exception('File backup tidak ditemukan.');
+            }
+
+            $tempDir = storage_path('app/backups/_restore_' . now()->format('Ymd_His'));
+            if (!is_dir($tempDir)) {
+                mkdir($tempDir, 0755, true);
+            }
+
+            $zip = new ZipArchive();
+            if ($zip->open($zipPath) !== true) {
+                throw new \Exception('Gagal membuka file arsip.');
+            }
+            $zip->extractTo($tempDir);
+            $zip->close();
+
+            $sqlFiles = glob($tempDir . '/database/*.sql');
+            if (empty($sqlFiles)) {
+                $this->rrmdir($tempDir);
+                throw new \Exception('Tidak ditemukan file database (.sql) dalam arsip backup.');
+            }
+
+            $sqlFile = $sqlFiles[0];
+            $content = file_get_contents($sqlFile);
+            $clean = implode("\n", array_filter(explode("\n", $content), fn($line) => !str_starts_with(trim($line), 'mysqldump:')));
+            if ($clean !== $content) {
+                file_put_contents($sqlFile, $clean);
+            }
+
+            $host = config('database.connections.mysql.host');
+            $port = config('database.connections.mysql.port');
+            $database = config('database.connections.mysql.database');
+            $username = config('database.connections.mysql.username');
+            $password = config('database.connections.mysql.password');
+
+            $passwordArg = $password ? ' --password=' . escapeshellarg($password) : '';
+            $cmd = sprintf(
+                '%s --host=%s --port=%s --user=%s%s %s < %s 2>&1',
+                escapeshellarg($mysql),
+                escapeshellarg($host),
+                escapeshellarg($port),
+                escapeshellarg($username),
+                $passwordArg,
+                escapeshellarg($database),
+                escapeshellarg($sqlFile)
+            );
+
+            exec($cmd, $output, $exitCode);
+
+            $this->rrmdir($tempDir);
+
+            if ($exitCode !== 0) {
+                $error = implode("\n", $output);
+                throw new \Exception("Gagal merestore database" . ($error ? ": {$error}" : ''));
+            }
+
+            $this->successMessage = "Database berhasil direstore dari {$filename}";
+        } catch (\Exception $e) {
+            $this->errorMessage = $e->getMessage();
+        }
+
+        $this->isRestoring = false;
     }
 
     public function deleteBackup(string $filename): void
@@ -138,6 +216,49 @@ class Index extends Component
         }
 
         return null;
+    }
+
+    private function findMysql(): ?string
+    {
+        $candidates = [
+            'mysql',
+            '/Applications/XAMPP/bin/mysql',
+            '/Applications/MAMP/Library/bin/mysql',
+            '/usr/local/mysql/bin/mysql',
+            '/opt/homebrew/bin/mysql',
+            '/usr/bin/mysql',
+        ];
+
+        foreach ($candidates as $cmd) {
+            $output = null;
+            $code = null;
+            exec("which " . escapeshellarg($cmd) . " 2>/dev/null", $output, $code);
+            if ($code === 0 && !empty($output[0])) {
+                return $output[0];
+            }
+            if (file_exists($cmd)) {
+                return $cmd;
+            }
+        }
+
+        return null;
+    }
+
+    private function rrmdir(string $dir): void
+    {
+        if (!is_dir($dir)) return;
+        $files = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::CHILD_FIRST
+        );
+        foreach ($files as $file) {
+            if ($file->isDir()) {
+                rmdir($file->getRealPath());
+            } else {
+                unlink($file->getRealPath());
+            }
+        }
+        rmdir($dir);
     }
 
     private function addToZip(ZipArchive $zip, string $path, string $parent): void
