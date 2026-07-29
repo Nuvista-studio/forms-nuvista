@@ -252,8 +252,11 @@ class CreateForm extends Component
 
     private function loadFormData(int $formId): void
     {
+        $user = Auth::user();
+        if (!$user || !($user->hasRole('admin') || $user->hasRole('teknisi'))) return;
+
         $form = FormPemeriksaan::with(['items', 'pengguna', 'asset'])->find($formId);
-        if (! $form || in_array($form->status, [FormStatus::Disetujui->value, FormStatus::Selesai->value])) {
+        if (! $form || ! in_array($form->status, [FormStatus::Draft->value, FormStatus::Submitted->value, FormStatus::Diketahui->value])) {
             return;
         }
 

@@ -182,7 +182,7 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                                                 Sign
                                             </a>
                                         @endif
-                                        @if(!in_array($form['status'], ['disetujui', 'selesai']))
+                                        @if(in_array($form['status'], ['draft', 'submitted', 'diketahui']) && (auth()->user()->hasRole('admin') || auth()->user()->hasRole('teknisi')))
                                             <a href="{{ route($form['type'] . '.create') }}?formId={{ $form['id'] }}"
                                                 wire:navigate
                                                 class="text-xs text-yellow-400 hover:underline ml-2">Edit</a>
@@ -195,6 +195,7 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                                         <a href="{{ route($form['type'] . '.export-pdf', $form['id']) }}"
                                             target="_blank"
                                             class="text-xs text-emerald-400 hover:underline ml-2">PDF</a>
+                                        @if(auth()->user()->hasRole('admin') || auth()->user()->hasRole('teknisi'))
                                         <button wire:click="deleteForm({{ $form['id'] }}, '{{ $form['type'] }}')"
                                             wire:confirm="Yakin ingin menghapus form ini? Form yang sudah dihapus tidak dapat dikembalikan."
                                             class="text-red-400 hover:text-red-300 transition-colors ml-2"
@@ -203,6 +204,7 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                             </svg>
                                         </button>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
@@ -278,7 +280,7 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                 <div class="flex justify-end gap-2 pt-2">
                     <a href="{{ route($viewingForm['type'] . '.export-pdf', $viewingForm['id']) }}" target="_blank"
                         class="glass-button-primary text-sm">Export PDF</a>
-                    @if(!in_array($viewingForm['status'], ['disetujui', 'selesai']))
+                    @if(in_array($viewingForm['status'], ['draft', 'submitted', 'diketahui']) && (auth()->user()->hasRole('admin') || auth()->user()->hasRole('teknisi')))
                         <a href="{{ route($viewingForm['type'] . '.create') }}?formId={{ $viewingForm['id'] }}"
                             wire:navigate class="glass-button-primary text-sm">Edit</a>
                     @endif

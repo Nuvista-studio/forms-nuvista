@@ -255,8 +255,16 @@ class Search extends Component
         $this->viewingForm = null;
     }
 
+    public function canEditDelete(): bool
+    {
+        $user = Auth::user();
+        return $user && ($user->hasRole('admin') || $user->hasRole('teknisi'));
+    }
+
     public function deleteForm(int $id, string $type): void
     {
+        if (!$this->canEditDelete()) return;
+
         if ($type === 'pemeriksaan') {
             $form = FormPemeriksaan::find($id);
         } else {
