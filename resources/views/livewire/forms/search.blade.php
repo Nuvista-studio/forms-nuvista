@@ -105,10 +105,7 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
     </div>
 
     {{-- Results --}}
-    <div class="glass-card p-4 flex-1 overflow-auto min-h-0">
-        <div class="flex items-center justify-between mb-3">
-            <p class="text-sm text-muted">Menampilkan {{ count($results) }} form</p>
-        </div>
+    <div class="glass-card pt-0 px-4 pb-4 flex-1 overflow-auto min-h-0">
 
         @if(count($results) === 0)
             <div class="text-center py-12">
