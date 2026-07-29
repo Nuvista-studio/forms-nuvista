@@ -281,6 +281,19 @@ class Search extends Component
         $this->dispatch('formDeleted');
     }
 
+    public function getStatusBg(string $status): string
+    {
+        return match ($status) {
+            'draft' => 'rgba(107, 114, 128, 0.25)',
+            'submitted' => 'rgba(59, 130, 246, 0.25)',
+            'diketahui' => 'rgba(234, 179, 8, 0.25)',
+            'disetujui' => 'rgba(3, 3, 3, 0.25)',
+            'selesai' => 'rgba(16, 185, 129, 0.25)',
+            'revisi' => 'rgba(239, 68, 68, 0.25)',
+            default => 'rgba(107, 114, 128, 0.25)',
+        };
+    }
+
     public function getStatusColor(string $status): string
     {
         return match ($status) {

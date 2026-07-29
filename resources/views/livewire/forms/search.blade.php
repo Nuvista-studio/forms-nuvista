@@ -141,9 +141,9 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                             <th class="text-left py-2 px-3 text-xs text-muted font-medium whitespace-nowrap">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y" style="border-color: var(--color-border);">
+                    <tbody class="divide-y" style="border-color: color-mix(in srgb, var(--color-border) 25%, transparent);">
                         @foreach($results as $form)
-                            <tr class="transition-colors whitespace-nowrap" onmouseover="this.style.backgroundColor='var(--color-bg-tertiary)'" onmouseout="this.style.backgroundColor=''">
+                            <tr class="transition-colors whitespace-nowrap" style="background-color: {{ $this->getStatusBg($form['status']) }}" onmouseover="this.style.backgroundColor='var(--color-bg-tertiary)'" onmouseout="this.style.backgroundColor='{{ $this->getStatusBg($form['status']) }}'">
                                 <td class="py-2.5 px-3 font-mono font-semibold text-primary text-xs whitespace-nowrap">
                                     @if($form['status'] !== 'draft')
                                         <a href="{{ route('approval.show', ['type' => $form['type'], 'id' => $form['id']]) }}"
