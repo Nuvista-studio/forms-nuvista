@@ -5,23 +5,23 @@ use Livewire\Volt\Component;
 
 new #[Layout('components.app-layout')] class extends Component {}; ?>
 
-<div class="max-w-7xl mx-auto px-4 py-6 space-y-4" x-data @form-deleted.window="window.location.reload()">
-    <h1 class="text-2xl font-bold text-primary">Cari & Filter Form</h1>
+<div class="max-w-7xl mx-auto px-4 py-6 flex flex-col h-dvh" x-data @form-deleted.window="window.location.reload()">
+    <h1 class="text-2xl font-bold text-primary shrink-0 mb-4">Cari & Filter Form</h1>
 
     {{-- Filters --}}
-    <div class="glass-card p-4">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+    <div class="shrink-0 mb-4 glass-card px-3 py-2">
+        <div class="flex flex-wrap items-end gap-2">
             {{-- Search --}}
-            <div class="lg:col-span-2">
-                <label class="text-xs text-muted">Cari</label>
-                <input type="text" wire:model.live="search" placeholder="No. form, nama teknisi, nama perangkat..."
-                    class="glass-input w-full rounded-lg px-3 py-2 text-sm mt-1">
+            <div class="flex-1 min-w-[200px]">
+                <label class="text-[10px] text-muted">Cari</label>
+                <input type="text" wire:model.live="search" placeholder="No. form, teknisi, perangkat..."
+                    class="glass-input w-full rounded-lg px-2 py-1.5 text-xs">
             </div>
 
             {{-- Form Type --}}
-            <div>
-                <label class="text-xs text-muted">Tipe Form</label>
-                <select wire:model.live="formType" class="glass-input w-full rounded-lg px-3 py-2 text-sm mt-1">
+            <div class="w-[130px]">
+                <label class="text-[10px] text-muted">Tipe</label>
+                <select wire:model.live="formType" class="glass-input w-full rounded-lg px-2 py-1.5 text-xs">
                     <option value="">Semua</option>
                     <option value="pemeriksaan">Pemeriksaan</option>
                     <option value="perawatan">Perawatan</option>
@@ -29,9 +29,9 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
             </div>
 
             {{-- Status --}}
-            <div>
-                <label class="text-xs text-muted">Status</label>
-                <select wire:model.live="status" class="glass-input w-full rounded-lg px-3 py-2 text-sm mt-1">
+            <div class="w-[120px]">
+                <label class="text-[10px] text-muted">Status</label>
+                <select wire:model.live="status" class="glass-input w-full rounded-lg px-2 py-1.5 text-xs">
                     <option value="">Semua</option>
                     <option value="draft">Draft</option>
                     <option value="submitted">Submitted</option>
@@ -43,9 +43,9 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
             </div>
 
             {{-- Kondisi --}}
-            <div>
-                <label class="text-xs text-muted">Kondisi</label>
-                <select wire:model.live="kondisi" class="glass-input w-full rounded-lg px-3 py-2 text-sm mt-1">
+            <div class="w-[110px]">
+                <label class="text-[10px] text-muted">Kondisi</label>
+                <select wire:model.live="kondisi" class="glass-input w-full rounded-lg px-2 py-1.5 text-xs">
                     <option value="">Semua</option>
                     <option value="baru">Baru</option>
                     <option value="lama">Lama</option>
@@ -57,23 +57,23 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
             </div>
 
             {{-- User --}}
-            <div class="relative">
-                <label class="text-xs text-muted">Teknisi</label>
+            <div class="relative w-[160px]">
+                <label class="text-[10px] text-muted">Teknisi</label>
                 <input type="text" wire:model.live="userSearch" wire:input="searchUser"
-                    placeholder="Cari nama / NIK..."
-                    class="glass-input w-full rounded-lg px-3 py-2 text-sm mt-1"
+                    placeholder="Nama / NIK..."
+                    class="glass-input w-full rounded-lg px-2 py-1.5 text-xs"
                     @focus="$wire.set('showUserDropdown', true)"
                     @click.away="$wire.set('showUserDropdown', false)">
                 @if($userId)
-                    <button wire:click="selectUser()" class="absolute right-2 top-7 text-xs text-red-400">clear</button>
+                    <button wire:click="selectUser()" class="absolute right-1.5 bottom-1.5 text-[10px] text-red-400">clear</button>
                 @endif
                 @if($showUserDropdown && count($userResults) > 0)
                     <div class="absolute z-20 w-full mt-1 rounded-lg max-h-40 overflow-y-auto"
                         style="background: var(--color-card-bg); border: 1px solid var(--color-card-border);">
                         @foreach($userResults as $user)
                             <button wire:click="selectUser({{ $user['id'] }})"
-                                class="w-full text-left px-3 py-2 text-sm transition-colors text-primary" onmouseover="this.style.backgroundColor='var(--color-bg-tertiary)'" onmouseout="this.style.backgroundColor=''">
-                                {{ $user['name'] }} <span class="text-muted text-xs">({{ $user['nik'] ?? '-' }})</span>
+                                class="w-full text-left px-2 py-1.5 text-xs transition-colors text-primary" onmouseover="this.style.backgroundColor='var(--color-bg-tertiary)'" onmouseout="this.style.backgroundColor=''">
+                                {{ $user['name'] }} <span class="text-muted">({{ $user['nik'] ?? '-' }})</span>
                             </button>
                         @endforeach
                     </div>
@@ -81,31 +81,31 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
             </div>
 
             {{-- Date From --}}
-            <div>
-                <label class="text-xs text-muted">Dari Tanggal</label>
+            <div class="w-[140px]">
+                <label class="text-[10px] text-muted">Dari</label>
                 <input type="date" wire:model.live="dateFrom"
-                    class="glass-input w-full rounded-lg px-3 py-2 text-sm mt-1">
+                    class="glass-input w-full rounded-lg px-2 py-1.5 text-xs">
             </div>
 
             {{-- Date To --}}
-            <div>
-                <label class="text-xs text-muted">Sampai Tanggal</label>
+            <div class="w-[140px]">
+                <label class="text-[10px] text-muted">Sampai</label>
                 <input type="date" wire:model.live="dateTo"
-                    class="glass-input w-full rounded-lg px-3 py-2 text-sm mt-1">
+                    class="glass-input w-full rounded-lg px-2 py-1.5 text-xs">
             </div>
 
             {{-- Reset --}}
-            <div class="flex items-end">
+            <div>
                 <button wire:click="resetFilters"
-                    class="glass-button-secondary text-sm w-full">
-                    Reset Filter
+                    class="glass-button-secondary text-xs px-3 py-1.5 whitespace-nowrap">
+                    Reset
                 </button>
             </div>
         </div>
     </div>
 
     {{-- Results --}}
-    <div class="glass-card p-4">
+    <div class="glass-card p-4 flex-1 overflow-auto min-h-0">
         <div class="flex items-center justify-between mb-3">
             <p class="text-sm text-muted">Menampilkan {{ count($results) }} form</p>
         </div>
@@ -118,40 +118,39 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                 <p class="text-sm text-muted">Tidak ada form ditemukan</p>
             </div>
         @else
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm">
-                    <thead>
-                        <tr class="border-b whitespace-nowrap" style="border-color: var(--color-border);">
-                            <th wire:click="toggleSort('nomor_form')" class="text-left py-2 px-3 text-xs text-muted font-medium cursor-pointer hover:text-primary whitespace-nowrap">
-                                No. Form @if($sortBy === 'nomor_form') {{ $sortDir === 'asc' ? '↑' : '↓' }} @endif
-                            </th>
-                            <th class="text-left py-2 px-3 text-xs text-muted font-medium whitespace-nowrap">Tipe</th>
-                            <th class="text-left py-2 px-3 text-xs text-muted font-medium whitespace-nowrap">Teknisi</th>
-                            <th class="text-left py-2 px-3 text-xs text-muted font-medium whitespace-nowrap">Pengguna</th>
-                            <th class="text-left py-2 px-3 text-xs text-muted font-medium whitespace-nowrap">Perangkat</th>
-                            <th class="text-left py-2 px-3 text-xs text-muted font-medium whitespace-nowrap">No. Asset</th>
-                            <th class="text-left py-2 px-3 text-xs text-muted font-medium whitespace-nowrap">Kondisi</th>
-                            <th wire:click="toggleSort('status')" class="text-left py-2 px-3 text-xs text-muted font-medium cursor-pointer hover:text-primary whitespace-nowrap">
-                                Status @if($sortBy === 'status') {{ $sortDir === 'asc' ? '↑' : '↓' }} @endif
-                            </th>
-                            <th class="text-left py-2 px-3 text-xs text-muted font-medium whitespace-nowrap">Disetujui</th>
-                            <th wire:click="toggleSort('submitted_at')" class="text-left py-2 px-3 text-xs text-muted font-medium cursor-pointer hover:text-primary whitespace-nowrap">
-                                Tanggal @if($sortBy === 'submitted_at') {{ $sortDir === 'asc' ? '↑' : '↓' }} @endif
-                            </th>
-                            <th class="text-left py-2 px-3 text-xs text-muted font-medium whitespace-nowrap">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y" style="border-color: color-mix(in srgb, var(--color-border) 25%, transparent);">
-                        @foreach($results as $form)
-                            <tr class="transition-colors whitespace-nowrap" style="background-color: {{ $this->getStatusBg($form['status']) }}" onmouseover="this.style.backgroundColor='var(--color-bg-tertiary)'" onmouseout="this.style.backgroundColor='{{ $this->getStatusBg($form['status']) }}'">
-                                <td class="py-2.5 px-3 font-mono font-semibold text-primary text-xs whitespace-nowrap">
-                                    @if($form['status'] !== 'draft')
-                                        <a href="{{ route('approval.show', ['type' => $form['type'], 'id' => $form['id']]) }}"
-                                            wire:navigate class="hover:text-blue-400 transition-colors">{{ $form['nomor_form'] }}</a>
-                                    @else
-                                        {{ $form['nomor_form'] }}
-                                    @endif
-                                </td>
+            <table class="w-full min-w-max text-sm">
+                <thead class="sticky top-0 z-20" style="background: var(--color-bg-primary); box-shadow: inset 0 -1px 0 var(--color-border);">
+                    <tr class="border-b whitespace-nowrap" style="border-color: var(--color-border);">
+                        <th wire:click="toggleSort('nomor_form')" class="text-left py-2 px-3 text-xs text-muted font-medium cursor-pointer hover:text-primary whitespace-nowrap">
+                            No. Form @if($sortBy === 'nomor_form') {{ $sortDir === 'asc' ? '↑' : '↓' }} @endif
+                        </th>
+                        <th class="text-left py-2 px-3 text-xs text-muted font-medium whitespace-nowrap">Tipe</th>
+                        <th class="text-left py-2 px-3 text-xs text-muted font-medium whitespace-nowrap">Teknisi</th>
+                        <th class="text-left py-2 px-3 text-xs text-muted font-medium whitespace-nowrap">Pengguna</th>
+                        <th class="text-left py-2 px-3 text-xs text-muted font-medium whitespace-nowrap">Perangkat</th>
+                        <th class="text-left py-2 px-3 text-xs text-muted font-medium whitespace-nowrap">No. Asset</th>
+                        <th class="text-left py-2 px-3 text-xs text-muted font-medium whitespace-nowrap">Kondisi</th>
+                        <th wire:click="toggleSort('status')" class="text-left py-2 px-3 text-xs text-muted font-medium cursor-pointer hover:text-primary whitespace-nowrap">
+                            Status @if($sortBy === 'status') {{ $sortDir === 'asc' ? '↑' : '↓' }} @endif
+                        </th>
+                        <th class="text-left py-2 px-3 text-xs text-muted font-medium whitespace-nowrap">Disetujui</th>
+                        <th wire:click="toggleSort('submitted_at')" class="text-left py-2 px-3 text-xs text-muted font-medium cursor-pointer hover:text-primary whitespace-nowrap">
+                            Tanggal @if($sortBy === 'submitted_at') {{ $sortDir === 'asc' ? '↑' : '↓' }} @endif
+                        </th>
+                        <th class="text-left py-2 px-3 text-xs text-muted font-medium whitespace-nowrap">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y" style="border-color: color-mix(in srgb, var(--color-border) 25%, transparent);">
+                    @foreach($results as $form)
+                        <tr class="transition-colors whitespace-nowrap" style="background-color: {{ $this->getStatusBg($form['status']) }}" onmouseover="this.style.backgroundColor='var(--color-bg-tertiary)'" onmouseout="this.style.backgroundColor='{{ $this->getStatusBg($form['status']) }}'">
+                            <td class="py-2.5 px-3 font-mono font-semibold text-primary text-xs whitespace-nowrap">
+                                @if($form['status'] !== 'draft')
+                                    <a href="{{ route('approval.show', ['type' => $form['type'], 'id' => $form['id']]) }}"
+                                        wire:navigate class="hover:text-blue-400 transition-colors">{{ $form['nomor_form'] }}</a>
+                                @else
+                                    {{ $form['nomor_form'] }}
+                                @endif
+                            </td>
                                 <td class="py-2.5 px-3 whitespace-nowrap">
                                     <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold
                                         {{ $form['type'] === 'pemeriksaan' ? 'bg-blue-500/15 text-blue-400' : 'bg-purple-500/15 text-purple-400' }}">
@@ -229,7 +228,6 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                         @endforeach
                     </tbody>
                 </table>
-            </div>
         @endif
     </div>
 
