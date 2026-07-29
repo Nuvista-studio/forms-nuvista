@@ -137,6 +137,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('perawatan/export/{format}', [FormExportController::class, 'exportPerawatan'])
             ->name('perawatan.export')
             ->whereIn('format', ['pdf', 'xlsx', 'xls', 'html', 'csv']);
+
+        // Backup
+        Volt::route('backup', 'admin.pages.backup.index')
+            ->name('backup.index');
+
+        Route::get('backup/download/{filename}', function (string $filename) {
+            $path = storage_path('app/backups/' . basename($filename));
+            if (!file_exists($path)) {
+                abort(404);
+            }
+            return response()->download($path);
+        })->name('backup.download');
     });
 
     // ── Legacy user routes → redirect to admin ───────────────

@@ -107,6 +107,17 @@
                                     </svg>
                                     Form PWT
                                 </a>
+                                <div class="pt-2 pb-1 px-3">
+                                    <h3 class="text-[10px] font-bold uppercase tracking-wider" style="color: var(--color-text-muted);">System</h3>
+                                </div>
+                                <a href="{{ route('admin.backup.index') }}" wire:navigate
+                                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 {{ request()->routeIs('admin.backup.*') ? 'admin-nav-active' : '' }}"
+                                    style="{{ request()->routeIs('admin.backup.*') ? '' : 'color: var(--color-text-secondary);' }}">
+                                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+                                    </svg>
+                                    Backup
+                                </a>
                             </nav>
                         </div>
                     </aside>
