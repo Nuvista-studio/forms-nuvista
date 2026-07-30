@@ -4,6 +4,7 @@ namespace App\Livewire\Admin\Assets;
 
 use App\Helpers\ActivityLogger;
 use App\Models\Asset;
+use App\Models\FormPerawatan;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -13,6 +14,10 @@ class Index extends Component
 
     public string $search = '';
 
+    public string $filterOperatingUnit = '';
+
+    public string $filterPerawatanStatus = '';
+
     public bool $showDeleteModal = false;
 
     public ?int $deleteAssetId = null;
@@ -21,9 +26,21 @@ class Index extends Component
 
     protected $queryString = [
         'search' => ['except' => ''],
+        'filterOperatingUnit' => ['except' => ''],
+        'filterPerawatanStatus' => ['except' => ''],
     ];
 
     public function updatedSearch(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedFilterOperatingUnit(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedFilterPerawatanStatus(): void
     {
         $this->resetPage();
     }
@@ -61,10 +78,23 @@ class Index extends Component
                     ->orWhere('brand', 'like', "%{$this->search}%")
                     ->orWhere('tipe', 'like', "%{$this->search}%")
                     ->orWhere('no_serial', 'like', "%{$this->search}%");
-            }))
-            ->orderBy('no_asset');
+            }));
 
-        $assets = $query->paginate(15);
+        if ($this->filterOperatingUnit) {
+            $query->where('operating_unit', $this->filterOperatingUnit);
+        }
+
+        if ($this->filterPerawatanStatus === 'done') {
+            $assetIds = FormPerawatan::whereNotNull('submitted_at')
+                ->distinct()->pluck('asset_id')->filter()->toArray();
+            $query->whereIn('id', $assetIds);
+        } elseif ($this->filterPerawatanStatus === 'pending') {
+            $assetIds = FormPerawatan::whereNotNull('submitted_at')
+                ->distinct()->pluck('asset_id')->filter()->toArray();
+            $query->whereNotIn('id', $assetIds);
+        }
+
+        $assets = $query->orderBy('no_asset')->paginate(15);
 
         return view('livewire.admin.assets.index', [
             'assets' => $assets,

@@ -250,6 +250,7 @@ class Index extends Component
         $result = [];
         foreach ($counts as $ouId => $data) {
             $result[] = [
+                'operating_unit_id' => $ouId,
                 'operating_unit' => $siteNames[$ouId] ?? $ouId,
                 'dilakukan' => $data['dilakukan'],
                 'belum' => $data['belum'],

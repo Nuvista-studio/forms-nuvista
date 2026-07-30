@@ -35,19 +35,39 @@
         </div>
     </div>
 
-    {{-- Search --}}
+    {{-- Search & Filters --}}
     <div class="glass-card p-4">
-        <div class="relative">
-            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-            </svg>
-            <input
-                wire:model.live.debounce.300ms="search"
-                type="text"
-                placeholder="Cari no asset, nama perangkat, kategori, brand..."
-                class="w-full pl-10 pr-4 py-2 rounded-lg text-sm transition-colors duration-200"
-                style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);"
-            />
+        <div class="flex flex-col sm:flex-row gap-3">
+            <div class="relative flex-1">
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <input wire:model.live.debounce.300ms="search" type="text" placeholder="Cari no asset, nama perangkat, kategori, brand..."
+                    class="w-full pl-10 pr-4 py-2 rounded-lg text-sm transition-colors duration-200"
+                    style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);" />
+            </div>
+            <select wire:model.live="filterOperatingUnit"
+                class="px-3 py-2 rounded-lg text-sm bg-transparent border"
+                style="border-color: var(--color-border); color: var(--color-text-primary);">
+                <option value="">Semua Operating Unit</option>
+                @foreach(\App\Models\Site::whereIn('id_site', \App\Models\Asset::whereNotNull('operating_unit')->where('operating_unit', '!=', '')->pluck('operating_unit'))->orderBy('site')->get() as $ou)
+                    <option value="{{ $ou->id_site }}">{{ $ou->site }} ({{ $ou->id_site }})</option>
+                @endforeach
+            </select>
+            <select wire:model.live="filterPerawatanStatus"
+                class="px-3 py-2 rounded-lg text-sm bg-transparent border"
+                style="border-color: var(--color-border); color: var(--color-text-primary);">
+                <option value="">Semua Status Perawatan</option>
+                <option value="pending">Belum Perawatan</option>
+                <option value="done">Sudah Perawatan</option>
+            </select>
+            @if($search || $filterOperatingUnit || $filterPerawatanStatus)
+                <a href="{{ route('admin.assets.index') }}" wire:navigate
+                    class="inline-flex items-center px-3 py-2 rounded-lg text-sm transition-colors duration-200"
+                    style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);">
+                    Reset
+                </a>
+            @endif
         </div>
     </div>
 

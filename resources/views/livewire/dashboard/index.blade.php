@@ -64,6 +64,11 @@
         @else
             <p class="text-sm text-muted text-center py-4">Tidak ada data perawatan pada periode ini</p>
         @endif
+        <div class="mt-3 text-right">
+            <a href="{{ route('admin.perawatan.index') }}" wire:navigate class="text-xs font-medium transition-colors duration-200" style="color: var(--color-primary);">
+                Lihat Semua Perawatan →
+            </a>
+        </div>
     </div>
 
     {{-- Report 2: Pemeriksaan by Site --}}
@@ -113,6 +118,11 @@
         @else
             <p class="text-sm text-muted text-center py-4">Tidak ada data pemeriksaan pada periode ini</p>
         @endif
+        <div class="mt-3 text-right">
+            <a href="{{ route('admin.pemeriksaan.index') }}" wire:navigate class="text-xs font-medium transition-colors duration-200" style="color: var(--color-primary);">
+                Lihat Semua Pemeriksaan →
+            </a>
+        </div>
     </div>
 
     {{-- Report 3: Top 10 Assets --}}
@@ -146,7 +156,7 @@
                     </thead>
                     <tbody class="divide-y" style="border-color: var(--color-border);">
                         @foreach($topAssets as $i => $a)
-                            <tr class="transition-colors" onmouseover="this.style.backgroundColor='var(--color-bg-tertiary)'" onmouseout="this.style.backgroundColor=''">
+                            <tr class="transition-colors cursor-pointer" onclick="window.Livewire.navigate('{{ route('admin.assets.index', ['search' => $a['no_asset']]) }}')" onmouseover="this.style.backgroundColor='var(--color-bg-tertiary)'" onmouseout="this.style.backgroundColor=''">
                                 <td class="py-2.5 text-muted text-xs">{{ $i + 1 }}</td>
                                 <td class="py-2.5 font-mono text-secondary text-xs">{{ $a['no_asset'] }}</td>
                                 <td class="py-2.5 font-medium text-primary">{{ $a['nama_perangkat'] }}</td>
@@ -161,6 +171,11 @@
                         @endforeach
                     </tbody>
                 </table>
+            </div>
+            <div class="mt-3 text-right">
+                <a href="{{ route('admin.assets.index') }}" wire:navigate class="text-xs font-medium transition-colors duration-200" style="color: var(--color-primary);">
+                    Lihat Semua Asset →
+                </a>
             </div>
         @else
             <p class="text-sm text-muted text-center py-4">Tidak ada data pemeriksaan asset</p>
@@ -217,6 +232,11 @@
         @else
             <p class="text-sm text-muted text-center py-4">Tidak ada data tren perawatan</p>
         @endif
+        <div class="mt-3 text-right">
+            <a href="{{ route('admin.perawatan.index') }}" wire:navigate class="text-xs font-medium transition-colors duration-200" style="color: var(--color-primary);">
+                Lihat Semua Perawatan →
+            </a>
+        </div>
     </div>
 
     {{-- Report 5: Perawatan vs Belum by Operating Unit --}}
@@ -319,19 +339,24 @@
                         @foreach($perawatanVsBelum as $row)
                             @php
                                 $pct = $row['total'] > 0 ? round(($row['dilakukan'] / $row['total']) * 100, 1) : 0;
+                                $ouId = $row['operating_unit_id'] ?? '';
                             @endphp
                             <tr class="transition-colors" onmouseover="this.style.backgroundColor='var(--color-bg-tertiary)'" onmouseout="this.style.backgroundColor=''">
                                 <td class="py-2.5 font-medium text-primary">{{ $row['operating_unit'] }}</td>
-                                <td class="py-2.5 text-right text-secondary">{{ $row['total'] }}</td>
-                                <td class="py-2.5 text-right">
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold" style="background: rgba(16,185,129,0.15); color: #10b981;">
-                                        {{ $row['dilakukan'] }}
-                                    </span>
+                                <td class="py-2.5 text-right text-secondary">
+                                    <a href="{{ route('admin.assets.index', ['filterOperatingUnit' => $ouId]) }}" wire:navigate class="hover:underline font-semibold" style="color: var(--color-text-secondary);">
+                                        {{ $row['total'] }}
+                                    </a>
                                 </td>
                                 <td class="py-2.5 text-right">
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold" style="background: rgba(239,68,68,0.15); color: #ef4444;">
+                                    <a href="{{ route('admin.assets.index', ['filterOperatingUnit' => $ouId, 'filterPerawatanStatus' => 'done']) }}" wire:navigate class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold transition-opacity hover:opacity-70" style="background: rgba(16,185,129,0.15); color: #10b981;">
+                                        {{ $row['dilakukan'] }}
+                                    </a>
+                                </td>
+                                <td class="py-2.5 text-right">
+                                    <a href="{{ route('admin.assets.index', ['filterOperatingUnit' => $ouId, 'filterPerawatanStatus' => 'pending']) }}" wire:navigate class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold transition-opacity hover:opacity-70" style="background: rgba(239,68,68,0.15); color: #ef4444;">
                                         {{ $row['belum'] }}
-                                    </span>
+                                    </a>
                                 </td>
                                 <td class="py-2.5 text-right">
                                     <div class="flex items-center justify-end gap-2">
