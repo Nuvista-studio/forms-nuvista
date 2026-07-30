@@ -66,6 +66,30 @@ class AssetCsvController extends Controller
                 'user@asri.co.id',
             ]);
 
+            fputcsv($file, [
+                'ASR-PRN-2024-002',
+                'Printer',
+                'Epson',
+                'L3210',
+                'Printer Multifungsi Finance',
+                'SN-EPS-002',
+                'A01',
+                'A01',
+                'user@asri.co.id',
+            ]);
+
+            fputcsv($file, [
+                'ASR-ACS-2024-003',
+                'Access Point',
+                'MikroTik',
+                'hAP AC2',
+                'Access Point Lantai 2',
+                'SN-MIK-003',
+                'B02',
+                'B02',
+                'teknisi@asri.co.id',
+            ]);
+
             fclose($file);
         };
 

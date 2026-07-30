@@ -77,6 +77,18 @@ class UserCsvController extends Controller
                 'teknisi',
             ]);
 
+            fputcsv($file, [
+                'Budi Santoso',
+                'budi@asri.co.id',
+                'passbudi',
+                'USR003',
+                'HRD',
+                'AMG',
+                'B02',
+                '081234567892',
+                'admin',
+            ]);
+
             fclose($file);
         };
 

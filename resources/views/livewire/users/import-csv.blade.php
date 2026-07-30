@@ -39,7 +39,7 @@
         @if(!empty($preview) && empty($importErrors))
             <div class="glass-card p-6 space-y-4">
                 <div class="flex items-center justify-between">
-                    <h3 class="font-semibold text-primary">Preview ({{ min($totalRows, 10) }} dari {{ $totalRows }} baris)</h3>
+                    <h3 class="font-semibold text-primary">Preview ({{ min($totalRows, 5) }} dari {{ $totalRows }} baris)</h3>
                     <button wire:click="import" wire:loading.attr="disabled"
                         class="px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200"
                         style="background: var(--color-primary); color: var(--color-button-text);">
@@ -52,27 +52,31 @@
                     <table class="w-full text-xs">
                         <thead>
                             <tr class="border-b" style="border-color: var(--color-border);">
-                                <th class="px-3 py-2 text-left text-muted font-medium">#</th>
-                                <th class="px-3 py-2 text-left text-muted font-medium">Nama</th>
-                                <th class="px-3 py-2 text-left text-muted font-medium">Email</th>
-                                <th class="px-3 py-2 text-left text-muted font-medium hidden sm:table-cell">NIK</th>
-                                <th class="px-3 py-2 text-left text-muted font-medium hidden md:table-cell">Department</th>
-                                <th class="px-3 py-2 text-left text-muted font-medium hidden lg:table-cell">Role</th>
+                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">#</th>
+                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">Nama</th>
+                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">Email</th>
+                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">Password</th>
+                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">NIK</th>
+                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">Department</th>
+                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">Business Unit</th>
+                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">Site</th>
+                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">No Telepon</th>
+                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">Role</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y" style="border-color: var(--color-border);">
                             @foreach($preview as $i => $row)
                                 <tr>
-                                    <td class="px-3 py-2 text-muted">{{ $i + 1 }}</td>
-                                    <td class="px-3 py-2 text-primary font-medium">{{ $row['name'] ?? '-' }}</td>
-                                    <td class="px-3 py-2 text-secondary">{{ $row['email'] ?? '-' }}</td>
-                                    <td class="px-3 py-2 text-secondary font-mono hidden sm:table-cell">{{ $row['nik'] ?? '-' }}</td>
-                                    <td class="px-3 py-2 text-secondary hidden md:table-cell">{{ $row['department'] ?? '-' }}</td>
-                                    <td class="px-3 py-2 hidden lg:table-cell">
-                                        <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-500/15 text-gray-400">
-                                            {{ $row['role'] ?? 'pengguna' }}
-                                        </span>
-                                    </td>
+                                    <td class="px-3 py-2 text-muted whitespace-nowrap">{{ $i + 1 }}</td>
+                                    <td class="px-3 py-2 text-primary font-medium whitespace-nowrap">{{ $row['name'] ?? '-' }}</td>
+                                    <td class="px-3 py-2 text-secondary whitespace-nowrap">{{ $row['email'] ?? '-' }}</td>
+                                    <td class="px-3 py-2 text-secondary font-mono whitespace-nowrap">{{ $row['password'] ?? '-' }}</td>
+                                    <td class="px-3 py-2 text-secondary font-mono whitespace-nowrap">{{ $row['nik'] ?? '-' }}</td>
+                                    <td class="px-3 py-2 text-secondary whitespace-nowrap">{{ $row['department'] ?? '-' }}</td>
+                                    <td class="px-3 py-2 text-secondary whitespace-nowrap">{{ $row['business_unit'] ?? '-' }}</td>
+                                    <td class="px-3 py-2 text-secondary whitespace-nowrap">{{ $row['site'] ?? '-' }}</td>
+                                    <td class="px-3 py-2 text-secondary whitespace-nowrap">{{ $row['no_telepon'] ?? '-' }}</td>
+                                    <td class="px-3 py-2 text-secondary whitespace-nowrap">{{ $row['role'] ?? '-' }}</td>
                                 </tr>
                             @endforeach
                         </tbody>

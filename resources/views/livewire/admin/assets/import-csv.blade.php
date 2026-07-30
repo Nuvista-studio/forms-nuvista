@@ -37,7 +37,7 @@
         @if(!empty($preview) && empty($importErrors))
             <div class="glass-card p-6 space-y-4">
                 <div class="flex items-center justify-between">
-                    <h3 class="font-semibold text-primary">Preview ({{ min($totalRows, 10) }} dari {{ $totalRows }} baris)</h3>
+                    <h3 class="font-semibold text-primary">Preview ({{ min($totalRows, 5) }} dari {{ $totalRows }} baris)</h3>
                     <button wire:click="import" wire:loading.attr="disabled"
                         class="px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200"
                         style="background: var(--color-primary); color: var(--color-button-text);">
@@ -50,25 +50,31 @@
                     <table class="w-full text-xs">
                         <thead>
                             <tr class="border-b" style="border-color: var(--color-border);">
-                                <th class="px-3 py-2 text-left text-muted font-medium">#</th>
-                                <th class="px-3 py-2 text-left text-muted font-medium">No Asset</th>
-                                <th class="px-3 py-2 text-left text-muted font-medium">Kategori</th>
-                                <th class="px-3 py-2 text-left text-muted font-medium">Brand</th>
-                                <th class="px-3 py-2 text-left text-muted font-medium hidden sm:table-cell">Tipe</th>
-                                <th class="px-3 py-2 text-left text-muted font-medium hidden md:table-cell">Nama Perangkat</th>
-                                <th class="px-3 py-2 text-left text-muted font-medium hidden lg:table-cell">User</th>
+                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">#</th>
+                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">No Asset</th>
+                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">Kategori</th>
+                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">Brand</th>
+                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">Tipe</th>
+                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">Nama Perangkat</th>
+                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">No Serial</th>
+                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">Operating Unit</th>
+                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">Site Location</th>
+                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">Assigned User</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y" style="border-color: var(--color-border);">
                             @foreach($preview as $i => $row)
                                 <tr>
-                                    <td class="px-3 py-2 text-muted">{{ $i + 1 }}</td>
-                                    <td class="px-3 py-2 text-primary font-mono font-medium">{{ $row['no_asset'] ?? '-' }}</td>
-                                    <td class="px-3 py-2 text-secondary">{{ $row['kategori'] ?? '-' }}</td>
-                                    <td class="px-3 py-2 text-secondary">{{ $row['brand'] ?? '-' }}</td>
-                                    <td class="px-3 py-2 text-secondary hidden sm:table-cell">{{ $row['tipe'] ?? '-' }}</td>
-                                    <td class="px-3 py-2 text-secondary hidden md:table-cell">{{ $row['nama_perangkat'] ?? '-' }}</td>
-                                    <td class="px-3 py-2 text-secondary hidden lg:table-cell">{{ $row['assigned_user_email'] ?? '-' }}</td>
+                                    <td class="px-3 py-2 text-muted whitespace-nowrap">{{ $i + 1 }}</td>
+                                    <td class="px-3 py-2 text-primary font-mono font-medium whitespace-nowrap">{{ $row['no_asset'] ?? '-' }}</td>
+                                    <td class="px-3 py-2 text-secondary whitespace-nowrap">{{ $row['kategori'] ?? '-' }}</td>
+                                    <td class="px-3 py-2 text-secondary whitespace-nowrap">{{ $row['brand'] ?? '-' }}</td>
+                                    <td class="px-3 py-2 text-secondary whitespace-nowrap">{{ $row['tipe'] ?? '-' }}</td>
+                                    <td class="px-3 py-2 text-secondary whitespace-nowrap">{{ $row['nama_perangkat'] ?? '-' }}</td>
+                                    <td class="px-3 py-2 text-secondary font-mono whitespace-nowrap">{{ $row['no_serial'] ?? '-' }}</td>
+                                    <td class="px-3 py-2 text-secondary whitespace-nowrap">{{ $row['operating_unit'] ?? '-' }}</td>
+                                    <td class="px-3 py-2 text-secondary whitespace-nowrap">{{ $row['site_location_asset'] ?? '-' }}</td>
+                                    <td class="px-3 py-2 text-secondary whitespace-nowrap">{{ $row['assigned_user_email'] ?? '-' }}</td>
                                 </tr>
                             @endforeach
                         </tbody>

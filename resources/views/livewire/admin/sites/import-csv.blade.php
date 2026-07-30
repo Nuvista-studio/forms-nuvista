@@ -37,7 +37,7 @@
         @if(!empty($preview) && empty($importErrors))
             <div class="glass-card p-6 space-y-4">
                 <div class="flex items-center justify-between">
-                    <h3 class="font-semibold text-primary">Preview ({{ min($totalRows, 10) }} dari {{ $totalRows }} baris)</h3>
+                    <h3 class="font-semibold text-primary">Preview ({{ min($totalRows, 5) }} dari {{ $totalRows }} baris)</h3>
                     <button wire:click="import" wire:loading.attr="disabled"
                         class="px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200"
                         style="background: var(--color-primary); color: var(--color-button-text);">
@@ -50,23 +50,31 @@
                     <table class="w-full text-xs">
                         <thead>
                             <tr class="border-b" style="border-color: var(--color-border);">
-                                <th class="px-3 py-2 text-left text-muted font-medium">#</th>
-                                <th class="px-3 py-2 text-left text-muted font-medium">ID Site</th>
-                                <th class="px-3 py-2 text-left text-muted font-medium">Nama Site</th>
-                                <th class="px-3 py-2 text-left text-muted font-medium hidden sm:table-cell">Buss</th>
-                                <th class="px-3 py-2 text-left text-muted font-medium hidden md:table-cell">Kota</th>
-                                <th class="px-3 py-2 text-left text-muted font-medium hidden lg:table-cell">Provinsi</th>
+                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">#</th>
+                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">ID Site</th>
+                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">Nama Site</th>
+                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">Buss</th>
+                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">ID Corp</th>
+                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">Country</th>
+                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">Provinsi</th>
+                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">Kota</th>
+                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">Address</th>
+                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">URL Maps</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y" style="border-color: var(--color-border);">
                             @foreach($preview as $i => $row)
                                 <tr>
-                                    <td class="px-3 py-2 text-muted">{{ $i + 1 }}</td>
-                                    <td class="px-3 py-2 text-primary font-mono font-medium">{{ $row['id_site'] ?? '-' }}</td>
-                                    <td class="px-3 py-2 text-primary">{{ $row['site'] ?? '-' }}</td>
-                                    <td class="px-3 py-2 text-secondary hidden sm:table-cell">{{ $row['buss'] ?? '-' }}</td>
-                                    <td class="px-3 py-2 text-secondary hidden md:table-cell">{{ $row['city'] ?? '-' }}</td>
-                                    <td class="px-3 py-2 text-secondary hidden lg:table-cell">{{ $row['provincy'] ?? '-' }}</td>
+                                    <td class="px-3 py-2 text-muted whitespace-nowrap">{{ $i + 1 }}</td>
+                                    <td class="px-3 py-2 text-primary font-mono font-medium whitespace-nowrap">{{ $row['id_site'] ?? '-' }}</td>
+                                    <td class="px-3 py-2 text-primary whitespace-nowrap">{{ $row['site'] ?? '-' }}</td>
+                                    <td class="px-3 py-2 text-secondary whitespace-nowrap">{{ $row['buss'] ?? '-' }}</td>
+                                    <td class="px-3 py-2 text-secondary whitespace-nowrap">{{ $row['id_corp'] ?? '-' }}</td>
+                                    <td class="px-3 py-2 text-secondary whitespace-nowrap">{{ $row['country'] ?? '-' }}</td>
+                                    <td class="px-3 py-2 text-secondary whitespace-nowrap">{{ $row['provincy'] ?? '-' }}</td>
+                                    <td class="px-3 py-2 text-secondary whitespace-nowrap">{{ $row['city'] ?? '-' }}</td>
+                                    <td class="px-3 py-2 text-secondary whitespace-nowrap">{{ $row['address'] ?? '-' }}</td>
+                                    <td class="px-3 py-2 text-secondary whitespace-nowrap">{{ $row['url_maps'] ?? '-' }}</td>
                                 </tr>
                             @endforeach
                         </tbody>

@@ -65,6 +65,30 @@ class SiteCsvController extends Controller
                 '',
             ]);
 
+            fputcsv($file, [
+                'B02',
+                'Green Garden Office',
+                'B',
+                'AMG',
+                'Indonesia',
+                'DKI Jakarta',
+                'Jakarta Barat',
+                'Jl. Green Garden Raya No. 8, Kedoya, Jakarta Barat',
+                '',
+            ]);
+
+            fputcsv($file, [
+                'C03',
+                'Sunter Logistics Hub',
+                'C',
+                'AMS',
+                'Indonesia',
+                'DKI Jakarta',
+                'Jakarta Utara',
+                'Jl. Sunter Permai Raya Blok A No. 12, Sunter, Jakarta Utara',
+                '',
+            ]);
+
             fclose($file);
         };
 

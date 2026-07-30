@@ -75,7 +75,7 @@ class ImportCsv extends Component
             $rows[] = $data;
             $count++;
 
-            if ($count >= 10) break;
+            if ($count >= 5) break;
         }
         fclose($handle);
 
