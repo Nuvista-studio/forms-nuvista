@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Users;
 
+use App\Helpers\ActivityLogger;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Component;
@@ -87,6 +88,7 @@ class EditForm extends Component
 
             $this->user->syncRoles([$this->role]);
 
+            ActivityLogger::log('update', "Mengubah user: {$this->name} ({$this->email})", 'App\Models\User', $this->user->id);
             $this->dispatch('user-updated');
         } catch (\Illuminate\Validation\ValidationException $e) {
             $this->dispatch('validation-error', errors: $e->errors());

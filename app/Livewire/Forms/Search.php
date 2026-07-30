@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Forms;
 
+use App\Helpers\ActivityLogger;
 use App\Models\FormPemeriksaan;
 use App\Models\FormPerawatan;
 use App\Models\User;
@@ -277,6 +278,8 @@ class Search extends Component
             $form->attachments()->delete();
             $form->delete();
         }
+
+        ActivityLogger::log('delete', "Menghapus form {$type}: {$id}", $type === 'pemeriksaan' ? 'App\Models\FormPemeriksaan' : 'App\Models\FormPerawatan', $id);
 
         $this->dispatch('formDeleted');
     }

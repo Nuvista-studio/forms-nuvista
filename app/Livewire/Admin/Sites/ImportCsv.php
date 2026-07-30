@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Sites;
 
+use App\Helpers\ActivityLogger;
 use App\Models\Site;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -142,6 +143,8 @@ class ImportCsv extends Component
         fclose($handle);
 
         $this->imported = true;
+
+        ActivityLogger::log('import', "Mengimpor {$this->successCount} data site" . ($this->errorCount ? " ({$this->errorCount} gagal)" : ''));
     }
 
     public function render()

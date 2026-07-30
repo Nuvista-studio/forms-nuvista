@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Approval;
 
+use App\Helpers\ActivityLogger;
 use App\Enums\ApprovalLevel;
 use App\Enums\FormStatus;
 use App\Models\FormApproval;
@@ -303,6 +304,9 @@ class ReviewForm extends Component
 
             $form->update(['status' => $newStatus]);
 
+            $type = $this->formType === 'pemeriksaan' ? 'Pemeriksaan' : 'Perawatan';
+            ActivityLogger::log('approve', "Menyetujui form {$type}: {$this->formId}", $this->formType === 'pemeriksaan' ? 'App\Models\FormPemeriksaan' : 'App\Models\FormPerawatan', $this->formId);
+
             if ($this->approvalLevel === ApprovalLevel::DiketahuiOleh->value) {
                 $this->sendNextApprovalNotification($form);
             }
@@ -368,6 +372,9 @@ class ReviewForm extends Component
             }
 
             $form->update(['status' => FormStatus::Revisi->value]);
+
+            $type = $this->formType === 'pemeriksaan' ? 'Pemeriksaan' : 'Perawatan';
+            ActivityLogger::log('reject', "Merevisi form {$type}: {$this->formId}", $this->formType === 'pemeriksaan' ? 'App\Models\FormPemeriksaan' : 'App\Models\FormPerawatan', $this->formId);
 
             DB::commit();
 

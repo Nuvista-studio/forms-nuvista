@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Users;
 
+use App\Helpers\ActivityLogger;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -100,6 +101,7 @@ class Index extends Component
 
         User::findOrFail($this->deleteUserId)->delete();
 
+        ActivityLogger::log('delete', "Menghapus user: {$this->deleteUserName}", 'App\Models\User', $this->deleteUserId);
         $this->cancelDelete();
         $this->dispatch('user-deleted');
     }

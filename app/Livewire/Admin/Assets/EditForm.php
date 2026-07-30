@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Assets;
 
+use App\Helpers\ActivityLogger;
 use App\Models\Asset;
 use App\Models\Site;
 use App\Models\User;
@@ -81,6 +82,7 @@ class EditForm extends Component
                 'assigned_user_id' => $this->assignedUserId,
             ]);
 
+            ActivityLogger::log('update', "Mengubah asset: {$this->noAsset} - {$this->namaPerangkat}", 'App\Models\Asset', $this->assetModel?->id, ['no_asset' => $this->noAsset]);
             $this->dispatch('asset-updated');
         } catch (\Illuminate\Validation\ValidationException $e) {
             $this->dispatch('validation-error', errors: $e->errors());

@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Assets;
 
+use App\Helpers\ActivityLogger;
 use App\Models\Asset;
 use App\Models\Site;
 use App\Models\User;
@@ -65,6 +66,7 @@ class CreateForm extends Component
                 'assigned_user_id' => $this->assignedUserId,
             ]);
 
+            ActivityLogger::log('create', "Menambahkan asset baru: {$this->noAsset} - {$this->namaPerangkat}", 'App\Models\Asset', null, ['no_asset' => $this->noAsset]);
             $this->dispatch('asset-created');
             $this->reset();
         } catch (\Illuminate\Validation\ValidationException $e) {

@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Users;
 
+use App\Helpers\ActivityLogger;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Component;
@@ -165,6 +166,8 @@ class ImportCsv extends Component
         fclose($handle);
 
         $this->imported = true;
+
+        ActivityLogger::log('import', "Mengimpor {$this->successCount} data user" . ($this->errorCount ? " ({$this->errorCount} gagal)" : ''));
     }
 
     public function getRoleList(): array

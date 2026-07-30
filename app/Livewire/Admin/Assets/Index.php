@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Assets;
 
+use App\Helpers\ActivityLogger;
 use App\Models\Asset;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -45,6 +46,7 @@ class Index extends Component
     {
         Asset::find($this->deleteAssetId)->delete();
 
+        ActivityLogger::log('delete', "Menghapus asset: {$this->deleteAssetName}", 'App\Models\Asset', $this->deleteAssetId);
         $this->cancelDelete();
         $this->dispatch('asset-deleted');
     }

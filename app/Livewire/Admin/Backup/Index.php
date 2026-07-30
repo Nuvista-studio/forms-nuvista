@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Backup;
 
+use App\Helpers\ActivityLogger;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Storage;
@@ -80,6 +81,7 @@ class Index extends Component
 
             unlink($sqlFile);
 
+            ActivityLogger::log('backup', "Membuat backup database: backup_{$timestamp}.zip", null, null, ['filename' => "backup_{$timestamp}.zip"]);
             $this->successMessage = "Backup berhasil dibuat: backup_{$timestamp}.zip";
         } catch (\Exception $e) {
             $this->errorMessage = $e->getMessage();
@@ -157,6 +159,7 @@ class Index extends Component
                 throw new \Exception("Gagal merestore database" . ($error ? ": {$error}" : ''));
             }
 
+            ActivityLogger::log('restore', "Merestore database dari backup: {$filename}", null, null, ['filename' => $filename]);
             $this->successMessage = "Database berhasil direstore dari {$filename}";
         } catch (\Exception $e) {
             $this->errorMessage = $e->getMessage();
@@ -249,6 +252,7 @@ class Index extends Component
             }
 
             $this->uploadedFile = null;
+            ActivityLogger::log('restore', "Merestore database dari file upload: {$originalName}", null, null, ['filename' => $originalName]);
             $this->successMessage = "Database berhasil direstore dari {$originalName}";
         } catch (\Exception $e) {
             $this->errorMessage = $e->getMessage();
@@ -265,6 +269,7 @@ class Index extends Component
         $path = storage_path('app/backups/' . basename($filename));
         if (file_exists($path)) {
             unlink($path);
+            ActivityLogger::log('delete', "Menghapus file backup: {$filename}");
         }
     }
 

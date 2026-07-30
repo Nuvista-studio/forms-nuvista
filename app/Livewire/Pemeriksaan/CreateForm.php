@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Pemeriksaan;
 
+use App\Helpers\ActivityLogger;
 use App\Enums\FormStatus;
 use App\Models\Asset;
 use App\Models\ChecklistTemplate;
@@ -712,6 +713,7 @@ class CreateForm extends Component
             if ($form) {
                 $form->update($data);
                 $this->syncItems($form);
+                ActivityLogger::log('create', "Menyimpan draft form Pemeriksaan: {$this->noAsset}", 'App\Models\FormPemeriksaan', $this->formPemeriksaan?->id);
                 $this->dispatch('draftSaved');
                 $this->redirect(route('forms.search'));
 
@@ -729,6 +731,8 @@ class CreateForm extends Component
         $this->isDraft = true;
 
         $this->syncItems($form);
+
+        ActivityLogger::log('create', "Menyimpan draft form Pemeriksaan: {$this->noAsset}", 'App\Models\FormPemeriksaan', $this->formPemeriksaan?->id);
 
         $this->dispatch('draftSaved');
         $this->redirect(route('forms.search'));
@@ -838,6 +842,9 @@ class CreateForm extends Component
             }
 
             $this->syncItems($form);
+
+            $tipeForm = $this->formPemeriksaanId ? 'Pemeriksaan' : 'Pemeriksaan';
+            ActivityLogger::log('submit', "Mengirim form {$tipeForm}: {$this->formPemeriksaan?->id} - {$this->noAsset}", 'App\Models\FormPemeriksaan', $this->formPemeriksaan?->id);
 
             if ($this->asset_id && $this->pengguna_id) {
                 Asset::where('id', $this->asset_id)->update([

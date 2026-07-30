@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Assets;
 
+use App\Helpers\ActivityLogger;
 use App\Models\Asset;
 use App\Models\User;
 use Livewire\Component;
@@ -153,6 +154,8 @@ class ImportCsv extends Component
         fclose($handle);
 
         $this->imported = true;
+
+        ActivityLogger::log('import', "Mengimpor {$this->successCount} data asset" . ($this->errorCount ? " ({$this->errorCount} gagal)" : ''));
     }
 
     public function render()

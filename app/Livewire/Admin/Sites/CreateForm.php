@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Sites;
 
+use App\Helpers\ActivityLogger;
 use App\Models\Site;
 use Livewire\Component;
 
@@ -58,6 +59,7 @@ class CreateForm extends Component
                 'url_maps' => $this->urlMaps ?: null,
             ]);
 
+            ActivityLogger::log('create', "Menambahkan site baru: {$this->idSite} - {$this->site}", 'App\Models\Site', $this->idSite);
             $this->dispatch('site-created');
             $this->reset();
         } catch (\Illuminate\Validation\ValidationException $e) {

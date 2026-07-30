@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Sites;
 
+use App\Helpers\ActivityLogger;
 use App\Models\Site;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -42,6 +43,7 @@ class Index extends Component
     {
         Site::where('id_site', $this->deleteSiteId)->delete();
 
+        ActivityLogger::log('delete', "Menghapus site: {$this->deleteSiteId} - {$this->deleteSiteName}", 'App\Models\Site', $this->deleteSiteId);
         $this->cancelDelete();
         $this->dispatch('site-deleted');
     }

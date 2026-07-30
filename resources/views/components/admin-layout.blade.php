@@ -118,6 +118,22 @@
                                     </svg>
                                     Backup
                                 </a>
+                                <a href="{{ route('admin.activity-log.index') }}" wire:navigate
+                                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 {{ request()->routeIs('admin.activity-log.*') ? 'admin-nav-active' : '' }}"
+                                    style="{{ request()->routeIs('admin.activity-log.*') ? '' : 'color: var(--color-text-secondary);' }}">
+                                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    </svg>
+                                    Activity Log
+                                </a>
+                                <a href="{{ route('admin.system-log.index') }}" wire:navigate
+                                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 {{ request()->routeIs('admin.system-log.*') ? 'admin-nav-active' : '' }}"
+                                    style="{{ request()->routeIs('admin.system-log.*') ? '' : 'color: var(--color-text-secondary);' }}">
+                                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    System Log
+                                </a>
                             </nav>
                         </div>
                     </aside>

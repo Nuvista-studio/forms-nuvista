@@ -149,6 +149,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
             }
             return response()->download($path);
         })->name('backup.download');
+
+        // Activity Log
+        Volt::route('activity-log', 'admin.pages.activity-log.index')
+            ->name('activity-log.index');
+
+        // System Log
+        Volt::route('system-log', 'admin.pages.system-log.index')
+            ->name('system-log.index');
     });
 
     // ── Legacy user routes → redirect to admin ───────────────

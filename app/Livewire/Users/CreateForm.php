@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Users;
 
+use App\Helpers\ActivityLogger;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Component;
@@ -74,6 +75,7 @@ class CreateForm extends Component
 
             $user->assignRole($this->role);
 
+            ActivityLogger::log('create', "Menambahkan user baru: {$this->name} ({$this->email})", 'App\Models\User', $user->id);
             $this->createdEmail = $this->email;
             $this->createdPassword = $plainPassword;
             $this->showCredentials = true;

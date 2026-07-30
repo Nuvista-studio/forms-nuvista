@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Perawatan;
 
+use App\Helpers\ActivityLogger;
 use App\Enums\FormStatus;
 use App\Models\Asset;
 use App\Models\ChecklistTemplate;
@@ -604,6 +605,7 @@ class CreateForm extends Component
             if ($form) {
                 $form->update($data);
                 $this->syncItems($form);
+                ActivityLogger::log('create', "Menyimpan draft form Perawatan: {$this->noAsset}", 'App\Models\FormPerawatan', $this->formPerawatan?->id);
                 $this->dispatch('draftSaved');
                 $this->redirect(route('forms.search'));
 
@@ -621,6 +623,8 @@ class CreateForm extends Component
         $this->isDraft = true;
 
         $this->syncItems($form);
+
+        ActivityLogger::log('create', "Menyimpan draft form Perawatan: {$this->noAsset}", 'App\Models\FormPerawatan', $this->formPerawatan?->id);
 
         $this->dispatch('draftSaved');
         $this->redirect(route('forms.search'));
@@ -699,6 +703,8 @@ class CreateForm extends Component
             }
 
             $this->syncItems($form);
+
+            ActivityLogger::log('submit', "Mengirim form Perawatan: {$this->formPerawatan?->id} - {$this->noAsset}", 'App\Models\FormPerawatan', $this->formPerawatan?->id);
 
             if ($this->asset_id && $this->pengguna_id) {
                 Asset::where('id', $this->asset_id)->update([

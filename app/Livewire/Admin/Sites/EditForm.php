@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Sites;
 
+use App\Helpers\ActivityLogger;
 use App\Models\Site;
 use Livewire\Component;
 
@@ -70,6 +71,7 @@ class EditForm extends Component
                 'url_maps' => $this->urlMaps ?: null,
             ]);
 
+            ActivityLogger::log('update', "Mengubah site: {$this->idSite} - {$this->site}", 'App\Models\Site', $this->idSite);
             $this->dispatch('site-updated');
         } catch (\Illuminate\Validation\ValidationException $e) {
             $this->dispatch('validation-error', errors: $e->errors());
