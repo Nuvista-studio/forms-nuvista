@@ -175,8 +175,17 @@ class Index extends Component
         $this->errorMessage = null;
         $this->successMessage = null;
 
+        if (!$this->uploadedFile) {
+            $this->errorMessage = 'File belum terunggah. Pastikan file .sql/.zip sudah dipilih dan ukurannya tidak melebihi 50MB.';
+            return;
+        }
+
         $this->validate([
             'uploadedFile' => 'required|file|mimes:sql,zip|max:51200',
+        ], [
+            'uploadedFile.required' => 'File belum terunggah.',
+            'uploadedFile.mimes' => 'Format file harus .sql atau .zip.',
+            'uploadedFile.max' => 'Ukuran file maksimal 50MB.',
         ]);
 
         $this->isRestoring = true;
