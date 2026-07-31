@@ -108,12 +108,15 @@ class Index extends Component
 
     public function render()
     {
-        $query = User::with('roles')
+        $query = User::with(['roles', 'siteDetail'])
             ->when($this->search, fn ($q) => $q->where(function ($q) {
                 $q->where('name', 'like', "%{$this->search}%")
                     ->orWhere('email', 'like', "%{$this->search}%")
                     ->orWhere('nik', 'like', "%{$this->search}%")
-                    ->orWhere('department', 'like', "%{$this->search}%");
+                    ->orWhere('department', 'like', "%{$this->search}%")
+                    ->orWhere('site', 'like', "%{$this->search}%")
+                    ->orWhere('business_unit', 'like', "%{$this->search}%")
+                    ->orWhereHas('siteDetail', fn ($q) => $q->where('site', 'like', "%{$this->search}%"));
             }))
             ->when($this->filterRole, fn ($q) => $q->role($this->filterRole))
             ->orderBy($this->sortBy, $this->sortDirection);

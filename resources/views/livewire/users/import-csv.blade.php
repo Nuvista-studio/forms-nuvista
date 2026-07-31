@@ -58,7 +58,7 @@
                                 <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">Password</th>
                                 <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">NIK</th>
                                 <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">Department</th>
-                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">Business Unit</th>
+                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">Corp Unit</th>
                                 <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">Site</th>
                                 <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">No Telepon</th>
                                 <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">Role</th>

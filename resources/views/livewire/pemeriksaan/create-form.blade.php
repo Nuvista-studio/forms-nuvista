@@ -187,7 +187,7 @@
                                     </div>
                                     <div class="grid grid-cols-2 gap-2">
                                         <div>
-                                            <label class="text-xs text-muted">Business Unit</label>
+                                            <label class="text-xs text-muted">Corp Unit</label>
                                             <input type="text" wire:model.live="newPenggunaBusinessUnit" class="glass-input w-full rounded-lg px-3 py-1.5 text-sm mt-1" placeholder="Opsional">
                                         </div>
                                         <div>

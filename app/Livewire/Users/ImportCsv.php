@@ -134,6 +134,20 @@ class ImportCsv extends Component
                     continue;
                 }
 
+                $site = trim($data['site'] ?? '');
+                if (!empty($site) && !\App\Models\Site::where('id_site', $site)->exists()) {
+                    $this->importErrors[] = "Baris {$rowNumber}: Site tidak valid ({$site}). Gunakan kode id_site (contoh: O99).";
+                    $this->errorCount++;
+                    continue;
+                }
+
+                $businessUnit = trim($data['business_unit'] ?? '');
+                if (!empty($businessUnit) && !\App\Models\Site::where('id_corp', $businessUnit)->exists()) {
+                    $this->importErrors[] = "Baris {$rowNumber}: Business unit tidak valid ({$businessUnit}). Gunakan kode id_corp (contoh: MAS).";
+                    $this->errorCount++;
+                    continue;
+                }
+
                 $password = trim($data['password'] ?? '');
                 if (empty($password)) {
                     $password = 'password';

@@ -93,7 +93,7 @@
                             </th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden sm:table-cell">NIK</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden md:table-cell">Department</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden lg:table-cell">Business Unit</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden lg:table-cell">Corp Unit</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Role</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden lg:table-cell">Site</th>
                             <th class="px-4 py-3 text-right text-xs font-medium text-muted uppercase tracking-wider">Aksi</th>
@@ -126,7 +126,7 @@
                                         <span class="text-xs text-muted">-</span>
                                     @endforelse
                                 </td>
-                                <td class="px-4 py-3 text-secondary hidden lg:table-cell">{{ $user->site ?? '-' }}</td>
+                                <td class="px-4 py-3 text-secondary hidden lg:table-cell">{{ $user->site_name ?? '-' }}</td>
                                 <td class="px-4 py-3 text-right">
                                     <div class="flex items-center justify-end gap-1">
                                         <a href="{{ route('admin.users.edit', $user->id) }}" wire:navigate

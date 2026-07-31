@@ -3,6 +3,7 @@
 namespace App\Livewire\Users;
 
 use App\Helpers\ActivityLogger;
+use App\Models\Site;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Component;
@@ -43,8 +44,8 @@ class EditForm extends Component
             'password' => 'nullable|string|min:6|confirmed',
             'nik' => 'nullable|string|max:50|unique:users,nik,' . $this->user->id,
             'department' => 'nullable|string|max:255',
-            'business_unit' => 'nullable|string|max:255',
-            'site' => 'nullable|string|max:255',
+            'business_unit' => 'nullable|string|max:50|exists:sites,id_corp',
+            'site' => 'nullable|string|max:50|exists:sites,id_site',
             'no_telepon' => 'nullable|string|max:50',
             'role' => 'required|exists:roles,name',
         ];
@@ -98,6 +99,20 @@ class EditForm extends Component
     public function getRoleList(): array
     {
         return \Spatie\Permission\Models\Role::pluck('name')->toArray();
+    }
+
+    public function getSiteList(): array
+    {
+        return Site::orderBy('id_site')->get(['id_site', 'site'])
+            ->mapWithKeys(fn ($s) => [$s->id_site => "{$s->id_site} - {$s->site}"])
+            ->toArray();
+    }
+
+    public function getBusinessUnitList(): array
+    {
+        return Site::select('id_corp')->distinct()->orderBy('id_corp')->pluck('id_corp')
+            ->mapWithKeys(fn ($code) => [$code => $code])
+            ->toArray();
     }
 
     public function getRoleLabel(string $role): string

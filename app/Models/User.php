@@ -52,6 +52,16 @@ class User extends Authenticatable
         return $this->hasMany(ActivityLog::class);
     }
 
+    public function siteDetail(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Site::class, 'site', 'id_site');
+    }
+
+    public function getSiteNameAttribute(): ?string
+    {
+        return $this->siteDetail?->site ?? $this->site;
+    }
+
     protected function casts(): array
     {
         return [

@@ -59,8 +59,8 @@ class UserCsvController extends Controller
                 'password',
                 'USR001',
                 'IT Operation',
-                'ASRI',
-                'Head Office',
+                'MAS',
+                'O99',
                 '081234567890',
                 'pengguna',
             ]);
@@ -71,8 +71,8 @@ class UserCsvController extends Controller
                 'password123',
                 'USR002',
                 'Finance',
-                'ASRI',
-                'Head Office',
+                'MAP',
+                'M01',
                 '081234567891',
                 'teknisi',
             ]);
@@ -83,8 +83,8 @@ class UserCsvController extends Controller
                 'passbudi',
                 'USR003',
                 'HRD',
-                'AMG',
-                'B02',
+                'PPP',
+                'A03',
                 '081234567892',
                 'admin',
             ]);
