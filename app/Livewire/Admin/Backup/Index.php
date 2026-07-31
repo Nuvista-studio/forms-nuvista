@@ -46,15 +46,17 @@ class Index extends Component
             $password = config('database.connections.mysql.password');
 
             $passwordArg = $password ? ' --password=' . escapeshellarg($password) : '';
+            $nullDevice = DIRECTORY_SEPARATOR === '\\' ? 'NUL' : '/dev/null';
             $cmd = sprintf(
-                '%s --host=%s --port=%s --user=%s%s %s --routines --single-transaction --quick > %s 2>/dev/null',
+                '%s --host=%s --port=%s --user=%s%s %s --routines --single-transaction --quick > %s 2>%s',
                 escapeshellarg($mysqldump),
                 escapeshellarg($host),
                 escapeshellarg($port),
                 escapeshellarg($username),
                 $passwordArg,
                 escapeshellarg($database),
-                escapeshellarg($sqlFile)
+                escapeshellarg($sqlFile),
+                $nullDevice
             );
 
             exec($cmd, $output, $exitCode);
@@ -298,50 +300,51 @@ class Index extends Component
 
     private function findMysqldump(): ?string
     {
-        $candidates = [
-            'mysqldump',
-            '/Applications/XAMPP/bin/mysqldump',
-            '/Applications/MAMP/Library/bin/mysqldump',
-            '/usr/local/mysql/bin/mysqldump',
-            '/opt/homebrew/bin/mysqldump',
-            '/usr/bin/mysqldump',
-        ];
-
-        foreach ($candidates as $cmd) {
-            $output = null;
-            $code = null;
-            exec("which " . escapeshellarg($cmd) . " 2>/dev/null", $output, $code);
-            if ($code === 0 && !empty($output[0])) {
-                return $output[0];
-            }
-            if (file_exists($cmd)) {
-                return $cmd;
-            }
-        }
-
-        return null;
+        return $this->findBinary('mysqldump');
     }
 
     private function findMysql(): ?string
     {
-        $candidates = [
-            'mysql',
-            '/Applications/XAMPP/bin/mysql',
-            '/Applications/MAMP/Library/bin/mysql',
-            '/usr/local/mysql/bin/mysql',
-            '/opt/homebrew/bin/mysql',
-            '/usr/bin/mysql',
+        return $this->findBinary('mysql');
+    }
+
+    private function findBinary(string $binary): ?string
+    {
+        $isWindows = DIRECTORY_SEPARATOR === '\\';
+        $cmd = $isWindows ? $binary . '.exe' : $binary;
+
+        $output = null;
+        $code = null;
+        if ($isWindows) {
+            exec('where ' . $cmd . ' 2>NUL', $output, $code);
+        } else {
+            exec('which ' . escapeshellarg($cmd) . ' 2>/dev/null', $output, $code);
+        }
+        if ($code === 0 && !empty($output[0])) {
+            return $output[0];
+        }
+
+        $dirs = $isWindows ? [
+            'C:\\xampp\\mysql\\bin',
+            'C:\\laragon\\bin\\mysql',
+            'C:\\wamp64\\bin\\mysql',
+            'C:\\Program Files\\MySQL',
+            'C:\\Program Files\\MariaDB',
+            'C:\\tools\\mysql',
+        ] : [
+            '/Applications/XAMPP/bin',
+            '/Applications/MAMP/Library/bin',
+            '/usr/local/mysql/bin',
+            '/opt/homebrew/bin',
+            '/usr/bin',
         ];
 
-        foreach ($candidates as $cmd) {
-            $output = null;
-            $code = null;
-            exec("which " . escapeshellarg($cmd) . " 2>/dev/null", $output, $code);
-            if ($code === 0 && !empty($output[0])) {
-                return $output[0];
+        foreach ($dirs as $dir) {
+            foreach (glob($dir . DIRECTORY_SEPARATOR . '*' . DIRECTORY_SEPARATOR . $cmd, GLOB_NOSORT) ?: [] as $file) {
+                return $file;
             }
-            if (file_exists($cmd)) {
-                return $cmd;
+            if (file_exists($dir . DIRECTORY_SEPARATOR . $cmd)) {
+                return $dir . DIRECTORY_SEPARATOR . $cmd;
             }
         }
 
