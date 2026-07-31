@@ -552,16 +552,21 @@ class CreateForm extends Component
     public function generateNomorForm(): string
     {
         $today = now()->format('dmY');
-        $prefix = '001/PWT';
+        $assetCode = $this->noAsset ?? 'XXXX';
+        $escaped = str_replace(['%', '_'], ['\\%', '\\_'], $assetCode);
 
-        $count = FormPerawatan::where('nomor_form', 'like', "%{$prefix}/%/{$today}")
+        $count = FormPerawatan::where('nomor_form', 'like', "%/PWT/{$escaped}/{$today}")
             ->count();
 
-        $sequence = str_pad($count + 1, 3, '0', STR_PAD_LEFT);
+        $sequence = $count + 1;
+        $seqStr = str_pad($sequence, 3, '0', STR_PAD_LEFT);
 
-        $assetCode = $this->noAsset ?? 'XXXX';
+        while (FormPerawatan::where('nomor_form', "{$seqStr}/PWT/{$assetCode}/{$today}")->exists()) {
+            $sequence++;
+            $seqStr = str_pad($sequence, 3, '0', STR_PAD_LEFT);
+        }
 
-        return "{$sequence}/PWT/{$assetCode}/{$today}";
+        return "{$seqStr}/PWT/{$assetCode}/{$today}";
     }
 
     public function nextStep(): void
@@ -734,11 +739,7 @@ class CreateForm extends Component
     public function getFormNumberPreview(): string
     {
         if ($this->noAsset) {
-            $today = now()->format('dmY');
-            $count = FormPerawatan::where('nomor_form', 'like', "%/PWT/{$this->noAsset}/{$today}")->count();
-            $seq = str_pad($count + 1, 3, '0', STR_PAD_LEFT);
-
-            return "{$seq}/PWT/{$this->noAsset}/{$today}";
+            return $this->generateNomorForm();
         }
 
         return '---/PWT/XXXX/'.now()->format('dmY');
