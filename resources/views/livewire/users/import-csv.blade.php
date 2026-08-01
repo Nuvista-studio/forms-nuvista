@@ -42,11 +42,23 @@
                     class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
             </div>
 
-            <div wire:loading wire:target="file" class="flex items-center justify-center gap-2 text-xs" style="color: var(--color-primary);">
-                <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                </svg>
-                <span>Mengunggah file, mohon tunggu...</span>
+            <div x-data="{ progress: 0, uploading: false }"
+                x-on:livewire-upload-start.window="uploading = true; progress = 0"
+                x-on:livewire-upload-progress.window="progress = $event.detail.progress"
+                x-on:livewire-upload-finish.window="uploading = false"
+                x-on:livewire-upload-error.window="uploading = false"
+                x-show="uploading"
+                class="flex flex-col items-center gap-2 text-xs"
+                style="color: var(--color-primary);">
+                <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                    <span x-text="progress >= 100 ? 'Memproses file, mohon tunggu...' : 'Mengunggah file, mohon tunggu... ' + progress + '%'"></span>
+                </div>
+                <div class="h-1.5 w-full max-w-xs rounded-full overflow-hidden" style="background: var(--color-glass-bg);">
+                    <div class="h-full rounded-full transition-all duration-150" style="background: var(--color-primary);" :style="'width: ' + progress + '%'"></div>
+                </div>
             </div>
 
             @error('file') <p class="text-xs text-red-400">{{ $message }}</p> @enderror
@@ -63,6 +75,19 @@
                         <span wire:loading.remove wire:target="import">Import {{ $totalRows }} Data</span>
                         <span wire:loading wire:target="import">Mengimport...</span>
                     </button>
+                </div>
+
+                <div wire:loading wire:target="import" class="space-y-2">
+                    <div class="flex items-center gap-2 text-xs" style="color: var(--color-primary);">
+                        <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        </svg>
+                        <span>Mengimport data...</span>
+                        <span class="font-semibold" wire:stream="importProgressPercent">0%</span>
+                    </div>
+                    <div class="h-2 w-full rounded-full overflow-hidden" style="background: var(--color-glass-bg);">
+                        <div class="h-full rounded-full transition-all duration-300" style="background: var(--color-primary); width: 0%;" wire:stream="importProgressBar"></div>
+                    </div>
                 </div>
 
                 <div class="overflow-x-auto">
@@ -104,17 +129,20 @@
 
         {{-- Errors --}}
         @if(!empty($importErrors))
-            <div class="glass-card p-6 space-y-3">
-                <h3 class="font-semibold text-red-400">Error</h3>
+            <div class="glass-card p-6 space-y-3" style="border-color: rgba(248, 113, 113, 0.4);">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-semibold text-red-400">Upload gagal / data tidak valid</h3>
+                    <span class="text-xs font-semibold text-red-400 bg-red-500/10 px-2 py-1 rounded-full">{{ count($importErrors) }} masalah</span>
+                </div>
                 <div class="space-y-1 max-h-60 overflow-y-auto">
                     @foreach($importErrors as $error)
-                        <p class="text-xs text-red-400">{{ $error }}</p>
+                        <p class="text-xs text-red-400">• {{ $error }}</p>
                     @endforeach
                 </div>
                 <button wire:click="resetImport"
                     class="px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
                     style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);">
-                    Coba Lagi
+                    Pilih File Lain / Coba Lagi
                 </button>
             </div>
         @endif
@@ -141,11 +169,33 @@
             </div>
 
             @if(!empty($importErrors))
-                <div class="text-left max-h-40 overflow-y-auto mt-4 p-3 rounded-lg" style="background: var(--color-glass-bg); border: 1px solid var(--color-border);">
-                    @foreach($importErrors as $error)
-                        <p class="text-xs text-red-400">{{ $error }}</p>
-                    @endforeach
+                <div class="text-left mt-4 p-3 rounded-lg" style="background: var(--color-glass-bg); border: 1px solid var(--color-border);">
+                    <p class="text-xs font-semibold text-red-400 mb-2">Detail Error ({{ $errorCount }} baris gagal):</p>
+                    @php
+                        $errorGroups = [];
+                        foreach ($importErrors as $error) {
+                            $key = preg_replace('/^Baris \d+: /', '', trim($error));
+                            $errorGroups[$key] = ($errorGroups[$key] ?? 0) + 1;
+                        }
+                    @endphp
+                    <div class="space-y-1 mb-2">
+                        @foreach($errorGroups as $message => $count)
+                            <p class="text-xs text-red-400">• {{ $message }} <span class="text-muted">({{ $count }}×)</span></p>
+                        @endforeach
+                    </div>
+                    <details>
+                        <summary class="text-xs text-secondary cursor-pointer hover:text-primary">Lihat detail per baris</summary>
+                        <div class="max-h-40 overflow-y-auto mt-2 space-y-1">
+                            @foreach($importErrors as $error)
+                                <p class="text-xs text-red-400">• {{ $error }}</p>
+                            @endforeach
+                        </div>
+                    </details>
                 </div>
+            @endif
+
+            @if($errorCount > 0 && $successCount === 0)
+                <p class="text-sm font-medium text-red-400">Seluruh data gagal diimport. Tidak ada data yang ditambahkan.</p>
             @endif
 
             <div class="flex items-center justify-center gap-3 pt-2">
