@@ -11,7 +11,13 @@ class Index extends Component
 {
     use WithPagination;
 
-    public string $search = '';
+    public string $filterId = '';
+    public string $filterSite = '';
+    public string $filterBuss = '';
+    public string $filterCorp = '';
+    public string $filterCountry = '';
+    public string $filterProvincy = '';
+    public string $filterCity = '';
     public bool $showDeleteModal = false;
     public ?string $deleteSiteId = null;
     public string $deleteSiteName = '';
@@ -22,12 +28,20 @@ class Index extends Component
     public string $bulkEditValue = '';
 
     protected $queryString = [
-        'search' => ['except' => ''],
+        'filterId' => ['except' => ''],
+        'filterSite' => ['except' => ''],
+        'filterBuss' => ['except' => ''],
+        'filterCorp' => ['except' => ''],
+        'filterCountry' => ['except' => ''],
+        'filterProvincy' => ['except' => ''],
+        'filterCity' => ['except' => ''],
     ];
 
-    public function updatedSearch(): void
+    public function updated(string $property): void
     {
-        $this->resetPage();
+        if (str_starts_with($property, 'filter')) {
+            $this->resetPage();
+        }
     }
 
     public function confirmDelete(string $idSite, string $name): void
@@ -128,12 +142,13 @@ class Index extends Component
     private function filteredQuery()
     {
         return Site::query()
-            ->when($this->search, fn ($q) => $q->where(function ($q) {
-                $q->where('id_site', 'like', "%{$this->search}%")
-                    ->orWhere('site', 'like', "%{$this->search}%")
-                    ->orWhere('provincy', 'like', "%{$this->search}%")
-                    ->orWhere('city', 'like', "%{$this->search}%");
-            }));
+            ->when($this->filterId, fn ($q) => $q->where('id_site', 'like', "%{$this->filterId}%"))
+            ->when($this->filterSite, fn ($q) => $q->where('site', 'like', "%{$this->filterSite}%"))
+            ->when($this->filterBuss, fn ($q) => $q->where('buss', 'like', "%{$this->filterBuss}%"))
+            ->when($this->filterCorp, fn ($q) => $q->where('id_corp', 'like', "%{$this->filterCorp}%"))
+            ->when($this->filterCountry, fn ($q) => $q->where('country', 'like', "%{$this->filterCountry}%"))
+            ->when($this->filterProvincy, fn ($q) => $q->where('provincy', 'like', "%{$this->filterProvincy}%"))
+            ->when($this->filterCity, fn ($q) => $q->where('city', 'like', "%{$this->filterCity}%"));
     }
 
     public function render()

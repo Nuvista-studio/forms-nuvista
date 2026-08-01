@@ -12,7 +12,12 @@ class Index extends Component
 {
     use WithPagination;
 
-    public string $search = '';
+    public string $filterName = '';
+    public string $filterEmail = '';
+    public string $filterNik = '';
+    public string $filterDepartment = '';
+    public string $filterBusinessUnit = '';
+    public string $filterSite = '';
     public string $filterRole = '';
     public string $sortBy = 'name';
     public string $sortDirection = 'asc';
@@ -26,20 +31,22 @@ class Index extends Component
     public string $bulkEditValue = '';
 
     protected $queryString = [
-        'search' => ['except' => ''],
+        'filterName' => ['except' => ''],
+        'filterEmail' => ['except' => ''],
+        'filterNik' => ['except' => ''],
+        'filterDepartment' => ['except' => ''],
+        'filterBusinessUnit' => ['except' => ''],
+        'filterSite' => ['except' => ''],
         'filterRole' => ['except' => ''],
         'sortBy' => ['except' => 'name'],
         'sortDirection' => ['except' => 'asc'],
     ];
 
-    public function updatedSearch(): void
+    public function updated(string $property): void
     {
-        $this->resetPage();
-    }
-
-    public function updatedFilterRole(): void
-    {
-        $this->resetPage();
+        if (str_starts_with($property, 'filter')) {
+            $this->resetPage();
+        }
     }
 
     public function toggleSort(string $column): void
@@ -224,14 +231,14 @@ class Index extends Component
     private function filteredQuery()
     {
         return User::with(['roles', 'siteDetail'])
-            ->when($this->search, fn ($q) => $q->where(function ($q) {
-                $q->where('name', 'like', "%{$this->search}%")
-                    ->orWhere('email', 'like', "%{$this->search}%")
-                    ->orWhere('nik', 'like', "%{$this->search}%")
-                    ->orWhere('department', 'like', "%{$this->search}%")
-                    ->orWhere('site', 'like', "%{$this->search}%")
-                    ->orWhere('business_unit', 'like', "%{$this->search}%")
-                    ->orWhereHas('siteDetail', fn ($q) => $q->where('site', 'like', "%{$this->search}%"));
+            ->when($this->filterName, fn ($q) => $q->where('name', 'like', "%{$this->filterName}%"))
+            ->when($this->filterEmail, fn ($q) => $q->where('email', 'like', "%{$this->filterEmail}%"))
+            ->when($this->filterNik, fn ($q) => $q->where('nik', 'like', "%{$this->filterNik}%"))
+            ->when($this->filterDepartment, fn ($q) => $q->where('department', 'like', "%{$this->filterDepartment}%"))
+            ->when($this->filterBusinessUnit, fn ($q) => $q->where('business_unit', 'like', "%{$this->filterBusinessUnit}%"))
+            ->when($this->filterSite, fn ($q) => $q->where(function ($q) {
+                $q->where('site', 'like', "%{$this->filterSite}%")
+                    ->orWhereHas('siteDetail', fn ($q) => $q->where('site', 'like', "%{$this->filterSite}%"));
             }))
             ->when($this->filterRole, fn ($q) => $q->role($this->filterRole));
     }

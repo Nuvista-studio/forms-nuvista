@@ -43,19 +43,61 @@
         </div>
     </div>
 
-    {{-- Search --}}
+    {{-- Search & Filters --}}
     <div class="glass-card p-4">
-        <div class="relative">
-            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-            </svg>
-            <input
-                wire:model.live.debounce.300ms="search"
-                type="text"
-                placeholder="Cari ID site, nama site, provinsi, kota..."
-                class="w-full pl-10 pr-4 py-2 rounded-lg text-sm transition-colors duration-200"
-                style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);"
-            />
+        <div class="flex items-center justify-between mb-3">
+            <p class="text-xs font-medium text-muted uppercase tracking-wider">Filter Data</p>
+            @if($filterId || $filterSite || $filterBuss || $filterCorp || $filterCountry || $filterProvincy || $filterCity)
+                <a href="{{ route('admin.sites.index') }}" wire:navigate
+                    class="inline-flex items-center px-3 py-1 rounded-lg text-xs transition-colors duration-200"
+                    style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);">
+                    Reset
+                </a>
+            @endif
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div>
+                <label class="block text-xs font-medium text-muted mb-1">ID Site</label>
+                <input wire:model.live.debounce.300ms="filterId" type="text" placeholder="ID site..."
+                    class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
+                    style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);" />
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-muted mb-1">Nama Site</label>
+                <input wire:model.live.debounce.300ms="filterSite" type="text" placeholder="Nama site..."
+                    class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
+                    style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);" />
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-muted mb-1">Buss</label>
+                <input wire:model.live.debounce.300ms="filterBuss" type="text" placeholder="Buss..."
+                    class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
+                    style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);" />
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-muted mb-1">Corp Unit</label>
+                <input wire:model.live.debounce.300ms="filterCorp" type="text" placeholder="id_corp..."
+                    class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
+                    style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);" />
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-muted mb-1">Negara</label>
+                <input wire:model.live.debounce.300ms="filterCountry" type="text" placeholder="Negara..."
+                    class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
+                    style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);" />
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-muted mb-1">Provinsi</label>
+                <input wire:model.live.debounce.300ms="filterProvincy" type="text" placeholder="Provinsi..."
+                    class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
+                    style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);" />
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-muted mb-1">Kota</label>
+                <input wire:model.live.debounce.300ms="filterCity" type="text" placeholder="Kota..."
+                    class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
+                    style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);" />
+            </div>
         </div>
     </div>
 

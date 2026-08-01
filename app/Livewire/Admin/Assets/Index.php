@@ -12,7 +12,19 @@ class Index extends Component
 {
     use WithPagination;
 
-    public string $search = '';
+    public string $filterNoAsset = '';
+
+    public string $filterNama = '';
+
+    public string $filterKategori = '';
+
+    public string $filterBrand = '';
+
+    public string $filterTipe = '';
+
+    public string $filterNoSerial = '';
+
+    public string $filterStatus = '';
 
     public string $filterOperatingUnit = '';
 
@@ -35,24 +47,22 @@ class Index extends Component
     public string $bulkEditValue = '';
 
     protected $queryString = [
-        'search' => ['except' => ''],
+        'filterNoAsset' => ['except' => ''],
+        'filterNama' => ['except' => ''],
+        'filterKategori' => ['except' => ''],
+        'filterBrand' => ['except' => ''],
+        'filterTipe' => ['except' => ''],
+        'filterNoSerial' => ['except' => ''],
+        'filterStatus' => ['except' => ''],
         'filterOperatingUnit' => ['except' => ''],
         'filterPerawatanStatus' => ['except' => ''],
     ];
 
-    public function updatedSearch(): void
+    public function updated(string $property): void
     {
-        $this->resetPage();
-    }
-
-    public function updatedFilterOperatingUnit(): void
-    {
-        $this->resetPage();
-    }
-
-    public function updatedFilterPerawatanStatus(): void
-    {
-        $this->resetPage();
+        if (str_starts_with($property, 'filter')) {
+            $this->resetPage();
+        }
     }
 
     public function confirmDelete(int $id, string $name): void
@@ -178,14 +188,13 @@ class Index extends Component
     private function filteredQuery()
     {
         $query = Asset::with('assignedUser', 'operatingUnitSite', 'siteAsset')
-            ->when($this->search, fn ($q) => $q->where(function ($q) {
-                $q->where('no_asset', 'like', "%{$this->search}%")
-                    ->orWhere('nama_perangkat', 'like', "%{$this->search}%")
-                    ->orWhere('kategori', 'like', "%{$this->search}%")
-                    ->orWhere('brand', 'like', "%{$this->search}%")
-                    ->orWhere('tipe', 'like', "%{$this->search}%")
-                    ->orWhere('no_serial', 'like', "%{$this->search}%");
-            }));
+            ->when($this->filterNoAsset, fn ($q) => $q->where('no_asset', 'like', "%{$this->filterNoAsset}%"))
+            ->when($this->filterNama, fn ($q) => $q->where('nama_perangkat', 'like', "%{$this->filterNama}%"))
+            ->when($this->filterKategori, fn ($q) => $q->where('kategori', 'like', "%{$this->filterKategori}%"))
+            ->when($this->filterBrand, fn ($q) => $q->where('brand', 'like', "%{$this->filterBrand}%"))
+            ->when($this->filterTipe, fn ($q) => $q->where('tipe', 'like', "%{$this->filterTipe}%"))
+            ->when($this->filterNoSerial, fn ($q) => $q->where('no_serial', 'like', "%{$this->filterNoSerial}%"))
+            ->when($this->filterStatus, fn ($q) => $q->where('status', $this->filterStatus));
 
         if ($this->filterOperatingUnit) {
             $query->where('operating_unit', $this->filterOperatingUnit);
