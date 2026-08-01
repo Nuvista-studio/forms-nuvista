@@ -177,6 +177,7 @@ class Search extends Component
         return $query->get()->map(fn($f) => [
             'type' => 'pemeriksaan',
             'id' => $f->id,
+            'user_id' => $f->user_id,
             'asset_id' => $f->asset_id,
             'nomor_form' => $f->nomor_form,
             'teknisi' => $f->teknisi->name ?? '-',
@@ -219,6 +220,7 @@ class Search extends Component
         return $query->get()->map(fn($f) => [
             'type' => 'perawatan',
             'id' => $f->id,
+            'user_id' => $f->user_id,
             'asset_id' => $f->asset_id,
             'nomor_form' => $f->nomor_form,
             'teknisi' => $f->teknisi->name ?? '-',

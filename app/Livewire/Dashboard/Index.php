@@ -6,6 +6,7 @@ use App\Models\Asset;
 use App\Models\FormPemeriksaan;
 use App\Models\FormPerawatan;
 use App\Models\Site;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
@@ -32,6 +33,16 @@ class Index extends Component
 
     public string $filterAssetStatus = '';
 
+    public string $filterCorpUnit = '';
+
+    public string $filterSite = '';
+
+    public array $corpUnits = [];
+
+    public array $filterSites = [];
+
+    public array $usersBySite = [];
+
     public function mount(): void
     {
         $this->endDate = now()->format('Y-m-d');
@@ -43,6 +54,14 @@ class Index extends Component
             ->get()
             ->map(fn ($s) => ['id' => $s->id_site, 'name' => $s->site])
             ->toArray();
+        $this->corpUnits = Site::select('id_corp')
+            ->distinct()
+            ->whereNotNull('id_corp')
+            ->where('id_corp', '!=', '')
+            ->orderBy('id_corp')
+            ->pluck('id_corp')
+            ->toArray();
+        $this->loadFilterSites();
         $this->loadAll();
     }
 
@@ -66,6 +85,32 @@ class Index extends Component
         $this->loadPerawatanVsBelumByOperatingUnit();
     }
 
+    public function updatedFilterCorpUnit(): void
+    {
+        $this->filterSite = '';
+        $this->loadFilterSites();
+        $this->loadUsersBySite();
+    }
+
+    public function updatedFilterSite(): void
+    {
+        $this->loadUsersBySite();
+    }
+
+    private function loadFilterSites(): void
+    {
+        $query = Site::query();
+
+        if ($this->filterCorpUnit) {
+            $query->where('id_corp', $this->filterCorpUnit);
+        }
+
+        $this->filterSites = $query->orderBy('id_site')
+            ->get(['id_site', 'site'])
+            ->map(fn ($s) => ['id' => $s->id_site, 'name' => "{$s->id_site} - {$s->site}"])
+            ->toArray();
+    }
+
     private function loadAll(): void
     {
         $this->loadPerawatanBySite();
@@ -73,6 +118,7 @@ class Index extends Component
         $this->loadTopAssets();
         $this->loadTrendPerawatanBulanan();
         $this->loadPerawatanVsBelumByOperatingUnit();
+        $this->loadUsersBySite();
         $this->dispatch('chartsUpdated');
     }
 
@@ -260,6 +306,42 @@ class Index extends Component
 
         usort($result, fn ($a, $b) => $b['total'] <=> $a['total']);
         $this->perawatanVsBelum = $result;
+    }
+
+    private function loadUsersBySite(): void
+    {
+        $query = User::query()
+            ->select('users.site', 'users.business_unit', DB::raw('count(*) as total'))
+            ->whereNotNull('users.site')
+            ->where('users.site', '!=', '')
+            ->groupBy('users.site', 'users.business_unit');
+
+        if ($this->filterCorpUnit) {
+            $query->where('users.business_unit', $this->filterCorpUnit);
+        }
+
+        if ($this->filterSite) {
+            $query->where('users.site', $this->filterSite);
+        }
+
+        $rows = $query->get();
+
+        $siteNames = Site::whereIn('id_site', $rows->pluck('site')->toArray())
+            ->pluck('site', 'id_site')
+            ->toArray();
+
+        $result = [];
+        foreach ($rows as $row) {
+            $result[] = [
+                'site_id' => $row->site,
+                'site' => $siteNames[$row->site] ?? $row->site,
+                'corp_unit' => $row->business_unit ?? '-',
+                'total' => (int) $row->total,
+            ];
+        }
+
+        usort($result, fn ($a, $b) => $b['total'] <=> $a['total']);
+        $this->usersBySite = $result;
     }
 
     public function render()

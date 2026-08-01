@@ -23,6 +23,8 @@ new #[Layout('components.app-layout')] class extends Component
         $this->form = FormPemeriksaan::with(['teknisi', 'pengguna', 'asset', 'items', 'approvals'])
             ->findOrFail($id);
 
+        $this->authorizeSigning();
+
         $approval = $this->form->approvals()
             ->where('approval_level', ApprovalLevel::DiperiksaOleh)
             ->first();
@@ -34,8 +36,35 @@ new #[Layout('components.app-layout')] class extends Component
         $this->userSignature = Auth::user()->signature_path;
     }
 
+    private function authorizeSigning(): void
+    {
+        $user = Auth::user();
+
+        if ($this->form->status !== FormStatus::Submitted->value) {
+            abort(403, 'Form hanya dapat ditandatangani pada status Submitted.');
+        }
+
+        if ($user->hasRole('manager_it')) {
+            abort(403, 'Role Manager tidak dapat menandatangani form berstatus Submitted.');
+        }
+
+        if ($this->form->user_id !== $user->id) {
+            abort(403, 'Hanya pembuat form yang dapat menandatangani form ini.');
+        }
+    }
+
     public function approve(string $signaturePath): void
     {
+        $user = Auth::user();
+
+        if ($this->form->status !== FormStatus::Submitted->value
+            || $user->hasRole('manager_it')
+            || $this->form->user_id !== $user->id) {
+            $this->dispatch('error', message: 'Anda tidak memiliki akses untuk menandatangani form ini.');
+
+            return;
+        }
+
         $approval = $this->form->approvals()
             ->where('approval_level', ApprovalLevel::DiperiksaOleh)
             ->first();
