@@ -20,6 +20,7 @@ class Index extends Component
 
     public function createBackup(): void
     {
+        @set_time_limit(300);
         $this->isCreating = true;
         $this->errorMessage = null;
         $this->successMessage = null;
@@ -98,6 +99,7 @@ class Index extends Component
 
     public function restoreBackup(string $filename): void
     {
+        @set_time_limit(300);
         $this->isRestoring = true;
         $this->errorMessage = null;
         $this->successMessage = null;
@@ -176,6 +178,7 @@ class Index extends Component
 
     public function uploadAndRestore(): void
     {
+        @set_time_limit(300);
         $this->errorMessage = null;
         $this->successMessage = null;
 

@@ -31,6 +31,7 @@ class ImportCsv extends Component
         $this->errorCount = 0;
         $this->importErrors = [];
         $this->imported = false;
+        $this->resetValidation();
     }
 
     public function updatedFile(): void
@@ -42,11 +43,27 @@ class ImportCsv extends Component
 
         if (!$this->file) return;
 
-        $this->validate([
-            'file' => 'required|mimes:csv,txt|max:10240',
-        ]);
+        try {
+            $this->validate(
+                ['file' => 'required|mimes:csv,txt|max:10240'],
+                [
+                    'file.required' => 'Pilih file CSV terlebih dahulu',
+                    'file.mimes' => 'File harus berformat .csv atau .txt',
+                    'file.max' => 'Ukuran file melebihi batas maksimal (10MB)',
+                ]
+            );
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            $this->addError('file', $e->validator->errors()->first('file'));
+            $this->file = null;
+            $this->dispatch('show-toast', message: 'Upload CSV gagal: ' . $e->validator->errors()->first('file'), type: 'error');
+            return;
+        }
 
         $this->loadPreview();
+
+        if (!empty($this->importErrors)) {
+            $this->dispatch('show-toast', message: 'Data CSV tidak sesuai: ' . $this->importErrors[0], type: 'error');
+        }
     }
 
     private function loadPreview(): void
@@ -57,6 +74,10 @@ class ImportCsv extends Component
         if (!$header) {
             $this->importErrors[] = 'File CSV kosong atau format tidak valid.';
             return;
+        }
+
+        if (isset($header[0])) {
+            $header[0] = ltrim($header[0], "\xEF\xBB\xBF");
         }
 
         $normalizedHeader = array_map('strtolower', array_map('trim', $header));
@@ -102,6 +123,11 @@ class ImportCsv extends Component
 
         $handle = fopen($this->file->getPathname(), 'r');
         $header = fgetcsv($handle);
+
+        if (isset($header[0])) {
+            $header[0] = ltrim($header[0], "\xEF\xBB\xBF");
+        }
+
         $normalizedHeader = array_map('strtolower', array_map('trim', $header));
 
         $rowNumber = 1;
@@ -154,6 +180,12 @@ class ImportCsv extends Component
         fclose($handle);
 
         $this->imported = true;
+
+        if ($this->errorCount > 0) {
+            $this->dispatch('show-toast', message: "Import selesai: {$this->successCount} berhasil, {$this->errorCount} gagal. Lihat detail error di bawah.", type: 'error');
+        } else {
+            $this->dispatch('show-toast', message: "Import selesai: {$this->successCount} data berhasil diimpor.", type: 'success');
+        }
 
         ActivityLogger::log('import', "Mengimpor {$this->successCount} data asset" . ($this->errorCount ? " ({$this->errorCount} gagal)" : ''));
     }

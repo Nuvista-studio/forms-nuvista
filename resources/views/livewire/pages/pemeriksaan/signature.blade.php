@@ -291,7 +291,8 @@ new #[Layout('components.app-layout')] class extends Component
                         </div>
                         <button @click="$wire.approve(userSignature)" type="button"
                             class="w-full glass-button-primary text-sm">
-                            Gunakan Tanda Tangan Ini
+                            <span wire:loading.remove wire:target="approve">Gunakan Tanda Tangan Ini</span>
+                            <span wire:loading wire:target="approve">Menyimpan...</span>
                         </button>
                     </div>
                 </div>
@@ -309,7 +310,10 @@ new #[Layout('components.app-layout')] class extends Component
                     </div>
                     <div class="flex gap-2 mt-3">
                         <button @click="clear()" type="button" class="glass-button-secondary text-sm flex-1">Hapus</button>
-                        <button @click="save()" type="button" class="glass-button-primary text-sm flex-1">Simpan Tanda Tangan</button>
+                        <button @click="save()" type="button" class="glass-button-primary text-sm flex-1">
+                            <span wire:loading.remove wire:target="approve">Simpan Tanda Tangan</span>
+                            <span wire:loading wire:target="approve">Menyimpan...</span>
+                        </button>
                     </div>
                 </div>
 
@@ -342,7 +346,10 @@ new #[Layout('components.app-layout')] class extends Component
                             </div>
                             <div class="flex gap-2">
                                 <button @click="clearUpload()" type="button" class="glass-button-secondary text-sm flex-1">Hapus</button>
-                                <button @click="saveUpload()" type="button" class="glass-button-primary text-sm flex-1">Simpan Tanda Tangan</button>
+                                <button @click="saveUpload()" type="button" class="glass-button-primary text-sm flex-1">
+                                    <span wire:loading.remove wire:target="approve">Simpan Tanda Tangan</span>
+                                    <span wire:loading wire:target="approve">Menyimpan...</span>
+                                </button>
                             </div>
                         </div>
                     </template>

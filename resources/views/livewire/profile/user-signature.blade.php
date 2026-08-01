@@ -191,7 +191,10 @@
                 </div>
                 <div class="flex gap-2 mt-3">
                     <button @click="clear()" type="button" class="glass-button-secondary text-sm flex-1">Hapus</button>
-                    <button @click="save()" type="button" class="glass-button-primary text-sm flex-1">Simpan Tanda Tangan</button>
+                    <button @click="save()" type="button" class="glass-button-primary text-sm flex-1">
+                        <span wire:loading.remove wire:target="saveSignature">Simpan Tanda Tangan</span>
+                        <span wire:loading wire:target="saveSignature">Menyimpan...</span>
+                    </button>
                 </div>
             </div>
 
@@ -224,7 +227,10 @@
                         </div>
                         <div class="flex gap-2">
                             <button @click="clearUpload()" type="button" class="glass-button-secondary text-sm flex-1">Hapus</button>
-                            <button @click="saveUpload()" type="button" class="glass-button-primary text-sm flex-1">Simpan Tanda Tangan</button>
+                            <button @click="saveUpload()" type="button" class="glass-button-primary text-sm flex-1">
+                                <span wire:loading.remove wire:target="saveSignature">Simpan Tanda Tangan</span>
+                                <span wire:loading wire:target="saveSignature">Menyimpan...</span>
+                            </button>
                         </div>
                     </div>
                 </template>

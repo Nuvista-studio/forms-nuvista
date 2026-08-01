@@ -1,4 +1,14 @@
 <div class="space-y-6">
+    {{-- Toast Notification --}}
+    <div x-data="{ toast: false, message: '', type: 'success' }"
+        @show-toast.window="toast = true; message = $event.detail.message; type = $event.detail.type || 'success'; setTimeout(() => toast = false, 4000)"
+        x-on:livewire-upload-error.window="toast = true; message = 'Gagal mengunggah file CSV. Periksa ukuran (maks 10MB) dan format file, lalu coba lagi.'; type = 'error'; setTimeout(() => toast = false, 4000)"
+        x-show="toast" x-transition
+        class="fixed top-20 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-sm font-medium max-w-xs"
+        :class="type === 'success' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'"
+        x-text="message">
+    </div>
+
     {{-- Upload Section --}}
     @if(!$imported)
         <div class="glass-card p-6 space-y-4">
@@ -30,6 +40,13 @@
 
                 <input type="file" wire:model="file" x-ref="fileInput" accept=".csv,.txt"
                     class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+            </div>
+
+            <div wire:loading wire:target="file" class="flex items-center justify-center gap-2 text-xs" style="color: var(--color-primary);">
+                <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+                <span>Mengunggah file, mohon tunggu...</span>
             </div>
 
             @error('file') <p class="text-xs text-red-400">{{ $message }}</p> @enderror
