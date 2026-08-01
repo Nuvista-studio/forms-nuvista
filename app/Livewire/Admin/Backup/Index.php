@@ -47,6 +47,7 @@ class Index extends Component
 
             $passwordArg = $password ? ' --password=' . escapeshellarg($password) : '';
             $nullDevice = DIRECTORY_SEPARATOR === '\\' ? 'NUL' : '/dev/null';
+            $errFile = $sqlFile . '.err';
             $cmd = sprintf(
                 '%s --host=%s --port=%s --user=%s%s %s --routines --single-transaction --quick > %s 2>%s',
                 escapeshellarg($mysqldump),
@@ -56,16 +57,19 @@ class Index extends Component
                 $passwordArg,
                 escapeshellarg($database),
                 escapeshellarg($sqlFile),
-                $nullDevice
+                escapeshellarg($errFile)
             );
 
             exec($cmd, $output, $exitCode);
 
             if (!file_exists($sqlFile) || filesize($sqlFile) === 0) {
-                $error = implode("\n", $output);
+                $error = file_exists($errFile) ? trim((string) file_get_contents($errFile)) : implode("\n", $output);
                 @unlink($sqlFile);
+                @unlink($errFile);
                 throw new \Exception("Gagal membuat database dump" . ($error ? ": {$error}" : ''));
             }
+
+            @unlink($errFile);
 
             $zip = new ZipArchive();
             if ($zip->open($zipPath, ZipArchive::CREATE) !== true) {
@@ -322,6 +326,11 @@ class Index extends Component
         $isWindows = DIRECTORY_SEPARATOR === '\\';
         $cmd = $isWindows ? $binary . '.exe' : $binary;
 
+        $envPath = getenv(strtoupper($binary) . '_BIN_PATH');
+        if ($envPath && file_exists($envPath)) {
+            return $envPath;
+        }
+
         $output = null;
         $code = null;
         if ($isWindows) {
@@ -334,9 +343,10 @@ class Index extends Component
         }
 
         $dirs = $isWindows ? [
-            'C:\\xampp\\mysql\\bin',
             'C:\\laragon\\bin\\mysql',
+            'C:\\laragon\\bin\\mariadb',
             'C:\\wamp64\\bin\\mysql',
+            'C:\\xampp\\mysql\\bin',
             'C:\\Program Files\\MySQL',
             'C:\\Program Files\\MariaDB',
             'C:\\tools\\mysql',
@@ -349,11 +359,14 @@ class Index extends Component
         ];
 
         foreach ($dirs as $dir) {
+            foreach (glob($dir . DIRECTORY_SEPARATOR . $cmd, GLOB_NOSORT) ?: [] as $file) {
+                return $file;
+            }
             foreach (glob($dir . DIRECTORY_SEPARATOR . '*' . DIRECTORY_SEPARATOR . $cmd, GLOB_NOSORT) ?: [] as $file) {
                 return $file;
             }
-            if (file_exists($dir . DIRECTORY_SEPARATOR . $cmd)) {
-                return $dir . DIRECTORY_SEPARATOR . $cmd;
+            foreach (glob($dir . DIRECTORY_SEPARATOR . '*' . DIRECTORY_SEPARATOR . '*' . DIRECTORY_SEPARATOR . $cmd, GLOB_NOSORT) ?: [] as $file) {
+                return $file;
             }
         }
 
