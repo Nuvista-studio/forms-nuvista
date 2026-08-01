@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Pemeriksaan;
 
+use App\Helpers\ActivityLogger;
 use App\Models\FormPemeriksaan;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -17,6 +18,16 @@ class Index extends Component
     public string $kondisi = '';
 
     public ?array $viewingForm = null;
+
+    public array $selected = [];
+
+    public bool $showBulkDeleteModal = false;
+
+    public bool $showBulkEditModal = false;
+
+    public string $bulkEditField = '';
+
+    public string $bulkEditValue = '';
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -89,9 +100,106 @@ class Index extends Component
         $this->viewingForm = null;
     }
 
-    public function render()
+    public function toggleSelectAll(): void
     {
-        $query = FormPemeriksaan::with(['teknisi', 'pengguna', 'asset', 'site'])
+        $pageIds = collect($this->filteredQuery()
+            ->latest('submitted_at')
+            ->paginate(15)->items())->pluck('id')->all();
+
+        if (count($pageIds) === count(array_intersect($pageIds, $this->selected))) {
+            $this->selected = array_values(array_diff($this->selected, $pageIds));
+        } else {
+            $this->selected = array_values(array_unique(array_merge($this->selected, $pageIds)));
+        }
+    }
+
+    public function confirmBulkDelete(): void
+    {
+        $this->showBulkDeleteModal = true;
+    }
+
+    public function cancelBulkDelete(): void
+    {
+        $this->showBulkDeleteModal = false;
+    }
+
+    public function bulkDelete(): void
+    {
+        $deleted = 0;
+        foreach (FormPemeriksaan::whereIn('id', $this->selected)->get() as $form) {
+            $form->items()->delete();
+            $form->approvals()->delete();
+            $form->attachments()->delete();
+            $form->delete();
+            $deleted++;
+        }
+
+        ActivityLogger::log('delete', "Menghapus {$deleted} form pemeriksaan secara massal");
+        $this->selected = [];
+        $this->cancelBulkDelete();
+        $this->dispatch('show-toast', message: "{$deleted} form pemeriksaan berhasil dihapus.", type: 'success');
+        $this->dispatch('form-bulk');
+    }
+
+    public function openBulkEdit(): void
+    {
+        $this->bulkEditField = '';
+        $this->bulkEditValue = '';
+        $this->showBulkEditModal = true;
+    }
+
+    public function cancelBulkEdit(): void
+    {
+        $this->showBulkEditModal = false;
+        $this->bulkEditField = '';
+        $this->bulkEditValue = '';
+    }
+
+    public function bulkEdit(): void
+    {
+        if (empty($this->selected)) {
+            $this->cancelBulkEdit();
+            return;
+        }
+
+        $allowed = ['status', 'kondisi'];
+        if (!in_array($this->bulkEditField, $allowed)) {
+            $this->addError('bulkEditField', 'Pilih field terlebih dahulu.');
+            return;
+        }
+
+        if ($this->bulkEditField === 'status' && !in_array($this->bulkEditValue, ['draft', 'submitted', 'diketahui', 'disetujui', 'selesai', 'revisi'])) {
+            $this->addError('bulkEditValue', 'Pilih status terlebih dahulu.');
+            return;
+        }
+
+        if ($this->bulkEditField === 'kondisi' && !in_array($this->bulkEditValue, ['baru', 'lama'])) {
+            $this->addError('bulkEditValue', 'Pilih kondisi terlebih dahulu.');
+            return;
+        }
+
+        $count = FormPemeriksaan::whereIn('id', $this->selected)
+            ->update([$this->bulkEditField => $this->bulkEditValue]);
+
+        ActivityLogger::log('update', "Mengubah {$this->bulkEditField} {$count} form pemeriksaan menjadi {$this->bulkEditValue}");
+        $this->dispatch('show-toast', message: "{$this->getBulkEditFieldLabel($this->bulkEditField)} {$count} form pemeriksaan diperbarui menjadi {$this->bulkEditValue}.", type: 'success');
+        $this->selected = [];
+        $this->cancelBulkEdit();
+        $this->dispatch('form-bulk');
+    }
+
+    public function getBulkEditFieldLabel(string $field): string
+    {
+        return match ($field) {
+            'status' => 'Status',
+            'kondisi' => 'Kondisi',
+            default => ucfirst($field),
+        };
+    }
+
+    private function filteredQuery()
+    {
+        return FormPemeriksaan::with(['teknisi', 'pengguna', 'asset', 'site'])
             ->when($this->search, fn ($q) => $q->where(function ($q) {
                 $q->where('nomor_form', 'like', "%{$this->search}%")
                     ->orWhereHas('teknisi', fn ($q) => $q->where('name', 'like', "%{$this->search}%"))
@@ -100,13 +208,20 @@ class Index extends Component
                         ->orWhere('no_asset', 'like', "%{$this->search}%"));
             }))
             ->when($this->status, fn ($q) => $q->where('status', $this->status))
-            ->when($this->kondisi, fn ($q) => $q->where('kondisi', $this->kondisi))
-            ->latest('submitted_at');
+            ->when($this->kondisi, fn ($q) => $q->where('kondisi', $this->kondisi));
+    }
 
-        $forms = $query->paginate(15);
+    public function render()
+    {
+        $forms = $this->filteredQuery()->latest('submitted_at')->paginate(15);
+
+        $pageIds = collect($forms->items())->pluck('id')->all();
+        $allSelected = count($pageIds) > 0 && count(array_intersect($this->selected, $pageIds)) === count($pageIds);
 
         return view('livewire.admin.pemeriksaan.index', [
             'forms' => $forms,
+            'pageIds' => $pageIds,
+            'allSelected' => $allSelected,
         ]);
     }
 }

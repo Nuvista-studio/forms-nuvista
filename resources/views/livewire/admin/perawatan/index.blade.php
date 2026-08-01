@@ -1,4 +1,12 @@
-<div class="space-y-6" x-data x-on:form-deleted.window="$wire.$refresh()">
+<div class="space-y-6" x-data x-on:form-deleted.window="$wire.$refresh()" x-on:form-bulk.window="$wire.$refresh()">
+    {{-- Toast --}}
+    <div x-data="{ toast: false, message: '', type: 'success' }"
+        @show-toast.window="toast = true; message = $event.detail.message; type = $event.detail.type || 'success'; setTimeout(() => toast = false, 4000)"
+        x-show="toast" x-transition
+        class="fixed top-20 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-sm font-medium max-w-xs"
+        :class="type === 'success' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'"
+        x-text="message">
+    </div>
     {{-- Header --}}
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
@@ -79,6 +87,11 @@
                 <table class="w-full text-sm">
                     <thead>
                         <tr class="border-b" style="border-color: var(--color-border);">
+                            <th class="px-4 py-3 w-10">
+                                <input type="checkbox" wire:click="toggleSelectAll"
+                                    class="rounded cursor-pointer" style="accent-color: var(--color-primary);"
+                                    @checked($allSelected)>
+                            </th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">No. Form</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden sm:table-cell">Teknisi</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden md:table-cell">Pengguna</th>
@@ -93,6 +106,10 @@
                     <tbody class="divide-y" style="border-color: var(--color-border);">
                         @foreach($forms as $form)
                             <tr class="transition-colors duration-150" style="hover: background: var(--color-glass-bg);">
+                                <td class="px-4 py-3 w-10">
+                                    <input type="checkbox" value="{{ $form->id }}" wire:model.live="selected"
+                                        class="rounded cursor-pointer" style="accent-color: var(--color-primary);">
+                                </td>
                                 <td class="px-4 py-3 font-mono text-secondary text-xs">{{ $form->nomor_form }}</td>
                                 <td class="px-4 py-3 text-primary hidden sm:table-cell">{{ $form->teknisi->name ?? '-' }}</td>
                                 <td class="px-4 py-3 text-primary hidden md:table-cell">{{ $form->pengguna->name ?? '-' }}</td>
@@ -161,6 +178,26 @@
                 </table>
             </div>
         </div>
+
+        @if(count($selected) > 0)
+            <div class="glass-card p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+                style="border-color: rgba(245, 158, 11, 0.4);">
+                <p class="text-sm text-primary">{{ count($selected) }} form terpilih</p>
+                <div class="flex items-center gap-2">
+                    <button wire:click="openBulkEdit" type="button"
+                        class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
+                        style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                        Edit Massal
+                    </button>
+                    <button wire:click="confirmBulkDelete" type="button"
+                        class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium bg-red-500 text-white hover:bg-red-600 transition-all duration-200">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        Hapus Terpilih
+                    </button>
+                </div>
+            </div>
+        @endif
 
         <div class="mt-6">
             {{ $forms->links() }}
@@ -298,6 +335,76 @@
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                         Export PDF
                     </a>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- Bulk Delete Confirmation Modal --}}
+    @if($showBulkDeleteModal)
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);"
+            x-data x-on:keydown.escape.window="$wire.cancelBulkDelete()">
+            <div class="glass-card p-6 w-full max-w-md space-y-4" @click.away="$wire.cancelBulkDelete()">
+                <h3 class="text-lg font-bold text-primary">Hapus Form Terpilih</h3>
+                <p class="text-sm text-muted">Yakin ingin menghapus <span class="font-semibold text-primary">{{ count($selected) }} form perawatan</span> yang terpilih? Data item, approval, dan lampiran juga akan dihapus.</p>
+                <div class="flex gap-2">
+                    <button wire:click="cancelBulkDelete" type="button" class="glass-button-secondary text-sm flex-1">Batal</button>
+                    <button wire:click="bulkDelete" type="button" class="flex-1 px-4 py-2 rounded-lg font-medium text-sm bg-red-500 text-white hover:bg-red-600 transition-all duration-200">Hapus</button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- Bulk Edit Modal --}}
+    @if($showBulkEditModal)
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);"
+            x-data x-on:keydown.escape.window="$wire.cancelBulkEdit()">
+            <div class="glass-card p-6 w-full max-w-md space-y-4" @click.away="$wire.cancelBulkEdit()">
+                <h3 class="text-lg font-bold text-primary">Edit Massal ({{ count($selected) }} form)</h3>
+                <div>
+                    <label class="block text-xs font-medium text-muted mb-1">Field</label>
+                    <select wire:model="bulkEditField"
+                        class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
+                        style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
+                        <option value="">Pilih Field</option>
+                        <option value="status">Status</option>
+                        <option value="kondisi_akhir">Kondisi Akhir</option>
+                    </select>
+                    @error('bulkEditField') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-muted mb-1">Nilai Baru</label>
+                    @if($bulkEditField === 'kondisi_akhir')
+                        <select wire:model="bulkEditValue"
+                            class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
+                            style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
+                            <option value="">Pilih Kondisi</option>
+                            <option value="baru">Baru</option>
+                            <option value="lama">Lama</option>
+                        </select>
+                    @elseif($bulkEditField === 'status')
+                        <select wire:model="bulkEditValue"
+                            class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
+                            style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
+                            <option value="">Pilih Status</option>
+                            <option value="draft">Draft</option>
+                            <option value="submitted">Submitted</option>
+                            <option value="diketahui">Diketahui</option>
+                            <option value="disetujui">Disetujui</option>
+                            <option value="selesai">Selesai</option>
+                            <option value="revisi">Revisi</option>
+                        </select>
+                    @else
+                        <input type="text" wire:model="bulkEditValue" placeholder="Nilai baru"
+                            class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
+                            style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);" />
+                    @endif
+                    @error('bulkEditValue') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
+                </div>
+                <div class="flex gap-2">
+                    <button wire:click="cancelBulkEdit" type="button" class="glass-button-secondary text-sm flex-1">Batal</button>
+                    <button wire:click="bulkEdit" type="button" class="flex-1 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200"
+                        style="background: var(--color-primary); color: var(--color-button-text);">Simpan</button>
                 </div>
             </div>
         </div>

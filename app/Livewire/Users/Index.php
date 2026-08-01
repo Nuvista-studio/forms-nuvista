@@ -19,6 +19,11 @@ class Index extends Component
     public bool $showDeleteModal = false;
     public ?int $deleteUserId = null;
     public string $deleteUserName = '';
+    public array $selected = [];
+    public bool $showBulkDeleteModal = false;
+    public bool $showBulkEditModal = false;
+    public string $bulkEditField = '';
+    public string $bulkEditValue = '';
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -100,15 +105,125 @@ class Index extends Component
         }
 
         User::findOrFail($this->deleteUserId)->delete();
+        $this->selected = array_values(array_diff($this->selected, [$this->deleteUserId]));
 
         ActivityLogger::log('delete', "Menghapus user: {$this->deleteUserName}", 'App\Models\User', $this->deleteUserId);
         $this->cancelDelete();
         $this->dispatch('user-deleted');
     }
 
-    public function render()
+    public function toggleSelectAll(): void
     {
-        $query = User::with(['roles', 'siteDetail'])
+        $pageIds = collect($this->filteredQuery()
+            ->orderBy($this->sortBy, $this->sortDirection)
+            ->paginate(12)->items())->pluck('id')->all();
+
+        if (count($pageIds) === count(array_intersect($pageIds, $this->selected))) {
+            $this->selected = array_values(array_diff($this->selected, $pageIds));
+        } else {
+            $this->selected = array_values(array_unique(array_merge($this->selected, $pageIds)));
+        }
+    }
+
+    public function confirmBulkDelete(): void
+    {
+        $this->showBulkDeleteModal = true;
+    }
+
+    public function cancelBulkDelete(): void
+    {
+        $this->showBulkDeleteModal = false;
+    }
+
+    public function bulkDelete(): void
+    {
+        $users = User::whereIn('id', $this->selected)->get();
+        $deleted = 0;
+        foreach ($users as $user) {
+            if ($user->id === Auth::id()) continue;
+            $user->delete();
+            $deleted++;
+        }
+
+        ActivityLogger::log('delete', "Menghapus {$deleted} user secara massal");
+        $this->selected = [];
+        $this->cancelBulkDelete();
+        $this->dispatch('show-toast', message: "{$deleted} user berhasil dihapus.", type: 'success');
+        $this->dispatch('user-deleted');
+    }
+
+    public function openBulkEdit(): void
+    {
+        $this->bulkEditField = '';
+        $this->bulkEditValue = '';
+        $this->showBulkEditModal = true;
+    }
+
+    public function cancelBulkEdit(): void
+    {
+        $this->showBulkEditModal = false;
+        $this->bulkEditField = '';
+        $this->bulkEditValue = '';
+    }
+
+    public function bulkEdit(): void
+    {
+        if (empty($this->selected)) {
+            $this->cancelBulkEdit();
+            return;
+        }
+
+        $allowed = ['role', 'name', 'email', 'nik', 'department', 'business_unit', 'site', 'no_telepon'];
+        if (!in_array($this->bulkEditField, $allowed)) {
+            $this->addError('bulkEditField', 'Pilih field terlebih dahulu.');
+            return;
+        }
+
+        if ($this->bulkEditField === 'role') {
+            if (!$this->bulkEditValue) {
+                $this->addError('bulkEditValue', 'Pilih role terlebih dahulu.');
+                return;
+            }
+
+            $count = 0;
+            foreach (User::whereIn('id', $this->selected)->get() as $user) {
+                $user->syncRoles([$this->bulkEditValue]);
+                $count++;
+            }
+
+            ActivityLogger::log('update', "Mengubah role {$count} user menjadi {$this->bulkEditValue}");
+            $this->dispatch('show-toast', message: "Role {$count} user diperbarui menjadi {$this->getRoleLabel($this->bulkEditValue)}.", type: 'success');
+        } else {
+            $value = trim($this->bulkEditValue);
+            $count = User::whereIn('id', $this->selected)->update([$this->bulkEditField => $value ?: null]);
+
+            ActivityLogger::log('update', "Mengubah {$this->bulkEditField} {$count} user menjadi '{$value}'");
+            $this->dispatch('show-toast', message: "{$this->getBulkEditFieldLabel($this->bulkEditField)} {$count} user diperbarui.", type: 'success');
+        }
+
+        $this->selected = [];
+        $this->cancelBulkEdit();
+        $this->dispatch('user-updated');
+    }
+
+    public function getBulkEditFieldLabel(string $field): string
+    {
+        return match ($field) {
+            'role' => 'Role',
+            'name' => 'Nama',
+            'email' => 'Email',
+            'nik' => 'NIK',
+            'department' => 'Department',
+            'business_unit' => 'Corp Unit',
+            'site' => 'Site',
+            'no_telepon' => 'No. Telepon',
+            default => ucfirst($field),
+        };
+    }
+
+    private function filteredQuery()
+    {
+        return User::with(['roles', 'siteDetail'])
             ->when($this->search, fn ($q) => $q->where(function ($q) {
                 $q->where('name', 'like', "%{$this->search}%")
                     ->orWhere('email', 'like', "%{$this->search}%")
@@ -118,13 +233,22 @@ class Index extends Component
                     ->orWhere('business_unit', 'like', "%{$this->search}%")
                     ->orWhereHas('siteDetail', fn ($q) => $q->where('site', 'like', "%{$this->search}%"));
             }))
-            ->when($this->filterRole, fn ($q) => $q->role($this->filterRole))
-            ->orderBy($this->sortBy, $this->sortDirection);
+            ->when($this->filterRole, fn ($q) => $q->role($this->filterRole));
+    }
 
-        $users = $query->paginate(12);
+    public function render()
+    {
+        $users = $this->filteredQuery()
+            ->orderBy($this->sortBy, $this->sortDirection)
+            ->paginate(12);
+
+        $pageIds = collect($users->items())->pluck('id')->all();
+        $allSelected = count($pageIds) > 0 && count(array_intersect($this->selected, $pageIds)) === count($pageIds);
 
         return view('livewire.users.index', [
             'users' => $users,
+            'pageIds' => $pageIds,
+            'allSelected' => $allSelected,
         ]);
     }
 }
