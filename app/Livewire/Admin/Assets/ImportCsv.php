@@ -20,6 +20,8 @@ class ImportCsv extends Component
     public array $importErrors = [];
     public array $importSuccess = [];
     public string $resultTab = 'gagal';
+    public array $validRows = [];
+    public bool $processed = false;
     public bool $imported = false;
 
     protected $listeners = ['resetImport' => 'resetImport'];
@@ -34,6 +36,8 @@ class ImportCsv extends Component
         $this->importErrors = [];
         $this->importSuccess = [];
         $this->resultTab = 'gagal';
+        $this->validRows = [];
+        $this->processed = false;
         $this->imported = false;
         $this->resetValidation();
     }
@@ -43,6 +47,9 @@ class ImportCsv extends Component
         $this->preview = [];
         $this->totalRows = 0;
         $this->importErrors = [];
+        $this->importSuccess = [];
+        $this->validRows = [];
+        $this->processed = false;
         $this->imported = false;
 
         if (!$this->file) return;
@@ -117,14 +124,17 @@ class ImportCsv extends Component
         $this->preview = $rows;
     }
 
-    public function import(): void
+    public function processData(): void
     {
         if (!$this->file) return;
+
+        set_time_limit(0);
 
         $this->successCount = 0;
         $this->errorCount = 0;
         $this->importErrors = [];
         $this->importSuccess = [];
+        $this->validRows = [];
         $this->resultTab = 'gagal';
 
         $handle = fopen($this->file->getPathname(), 'r');
@@ -154,28 +164,22 @@ class ImportCsv extends Component
                     continue;
                 }
 
-                $assignedUserId = null;
                 $assignedEmail = trim($data['assigned_user_email'] ?? '');
-                if (!empty($assignedEmail)) {
-                    $user = User::where('email', $assignedEmail)->first();
-                    $assignedUserId = $user?->id;
-                }
 
-                Asset::updateOrCreate(
-                    ['no_asset' => $noAsset],
-                    [
+                $this->validRows[] = [
+                    'row' => $rowNumber,
+                    'data' => [
+                        'no_asset' => $noAsset,
                         'kategori' => $kategori,
                         'brand' => $brand,
                         'tipe' => trim($data['tipe'] ?? '') ?: '',
                         'nama_perangkat' => trim($data['nama_perangkat'] ?? '') ?: $noAsset,
                         'no_serial' => trim($data['no_serial'] ?? '') ?: null,
-                        'qr_code' => $noAsset,
                         'operating_unit' => trim($data['operating_unit'] ?? '') ?: null,
                         'site_location_asset' => trim($data['site_location_asset'] ?? '') ?: null,
-                        'assigned_user_id' => $assignedUserId,
-                        'status' => $assignedUserId ? 'active' : 'inactive',
-                    ]
-                );
+                        'assigned_user_email' => $assignedEmail,
+                    ],
+                ];
 
                 $this->importSuccess[] = [
                     'row' => $rowNumber,
@@ -200,15 +204,73 @@ class ImportCsv extends Component
         }
         fclose($handle);
 
+        $this->processed = true;
+
+        if ($this->errorCount > 0) {
+            $this->dispatch('show-toast', message: "Data terbaca: {$this->successCount} berhasil, {$this->errorCount} gagal. Periksa detail sebelum mengirim.", type: 'error');
+        } else {
+            $this->dispatch('show-toast', message: "Data terbaca: {$this->successCount} data valid. Klik 'Konfirmasi Kirim Data' untuk menyimpan.", type: 'success');
+        }
+    }
+
+    public function confirmImport(): void
+    {
+        if (!$this->processed || $this->imported) return;
+
+        set_time_limit(0);
+
+        $importedCount = 0;
+
+        \Illuminate\Support\Facades\DB::beginTransaction();
+
+        try {
+            foreach ($this->validRows as $validRow) {
+                $data = $validRow['data'];
+
+                $assignedUserId = null;
+                if (!empty($data['assigned_user_email'])) {
+                    $user = User::where('email', $data['assigned_user_email'])->first();
+                    $assignedUserId = $user?->id;
+                }
+
+                Asset::updateOrCreate(
+                    ['no_asset' => $data['no_asset']],
+                    [
+                        'kategori' => $data['kategori'],
+                        'brand' => $data['brand'],
+                        'tipe' => $data['tipe'],
+                        'nama_perangkat' => $data['nama_perangkat'],
+                        'no_serial' => $data['no_serial'],
+                        'qr_code' => $data['no_asset'],
+                        'operating_unit' => $data['operating_unit'],
+                        'site_location_asset' => $data['site_location_asset'],
+                        'assigned_user_id' => $assignedUserId,
+                        'status' => $assignedUserId ? 'active' : 'inactive',
+                    ]
+                );
+
+                $importedCount++;
+            }
+
+            \Illuminate\Support\Facades\DB::commit();
+        } catch (\Throwable $e) {
+            if (\Illuminate\Support\Facades\DB::transactionLevel() > 0) {
+                \Illuminate\Support\Facades\DB::rollBack();
+            }
+            $this->dispatch('show-toast', message: 'Kirim data gagal (perubahan dibatalkan): ' . $e->getMessage(), type: 'error');
+
+            return;
+        }
+
         $this->imported = true;
 
         if ($this->errorCount > 0) {
-            $this->dispatch('show-toast', message: "Import selesai: {$this->successCount} berhasil, {$this->errorCount} gagal. Lihat detail error di bawah.", type: 'error');
+            $this->dispatch('show-toast', message: "Import selesai: {$importedCount} berhasil, {$this->errorCount} gagal. Lihat detail error di bawah.", type: 'error');
         } else {
-            $this->dispatch('show-toast', message: "Import selesai: {$this->successCount} data berhasil diimpor.", type: 'success');
+            $this->dispatch('show-toast', message: "Import selesai: {$importedCount} data berhasil diimpor.", type: 'success');
         }
 
-        ActivityLogger::log('import', "Mengimpor {$this->successCount} data asset" . ($this->errorCount ? " ({$this->errorCount} gagal)" : ''));
+        ActivityLogger::log('import', "Mengimpor {$importedCount} data asset" . ($this->errorCount ? " ({$this->errorCount} gagal)" : ''));
     }
 
     public function render()

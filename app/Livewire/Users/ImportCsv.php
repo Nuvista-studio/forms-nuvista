@@ -20,6 +20,8 @@ class ImportCsv extends Component
     public array $importErrors = [];
     public array $importSuccess = [];
     public string $resultTab = 'gagal';
+    public array $validRows = [];
+    public bool $processed = false;
     public bool $imported = false;
 
     protected $listeners = ['resetImport' => 'resetImport'];
@@ -34,6 +36,8 @@ class ImportCsv extends Component
         $this->importErrors = [];
         $this->importSuccess = [];
         $this->resultTab = 'gagal';
+        $this->validRows = [];
+        $this->processed = false;
         $this->imported = false;
         $this->resetValidation();
     }
@@ -43,6 +47,9 @@ class ImportCsv extends Component
         $this->preview = [];
         $this->totalRows = 0;
         $this->importErrors = [];
+        $this->importSuccess = [];
+        $this->validRows = [];
+        $this->processed = false;
         $this->imported = false;
 
         if (!$this->file) return;
@@ -142,7 +149,7 @@ class ImportCsv extends Component
         return max($count - 1, 0);
     }
 
-    public function import(): void
+    public function processData(): void
     {
         if (!$this->file) return;
 
@@ -153,6 +160,7 @@ class ImportCsv extends Component
         $this->errorCount = 0;
         $this->importErrors = [];
         $this->importSuccess = [];
+        $this->validRows = [];
         $this->resultTab = 'gagal';
 
         // Pre-fetch lookups once instead of querying the database per row.
@@ -174,149 +182,164 @@ class ImportCsv extends Component
 
         $normalizedHeader = array_map('strtolower', array_map('trim', $header));
 
-        \Illuminate\Support\Facades\DB::beginTransaction();
+        $rowNumber = 1;
+        while (($row = fgetcsv($handle)) !== false) {
+            $rowNumber++;
+            if (count($row) < count($header)) continue;
 
-        $total = max($this->totalRows, 1);
-        $processed = 0;
-        $lastStreamed = 0;
+            if (count($row) > count($normalizedHeader)) {
+                $this->importErrors[] = "Baris {$rowNumber}: jumlah kolom (" . count($row) . ") tidak sesuai header (" . count($header) . "), baris dilewati.";
+                $this->errorCount++;
+                continue;
+            }
 
-        try {
-            $rowNumber = 1;
-            while (($row = fgetcsv($handle)) !== false) {
-                $rowNumber++;
-                $processed++;
-                if (count($row) < count($header)) continue;
+            $data = array_combine($normalizedHeader, $row);
 
-                if (count($row) > count($normalizedHeader)) {
-                    $this->importErrors[] = "Baris {$rowNumber}: jumlah kolom (" . count($row) . ") tidak sesuai header (" . count($header) . "), baris dilewati.";
+            try {
+                $name = trim($data['name'] ?? '');
+                $email = trim($data['email'] ?? '');
+
+                if (empty($name) || empty($email)) {
+                    $this->importErrors[] = "Baris {$rowNumber}: Nama dan email wajib diisi.";
                     $this->errorCount++;
                     continue;
                 }
 
-                $data = array_combine($normalizedHeader, $row);
+                if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    $this->importErrors[] = "Baris {$rowNumber}: Format email tidak valid ({$email}).";
+                    $this->errorCount++;
+                    continue;
+                }
 
-                try {
-                    $name = trim($data['name'] ?? '');
-                    $email = trim($data['email'] ?? '');
+                if (isset($existingEmails[strtolower(trim($email))])) {
+                    $this->importErrors[] = "Baris {$rowNumber}: Email sudah terdaftar ({$email}).";
+                    $this->errorCount++;
+                    continue;
+                }
 
-                    if (empty($name) || empty($email)) {
-                        $this->importErrors[] = "Baris {$rowNumber}: Nama dan email wajib diisi.";
-                        $this->errorCount++;
-                        continue;
-                    }
+                $site = trim($data['site'] ?? '');
+                if (!empty($site) && !isset($validSites[$site])) {
+                    $this->importErrors[] = "Baris {$rowNumber}: Site tidak valid ({$site}). Gunakan kode id_site (contoh: O99).";
+                    $this->errorCount++;
+                    continue;
+                }
 
-                    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                        $this->importErrors[] = "Baris {$rowNumber}: Format email tidak valid ({$email}).";
-                        $this->errorCount++;
-                        continue;
-                    }
+                $businessUnit = trim($data['business_unit'] ?? '');
+                if (!empty($businessUnit) && !isset($validCorps[$businessUnit])) {
+                    $this->importErrors[] = "Baris {$rowNumber}: Business unit tidak valid ({$businessUnit}). Gunakan kode id_corp (contoh: MAS).";
+                    $this->errorCount++;
+                    continue;
+                }
 
-                    if (isset($existingEmails[strtolower(trim($email))])) {
-                        $this->importErrors[] = "Baris {$rowNumber}: Email sudah terdaftar ({$email}).";
-                        $this->errorCount++;
-                        continue;
-                    }
+                $password = trim($data['password'] ?? '');
+                if (empty($password)) {
+                    $password = 'password';
+                }
 
-                    $site = trim($data['site'] ?? '');
-                    if (!empty($site) && !isset($validSites[$site])) {
-                        $this->importErrors[] = "Baris {$rowNumber}: Site tidak valid ({$site}). Gunakan kode id_site (contoh: O99).";
-                        $this->errorCount++;
-                        continue;
-                    }
+                $role = trim($data['role'] ?? '');
+                $roleId = $roleIds[$role] ?? $defaultRoleId;
 
-                    $businessUnit = trim($data['business_unit'] ?? '');
-                    if (!empty($businessUnit) && !isset($validCorps[$businessUnit])) {
-                        $this->importErrors[] = "Baris {$rowNumber}: Business unit tidak valid ({$businessUnit}). Gunakan kode id_corp (contoh: MAS).";
-                        $this->errorCount++;
-                        continue;
-                    }
-
-                    $password = trim($data['password'] ?? '');
-                    if (empty($password)) {
-                        $password = 'password';
-                    }
-
-                    $user = User::create([
+                $this->validRows[] = [
+                    'row' => $rowNumber,
+                    'data' => [
                         'name' => $name,
                         'email' => $email,
-                        // Bcrypt cost 10 keeps import ~4x faster while staying OWASP-recommended.
-                        'password' => Hash::make($password, ['rounds' => 10]),
+                        'password' => $password,
                         'nik' => trim($data['nik'] ?? '') ?: null,
                         'department' => trim($data['department'] ?? '') ?: null,
                         'business_unit' => trim($data['business_unit'] ?? '') ?: null,
                         'site' => trim($data['site'] ?? '') ?: null,
                         'no_telepon' => trim($data['no_telepon'] ?? '') ?: null,
-                    ]);
+                        'role_id' => $roleId,
+                    ],
+                ];
 
-                    $role = trim($data['role'] ?? '');
-                    $roleId = $roleIds[$role] ?? $defaultRoleId;
-                    if ($roleId) {
-                        $user->roles()->attach($roleId);
-                    }
+                $this->importSuccess[] = [
+                    'row' => $rowNumber,
+                    'data' => [
+                        'name' => $name,
+                        'email' => $email,
+                        'nik' => trim($data['nik'] ?? '') ?: '-',
+                        'department' => trim($data['department'] ?? '') ?: '-',
+                        'business_unit' => trim($data['business_unit'] ?? '') ?: '-',
+                        'site' => trim($data['site'] ?? '') ?: '-',
+                        'no_telepon' => trim($data['no_telepon'] ?? '') ?: '-',
+                        'role' => $role ?: '-',
+                    ],
+                ];
 
-                    $existingEmails[strtolower(trim($email))] = true;
+                $existingEmails[strtolower(trim($email))] = true;
 
-                    $this->importSuccess[] = [
-                        'row' => $rowNumber,
-                        'data' => [
-                            'name' => $name,
-                            'email' => $email,
-                            'nik' => trim($data['nik'] ?? '') ?: '-',
-                            'department' => trim($data['department'] ?? '') ?: '-',
-                            'business_unit' => trim($data['business_unit'] ?? '') ?: '-',
-                            'site' => trim($data['site'] ?? '') ?: '-',
-                            'no_telepon' => trim($data['no_telepon'] ?? '') ?: '-',
-                            'role' => trim($data['role'] ?? '') ?: '-',
-                        ],
-                    ];
-
-                    $this->successCount++;
-                } catch (\Exception $e) {
-                    $this->importErrors[] = "Baris {$rowNumber}: " . $e->getMessage();
-                    $this->errorCount++;
-                }
-
-                if ($processed - $lastStreamed >= 25) {
-                    $this->streamProgress($processed, $total);
-                    $lastStreamed = $processed;
-                }
+                $this->successCount++;
+            } catch (\Exception $e) {
+                $this->importErrors[] = "Baris {$rowNumber}: " . $e->getMessage();
+                $this->errorCount++;
             }
+        }
+        fclose($handle);
 
-            $this->streamProgress($processed, $total);
+        $this->processed = true;
+
+        if ($this->errorCount > 0) {
+            $this->dispatch('show-toast', message: "Data terbaca: {$this->successCount} berhasil, {$this->errorCount} gagal. Periksa detail sebelum mengirim.", type: 'error');
+        } else {
+            $this->dispatch('show-toast', message: "Data terbaca: {$this->successCount} data valid. Klik 'Konfirmasi Kirim Data' untuk menyimpan.", type: 'success');
+        }
+    }
+
+    public function confirmImport(): void
+    {
+        if (!$this->processed || $this->imported) return;
+
+        // Allow long-running imports (hashing thousands of rows takes minutes).
+        set_time_limit(0);
+
+        $importedCount = 0;
+
+        \Illuminate\Support\Facades\DB::beginTransaction();
+
+        try {
+            foreach ($this->validRows as $validRow) {
+                $data = $validRow['data'];
+
+                $user = User::create([
+                    'name' => $data['name'],
+                    'email' => $data['email'],
+                    // Bcrypt cost 10 keeps import ~4x faster while staying OWASP-recommended.
+                    'password' => Hash::make($data['password'], ['rounds' => 10]),
+                    'nik' => $data['nik'],
+                    'department' => $data['department'],
+                    'business_unit' => $data['business_unit'],
+                    'site' => $data['site'],
+                    'no_telepon' => $data['no_telepon'],
+                ]);
+
+                if (!empty($data['role_id'])) {
+                    $user->roles()->attach($data['role_id']);
+                }
+
+                $importedCount++;
+            }
 
             \Illuminate\Support\Facades\DB::commit();
         } catch (\Throwable $e) {
             if (\Illuminate\Support\Facades\DB::transactionLevel() > 0) {
                 \Illuminate\Support\Facades\DB::rollBack();
             }
-            $this->importErrors[] = 'Proses import gagal (perubahan dibatalkan): ' . $e->getMessage();
-            $this->errorCount++;
-        } finally {
-            fclose($handle);
+            $this->dispatch('show-toast', message: 'Kirim data gagal (perubahan dibatalkan): ' . $e->getMessage(), type: 'error');
+
+            return;
         }
 
         $this->imported = true;
 
         if ($this->errorCount > 0) {
-            $this->dispatch('show-toast', message: "Import selesai: {$this->successCount} berhasil, {$this->errorCount} gagal. Lihat detail error di bawah.", type: 'error');
+            $this->dispatch('show-toast', message: "Import selesai: {$importedCount} berhasil, {$this->errorCount} gagal. Lihat detail error di bawah.", type: 'error');
         } else {
-            $this->dispatch('show-toast', message: "Import selesai: {$this->successCount} data berhasil diimpor.", type: 'success');
+            $this->dispatch('show-toast', message: "Import selesai: {$importedCount} data berhasil diimpor.", type: 'success');
         }
 
-        ActivityLogger::log('import', "Mengimpor {$this->successCount} data user" . ($this->errorCount ? " ({$this->errorCount} gagal)" : ''));
-    }
-
-    private function streamProgress(int $processed, int $total): void
-    {
-        $percent = (int) round($processed / $total * 100);
-
-        $this->stream(
-            'importProgressBar',
-            '<div class="h-full rounded-full transition-all duration-300" style="background: var(--color-primary); width: ' . $percent . '%"></div>',
-            true
-        );
-
-        $this->stream('importProgressPercent', $percent . '%', true);
+        ActivityLogger::log('import', "Mengimpor {$importedCount} data user" . ($this->errorCount ? " ({$this->errorCount} gagal)" : ''));
     }
 
     public function getRoleList(): array

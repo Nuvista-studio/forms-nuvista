@@ -19,6 +19,8 @@ class ImportCsv extends Component
     public array $importErrors = [];
     public array $importSuccess = [];
     public string $resultTab = 'gagal';
+    public array $validRows = [];
+    public bool $processed = false;
     public bool $imported = false;
 
     protected $listeners = ['resetImport' => 'resetImport'];
@@ -33,6 +35,8 @@ class ImportCsv extends Component
         $this->importErrors = [];
         $this->importSuccess = [];
         $this->resultTab = 'gagal';
+        $this->validRows = [];
+        $this->processed = false;
         $this->imported = false;
         $this->resetValidation();
     }
@@ -42,6 +46,9 @@ class ImportCsv extends Component
         $this->preview = [];
         $this->totalRows = 0;
         $this->importErrors = [];
+        $this->importSuccess = [];
+        $this->validRows = [];
+        $this->processed = false;
         $this->imported = false;
 
         if (!$this->file) return;
@@ -116,14 +123,17 @@ class ImportCsv extends Component
         $this->preview = $rows;
     }
 
-    public function import(): void
+    public function processData(): void
     {
         if (!$this->file) return;
+
+        set_time_limit(0);
 
         $this->successCount = 0;
         $this->errorCount = 0;
         $this->importErrors = [];
         $this->importSuccess = [];
+        $this->validRows = [];
         $this->resultTab = 'gagal';
 
         $handle = fopen($this->file->getPathname(), 'r');
@@ -158,9 +168,10 @@ class ImportCsv extends Component
                     continue;
                 }
 
-                Site::updateOrCreate(
-                    ['id_site' => $idSite],
-                    [
+                $this->validRows[] = [
+                    'row' => $rowNumber,
+                    'data' => [
+                        'id_site' => $idSite,
                         'site' => $siteName,
                         'buss' => trim($data['buss'] ?? '') ?: null,
                         'id_corp' => trim($data['id_corp'] ?? '') ?: null,
@@ -169,8 +180,8 @@ class ImportCsv extends Component
                         'city' => trim($data['city'] ?? '') ?: null,
                         'address' => trim($data['address'] ?? '') ?: null,
                         'url_maps' => trim($data['url_maps'] ?? '') ?: null,
-                    ]
-                );
+                    ],
+                ];
 
                 $this->importSuccess[] = [
                     'row' => $rowNumber,
@@ -195,15 +206,65 @@ class ImportCsv extends Component
         }
         fclose($handle);
 
+        $this->processed = true;
+
+        if ($this->errorCount > 0) {
+            $this->dispatch('show-toast', message: "Data terbaca: {$this->successCount} berhasil, {$this->errorCount} gagal. Periksa detail sebelum mengirim.", type: 'error');
+        } else {
+            $this->dispatch('show-toast', message: "Data terbaca: {$this->successCount} data valid. Klik 'Konfirmasi Kirim Data' untuk menyimpan.", type: 'success');
+        }
+    }
+
+    public function confirmImport(): void
+    {
+        if (!$this->processed || $this->imported) return;
+
+        set_time_limit(0);
+
+        $importedCount = 0;
+
+        \Illuminate\Support\Facades\DB::beginTransaction();
+
+        try {
+            foreach ($this->validRows as $validRow) {
+                $data = $validRow['data'];
+
+                Site::updateOrCreate(
+                    ['id_site' => $data['id_site']],
+                    [
+                        'site' => $data['site'],
+                        'buss' => $data['buss'],
+                        'id_corp' => $data['id_corp'],
+                        'country' => $data['country'],
+                        'provincy' => $data['provincy'],
+                        'city' => $data['city'],
+                        'address' => $data['address'],
+                        'url_maps' => $data['url_maps'],
+                    ]
+                );
+
+                $importedCount++;
+            }
+
+            \Illuminate\Support\Facades\DB::commit();
+        } catch (\Throwable $e) {
+            if (\Illuminate\Support\Facades\DB::transactionLevel() > 0) {
+                \Illuminate\Support\Facades\DB::rollBack();
+            }
+            $this->dispatch('show-toast', message: 'Kirim data gagal (perubahan dibatalkan): ' . $e->getMessage(), type: 'error');
+
+            return;
+        }
+
         $this->imported = true;
 
         if ($this->errorCount > 0) {
-            $this->dispatch('show-toast', message: "Import selesai: {$this->successCount} berhasil, {$this->errorCount} gagal. Lihat detail error di bawah.", type: 'error');
+            $this->dispatch('show-toast', message: "Import selesai: {$importedCount} berhasil, {$this->errorCount} gagal. Lihat detail error di bawah.", type: 'error');
         } else {
-            $this->dispatch('show-toast', message: "Import selesai: {$this->successCount} data berhasil diimpor.", type: 'success');
+            $this->dispatch('show-toast', message: "Import selesai: {$importedCount} data berhasil diimpor.", type: 'success');
         }
 
-        ActivityLogger::log('import', "Mengimpor {$this->successCount} data site" . ($this->errorCount ? " ({$this->errorCount} gagal)" : ''));
+        ActivityLogger::log('import', "Mengimpor {$importedCount} data site" . ($this->errorCount ? " ({$this->errorCount} gagal)" : ''));
     }
 
     public function render()
