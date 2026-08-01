@@ -162,41 +162,87 @@
                 </svg>
             </div>
             <h3 class="text-lg font-bold text-primary">Import Selesai</h3>
-            <div class="flex items-center justify-center gap-6 text-sm">
-                <div>
+            <div class="flex items-center justify-center gap-4 text-sm">
+                <button wire:click="$set('resultTab', 'berhasil')" type="button"
+                    class="px-4 py-2 rounded-xl transition-all duration-200 cursor-pointer"
+                    style="{{ $resultTab === 'berhasil' ? 'background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.5);' : 'background: var(--color-glass-bg); border: 1px solid var(--color-border);' }}">
                     <span class="text-emerald-400 font-bold text-xl">{{ $successCount }}</span>
                     <p class="text-muted text-xs">Berhasil</p>
-                </div>
-                <div>
+                </button>
+                <button wire:click="$set('resultTab', 'gagal')" type="button"
+                    class="px-4 py-2 rounded-xl transition-all duration-200 cursor-pointer"
+                    style="{{ $resultTab === 'gagal' ? 'background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.5);' : 'background: var(--color-glass-bg); border: 1px solid var(--color-border);' }}">
                     <span class="text-red-400 font-bold text-xl">{{ $errorCount }}</span>
                     <p class="text-muted text-xs">Gagal</p>
-                </div>
+                </button>
             </div>
 
-            @if(!empty($importErrors))
-                <div class="text-left mt-4 p-3 rounded-lg" style="background: var(--color-glass-bg); border: 1px solid var(--color-border);">
-                    <p class="text-xs font-semibold text-red-400 mb-2">Detail Error ({{ $errorCount }} baris gagal):</p>
-                    @php
-                        $errorGroups = [];
-                        foreach ($importErrors as $error) {
-                            $key = preg_replace('/^Baris \d+: /', '', trim($error));
-                            $errorGroups[$key] = ($errorGroups[$key] ?? 0) + 1;
-                        }
-                    @endphp
-                    <div class="space-y-1 mb-2">
-                        @foreach($errorGroups as $message => $count)
-                            <p class="text-xs text-red-400">• {{ $message }} <span class="text-muted">({{ $count }}×)</span></p>
-                        @endforeach
+            @if($resultTab === 'berhasil')
+                @if(count($importSuccess) > 0)
+                    <div class="text-left mt-4 p-3 rounded-lg" style="background: var(--color-glass-bg); border: 1px solid var(--color-border);">
+                        <p class="text-xs font-semibold text-emerald-400 mb-2">Detail Data Berhasil ({{ count($importSuccess) }} baris):</p>
+                        <div class="overflow-x-auto max-h-60 overflow-y-auto">
+                            <table class="w-full text-xs">
+                                <thead>
+                                    <tr class="border-b" style="border-color: var(--color-border);">
+                                        <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">Baris</th>
+                                        <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">Nama</th>
+                                        <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">Email</th>
+                                        <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">NIK</th>
+                                        <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">Department</th>
+                                        <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">Corp Unit</th>
+                                        <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">Site</th>
+                                        <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">Role</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y" style="border-color: var(--color-border);">
+                                    @foreach($importSuccess as $row)
+                                        <tr>
+                                            <td class="px-2 py-1.5 text-muted whitespace-nowrap">{{ $row['row'] }}</td>
+                                            <td class="px-2 py-1.5 text-primary font-medium whitespace-nowrap">{{ $row['data']['name'] }}</td>
+                                            <td class="px-2 py-1.5 text-secondary whitespace-nowrap">{{ $row['data']['email'] }}</td>
+                                            <td class="px-2 py-1.5 text-secondary font-mono whitespace-nowrap">{{ $row['data']['nik'] }}</td>
+                                            <td class="px-2 py-1.5 text-secondary whitespace-nowrap">{{ $row['data']['department'] }}</td>
+                                            <td class="px-2 py-1.5 text-secondary whitespace-nowrap">{{ $row['data']['business_unit'] }}</td>
+                                            <td class="px-2 py-1.5 text-secondary whitespace-nowrap">{{ $row['data']['site'] }}</td>
+                                            <td class="px-2 py-1.5 text-secondary whitespace-nowrap">{{ $row['data']['role'] }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                    <details>
-                        <summary class="text-xs text-secondary cursor-pointer hover:text-primary">Lihat detail per baris</summary>
-                        <div class="max-h-40 overflow-y-auto mt-2 space-y-1">
-                            @foreach($importErrors as $error)
-                                <p class="text-xs text-red-400">• {{ $error }}</p>
+                @else
+                    <p class="text-sm text-muted mt-4">Tidak ada data berhasil.</p>
+                @endif
+            @else
+                @if(!empty($importErrors))
+                    <div class="text-left mt-4 p-3 rounded-lg" style="background: var(--color-glass-bg); border: 1px solid var(--color-border);">
+                        <p class="text-xs font-semibold text-red-400 mb-2">Detail Error ({{ $errorCount }} baris gagal):</p>
+                        @php
+                            $errorGroups = [];
+                            foreach ($importErrors as $error) {
+                                $key = preg_replace('/^Baris \d+: /', '', trim($error));
+                                $errorGroups[$key] = ($errorGroups[$key] ?? 0) + 1;
+                            }
+                        @endphp
+                        <div class="space-y-1 mb-2">
+                            @foreach($errorGroups as $message => $count)
+                                <p class="text-xs text-red-400">• {{ $message }} <span class="text-muted">({{ $count }}×)</span></p>
                             @endforeach
                         </div>
-                    </details>
-                </div>
+                        <details>
+                            <summary class="text-xs text-secondary cursor-pointer hover:text-primary">Lihat detail per baris</summary>
+                            <div class="max-h-40 overflow-y-auto mt-2 space-y-1">
+                                @foreach($importErrors as $error)
+                                    <p class="text-xs text-red-400">• {{ $error }}</p>
+                                @endforeach
+                            </div>
+                        </details>
+                    </div>
+                @else
+                    <p class="text-sm text-muted mt-4">Tidak ada data gagal.</p>
+                @endif
             @endif
 
             @if($errorCount > 0 && $successCount === 0)

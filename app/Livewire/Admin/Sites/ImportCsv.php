@@ -17,6 +17,8 @@ class ImportCsv extends Component
     public int $successCount = 0;
     public int $errorCount = 0;
     public array $importErrors = [];
+    public array $importSuccess = [];
+    public string $resultTab = 'gagal';
     public bool $imported = false;
 
     protected $listeners = ['resetImport' => 'resetImport'];
@@ -29,6 +31,8 @@ class ImportCsv extends Component
         $this->successCount = 0;
         $this->errorCount = 0;
         $this->importErrors = [];
+        $this->importSuccess = [];
+        $this->resultTab = 'gagal';
         $this->imported = false;
         $this->resetValidation();
     }
@@ -119,6 +123,8 @@ class ImportCsv extends Component
         $this->successCount = 0;
         $this->errorCount = 0;
         $this->importErrors = [];
+        $this->importSuccess = [];
+        $this->resultTab = 'gagal';
 
         $handle = fopen($this->file->getPathname(), 'r');
         $header = fgetcsv($handle);
@@ -165,6 +171,21 @@ class ImportCsv extends Component
                         'url_maps' => trim($data['url_maps'] ?? '') ?: null,
                     ]
                 );
+
+                $this->importSuccess[] = [
+                    'row' => $rowNumber,
+                    'data' => [
+                        'id_site' => $idSite,
+                        'site' => $siteName,
+                        'buss' => trim($data['buss'] ?? '') ?: '-',
+                        'id_corp' => trim($data['id_corp'] ?? '') ?: '-',
+                        'country' => trim($data['country'] ?? '') ?: '-',
+                        'provincy' => trim($data['provincy'] ?? '') ?: '-',
+                        'city' => trim($data['city'] ?? '') ?: '-',
+                        'address' => trim($data['address'] ?? '') ?: '-',
+                        'url_maps' => trim($data['url_maps'] ?? '') ?: '-',
+                    ],
+                ];
 
                 $this->successCount++;
             } catch (\Exception $e) {

@@ -18,6 +18,8 @@ class ImportCsv extends Component
     public int $successCount = 0;
     public int $errorCount = 0;
     public array $importErrors = [];
+    public array $importSuccess = [];
+    public string $resultTab = 'gagal';
     public bool $imported = false;
 
     protected $listeners = ['resetImport' => 'resetImport'];
@@ -30,6 +32,8 @@ class ImportCsv extends Component
         $this->successCount = 0;
         $this->errorCount = 0;
         $this->importErrors = [];
+        $this->importSuccess = [];
+        $this->resultTab = 'gagal';
         $this->imported = false;
         $this->resetValidation();
     }
@@ -120,6 +124,8 @@ class ImportCsv extends Component
         $this->successCount = 0;
         $this->errorCount = 0;
         $this->importErrors = [];
+        $this->importSuccess = [];
+        $this->resultTab = 'gagal';
 
         $handle = fopen($this->file->getPathname(), 'r');
         $header = fgetcsv($handle);
@@ -170,6 +176,21 @@ class ImportCsv extends Component
                         'status' => $assignedUserId ? 'active' : 'inactive',
                     ]
                 );
+
+                $this->importSuccess[] = [
+                    'row' => $rowNumber,
+                    'data' => [
+                        'no_asset' => $noAsset,
+                        'kategori' => $kategori,
+                        'brand' => $brand,
+                        'tipe' => trim($data['tipe'] ?? '') ?: '-',
+                        'nama_perangkat' => trim($data['nama_perangkat'] ?? '') ?: $noAsset,
+                        'no_serial' => trim($data['no_serial'] ?? '') ?: '-',
+                        'operating_unit' => trim($data['operating_unit'] ?? '') ?: '-',
+                        'site_location_asset' => trim($data['site_location_asset'] ?? '') ?: '-',
+                        'assigned_user_email' => $assignedEmail ?: '-',
+                    ],
+                ];
 
                 $this->successCount++;
             } catch (\Exception $e) {

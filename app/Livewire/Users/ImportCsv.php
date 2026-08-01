@@ -18,6 +18,8 @@ class ImportCsv extends Component
     public int $successCount = 0;
     public int $errorCount = 0;
     public array $importErrors = [];
+    public array $importSuccess = [];
+    public string $resultTab = 'gagal';
     public bool $imported = false;
 
     protected $listeners = ['resetImport' => 'resetImport'];
@@ -30,6 +32,8 @@ class ImportCsv extends Component
         $this->successCount = 0;
         $this->errorCount = 0;
         $this->importErrors = [];
+        $this->importSuccess = [];
+        $this->resultTab = 'gagal';
         $this->imported = false;
         $this->resetValidation();
     }
@@ -148,6 +152,8 @@ class ImportCsv extends Component
         $this->successCount = 0;
         $this->errorCount = 0;
         $this->importErrors = [];
+        $this->importSuccess = [];
+        $this->resultTab = 'gagal';
 
         // Pre-fetch lookups once instead of querying the database per row.
         $existingEmails = User::pluck('email')
@@ -249,6 +255,20 @@ class ImportCsv extends Component
                     }
 
                     $existingEmails[strtolower(trim($email))] = true;
+
+                    $this->importSuccess[] = [
+                        'row' => $rowNumber,
+                        'data' => [
+                            'name' => $name,
+                            'email' => $email,
+                            'nik' => trim($data['nik'] ?? '') ?: '-',
+                            'department' => trim($data['department'] ?? '') ?: '-',
+                            'business_unit' => trim($data['business_unit'] ?? '') ?: '-',
+                            'site' => trim($data['site'] ?? '') ?: '-',
+                            'no_telepon' => trim($data['no_telepon'] ?? '') ?: '-',
+                            'role' => trim($data['role'] ?? '') ?: '-',
+                        ],
+                    ];
 
                     $this->successCount++;
                 } catch (\Exception $e) {
