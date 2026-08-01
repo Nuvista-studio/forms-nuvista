@@ -44,27 +44,34 @@ class ImportCsv extends Component
         if (!$this->file) return;
 
         try {
-            $this->validate(
-                ['file' => 'required|mimes:csv,txt|max:10240'],
-                [
-                    'file.required' => 'Pilih file CSV terlebih dahulu',
-                    'file.mimes' => 'File harus berformat .csv atau .txt',
-                    'file.max' => 'Ukuran file melebihi batas maksimal (10MB)',
-                ]
-            );
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            $this->addError('file', $e->validator->errors()->first('file'));
+            try {
+                $this->validate(
+                    ['file' => 'required|mimes:csv,txt|max:10240'],
+                    [
+                        'file.required' => 'Pilih file CSV terlebih dahulu',
+                        'file.mimes' => 'File harus berformat .csv atau .txt',
+                        'file.max' => 'Ukuran file melebihi batas maksimal (10MB)',
+                    ]
+                );
+            } catch (\Illuminate\Validation\ValidationException $e) {
+                $this->addError('file', $e->validator->errors()->first('file'));
+                $this->file = null;
+                $this->dispatch('show-toast', message: 'Upload CSV gagal: ' . $e->validator->errors()->first('file'), type: 'error');
+                return;
+            }
+
+            $this->loadPreview();
+
+            if (!empty($this->importErrors)) {
+                $this->dispatch('show-toast', message: 'Data CSV tidak sesuai: ' . $this->importErrors[0], type: 'error');
+            } else {
+                $this->dispatch('show-toast', message: "File berhasil diunggah: {$this->totalRows} baris terdeteksi. Klik 'Import' untuk memproses.", type: 'success');
+            }
+        } catch (\Throwable $e) {
+            // Never let a parsing error fail silently (would leave the UI stuck at "Memproses file").
             $this->file = null;
-            $this->dispatch('show-toast', message: 'Upload CSV gagal: ' . $e->validator->errors()->first('file'), type: 'error');
-            return;
-        }
-
-        $this->loadPreview();
-
-        if (!empty($this->importErrors)) {
-            $this->dispatch('show-toast', message: 'Data CSV tidak sesuai: ' . $this->importErrors[0], type: 'error');
-        } else {
-            $this->dispatch('show-toast', message: "File berhasil diunggah: {$this->totalRows} baris terdeteksi. Klik 'Import' untuk memproses.", type: 'success');
+            $this->importErrors[] = 'Gagal membaca file CSV: ' . $e->getMessage();
+            $this->dispatch('show-toast', message: 'Upload CSV gagal: ' . $e->getMessage(), type: 'error');
         }
     }
 

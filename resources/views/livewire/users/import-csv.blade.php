@@ -42,23 +42,28 @@
                     class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
             </div>
 
-            <div x-data="{ progress: 0, uploading: false }"
-                x-on:livewire-upload-start.window="uploading = true; progress = 0"
+            <div x-data="{ progress: 0, uploading: false, timedOut: false, timer: null }"
+                x-on:livewire-upload-start.window="uploading = true; progress = 0; timedOut = false; clearTimeout(timer)"
                 x-on:livewire-upload-progress.window="progress = $event.detail.progress"
-                x-on:livewire-upload-finish.window="uploading = false"
-                x-on:livewire-upload-error.window="uploading = false"
-                x-show="uploading"
+                x-on:livewire-upload-finish.window="clearTimeout(timer); uploading = false"
+                x-on:livewire-upload-error.window="clearTimeout(timer); uploading = false"
+                x-effect="if (progress >= 100 && !timer && uploading) { timer = setTimeout(() => { uploading = false; timedOut = true; }, 20000); }"
+                x-show="uploading || timedOut"
                 class="flex flex-col items-center gap-2 text-xs"
                 style="color: var(--color-primary);">
                 <div class="flex items-center gap-2">
-                    <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg x-show="!timedOut" class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                     </svg>
-                    <span x-text="progress >= 100 ? 'Memproses file, mohon tunggu...' : 'Mengunggah file, mohon tunggu... ' + progress + '%'"></span>
+                    <span x-show="!timedOut" x-text="progress >= 100 ? 'Memproses file, mohon tunggu...' : 'Mengunggah file, mohon tunggu... ' + progress + '%'"></span>
+                    <span x-show="timedOut" style="color: var(--color-text-secondary);">Pemrosesan memakan waktu terlalu lama.</span>
                 </div>
                 <div class="h-1.5 w-full max-w-xs rounded-full overflow-hidden" style="background: var(--color-glass-bg);">
                     <div class="h-full rounded-full transition-all duration-150" style="background: var(--color-primary);" :style="'width: ' + progress + '%'"></div>
                 </div>
+                <template x-if="timedOut">
+                    <p class="text-xs" style="color: var(--color-text-secondary);">Muat ulang halaman lalu pilih file CSV lagi.</p>
+                </template>
             </div>
 
             @error('file') <p class="text-xs text-red-400">{{ $message }}</p> @enderror
