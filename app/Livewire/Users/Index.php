@@ -220,6 +220,25 @@ class Index extends Component
                 return;
             }
 
+            if ($this->bulkEditValue === 'resigned') {
+                $blocked = User::withCount('assignedAssets')
+                    ->whereIn('id', $this->selected)
+                    ->having('assigned_assets_count', '>', 0)
+                    ->get();
+
+                if ($blocked->isNotEmpty()) {
+                    $names = $blocked->map(fn ($u) => "{$u->name} ({$u->assigned_assets_count} asset)")->implode(', ');
+                    $this->dispatch('show-toast', message: "Tidak bisa ubah status menjadi Resigned: {$names}. Kembalikan asset terlebih dahulu melalui Form Pengembalian Asset.", type: 'error');
+                    $this->selected = array_values(array_diff($this->selected, $blocked->pluck('id')->all()));
+
+                    if (empty($this->selected)) {
+                        $this->cancelBulkEdit();
+                        $this->dispatch('user-updated');
+                        return;
+                    }
+                }
+            }
+
             $count = User::whereIn('id', $this->selected)->update(['status' => $this->bulkEditValue]);
 
             ActivityLogger::log('update', "Mengubah status {$count} user menjadi " . ucfirst($this->bulkEditValue));

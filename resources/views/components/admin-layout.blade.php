@@ -107,6 +107,14 @@
                                     </svg>
                                     Form PWT
                                 </a>
+                                <a href="{{ route('admin.pengembalian.index') }}" wire:navigate
+                                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 {{ request()->routeIs('admin.pengembalian.*') ? 'admin-nav-active' : '' }}"
+                                    style="{{ request()->routeIs('admin.pengembalian.*') ? '' : 'color: var(--color-text-secondary);' }}">
+                                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h2m4 0h2m-9 5h10a2 2 0 002-2V8a2 2 0 00-2-2h-3l-2-3H9L7 6H4a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                    </svg>
+                                    Form Pengembalian
+                                </a>
                                 <div class="pt-2 pb-1 px-3">
                                     <h3 class="text-[10px] font-bold uppercase tracking-wider" style="color: var(--color-text-muted);">System</h3>
                                 </div>

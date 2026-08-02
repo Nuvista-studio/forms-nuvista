@@ -138,6 +138,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('perawatan.export')
             ->whereIn('format', ['pdf', 'xlsx', 'xls', 'html', 'csv']);
 
+        // Form Pengembalian Asset (PNG)
+        Volt::route('pengembalian', 'admin.pages.pengembalian.index')
+            ->name('pengembalian.index');
+
+        Volt::route('pengembalian/create', 'admin.pages.pengembalian.create')
+            ->name('pengembalian.create');
+
         // Backup
         Volt::route('backup', 'admin.pages.backup.index')
             ->name('backup.index');

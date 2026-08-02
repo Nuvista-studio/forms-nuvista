@@ -23,6 +23,8 @@ class EditForm extends Component
     public string $status = 'active';
     public string $role = '';
 
+    public array $assignedAssets = [];
+
     public function mount(int $userId): void
     {
         $user = User::findOrFail($userId);
@@ -36,6 +38,9 @@ class EditForm extends Component
         $this->no_telepon = $user->no_telepon ?? '';
         $this->status = $user->status ?? 'active';
         $this->role = $user->getRoleNames()->first() ?? '';
+        $this->assignedAssets = $user->assignedAssets()
+            ->get(['id', 'no_asset', 'nama_perangkat', 'brand', 'tipe', 'no_serial'])
+            ->toArray();
     }
 
     protected function rules(): array
@@ -74,6 +79,15 @@ class EditForm extends Component
     {
         try {
             $this->validate();
+
+            if ($this->status === User::STATUS_RESIGNED && ! empty($this->assignedAssets)) {
+                $this->addError(
+                    'status',
+                    'User masih memiliki ' . count($this->assignedAssets) . ' asset terpasang. Kembalikan asset terlebih dahulu melalui Form Pengembalian Asset.'
+                );
+
+                return;
+            }
 
             $data = [
                 'name' => $this->name,

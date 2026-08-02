@@ -62,6 +62,11 @@ class User extends Authenticatable
         return $this->belongsTo(Site::class, 'site', 'id_site');
     }
 
+    public function assignedAssets(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Asset::class, 'assigned_user_id');
+    }
+
     public function getSiteNameAttribute(): ?string
     {
         return $this->siteDetail?->site ?? $this->site;

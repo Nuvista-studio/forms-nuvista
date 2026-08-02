@@ -109,6 +109,31 @@
                 <option value="resigned">Resigned</option>
             </select>
             @error('status') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
+
+            @if ($this->status === 'resigned' && count($assignedAssets) > 0)
+                <div class="p-3 mt-3 rounded-lg text-sm"
+                    style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.35); color: var(--color-text-primary);">
+                    <p class="font-semibold" style="color: #ef4444;">User masih memiliki asset terpasang</p>
+                    <p class="mt-1" style="color: var(--color-text-secondary);">
+                        Sebelum mengubah status menjadi Resigned, kembalikan terlebih dahulu
+                        {{ count($assignedAssets) }} asset berikut melalui Form Pengembalian Asset:
+                    </p>
+                    <ul class="mt-2 space-y-1 text-xs" style="color: var(--color-text-secondary);">
+                        @foreach ($assignedAssets as $asset)
+                            <li>• {{ $asset['no_asset'] ?? '-' }} — {{ $asset['nama_perangkat'] ?? '-' }}
+                                @if (($asset['brand'] ?? '') || ($asset['tipe'] ?? ''))
+                                    ({{ $asset['brand'] ?? '' }} {{ $asset['tipe'] ?? '' }})
+                                @endif
+                            </li>
+                        @endforeach
+                    </ul>
+                    <a href="{{ route('admin.pengembalian.create', ['user' => $this->user->id]) }}" wire:navigate
+                        class="inline-flex items-center gap-1.5 mt-3 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors duration-200"
+                        style="background: var(--color-primary); color: var(--color-button-text);">
+                        Buat Form Pengembalian Asset
+                    </a>
+                </div>
+            @endif
         </div>
 
         {{-- Role --}}
