@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Forms;
 
+use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
@@ -35,6 +36,16 @@ class LoginForm extends Form
 
             throw ValidationException::withMessages([
                 'form.email' => trans('auth.failed'),
+            ]);
+        }
+
+        // Block employees with Resigned status. Auth::attempt already authenticated
+        // the user, so log them out before rejecting the request.
+        if (Auth::user()?->status === User::STATUS_RESIGNED) {
+            Auth::logout();
+
+            throw ValidationException::withMessages([
+                'form.email' => 'Akun Anda berstatus Resigned sehingga tidak dapat masuk.',
             ]);
         }
 
