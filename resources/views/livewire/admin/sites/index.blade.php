@@ -17,11 +17,11 @@
     {{-- Header --}}
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-            <h1 class="text-2xl font-bold text-primary">Data Sites</h1>
-            <p class="text-sm text-muted mt-1">Daftar seluruh site lokasi</p>
+            <h1 class="text-2xl font-bold text-primary">{{ __('Data Sites') }}</h1>
+            <p class="text-sm text-muted mt-1">{{ __('Daftar seluruh site lokasi') }}</p>
         </div>
         <div class="flex items-center gap-2 flex-wrap">
-            <span class="text-sm text-muted">{{ $sites->total() }} site</span>
+            <span class="text-sm text-muted">{{ $sites->total() }} {{ __('site') }}</span>
             <a href="{{ route('admin.sites.export.csv') }}"
                 class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors duration-200"
                 style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);">
@@ -44,7 +44,7 @@
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
-                Tambah Site
+                {{ __('Tambah Site') }}
             </a>
         </div>
     </div>
@@ -52,25 +52,25 @@
     {{-- Search & Filters --}}
     <div class="glass-card p-4">
         <div class="flex items-center justify-between mb-3">
-            <p class="text-xs font-medium text-muted uppercase tracking-wider">Filter Data</p>
+            <p class="text-xs font-medium text-muted uppercase tracking-wider">{{ __('Filter Data') }}</p>
             @if($filterId || $filterSite || $filterBuss || $filterCorp || $filterCountry || $filterProvincy || $filterCity)
                 <a href="{{ route('admin.sites.index') }}" wire:navigate
                     class="inline-flex items-center px-3 py-1 rounded-lg text-xs transition-colors duration-200"
                     style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);">
-                    Reset
+                    {{ __('Reset') }}
                 </a>
             @endif
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <div>
-                <label class="block text-xs font-medium text-muted mb-1">ID Site</label>
-                <input wire:model.live.debounce.300ms="filterId" type="text" placeholder="ID site..."
+                <label class="block text-xs font-medium text-muted mb-1">{{ __('ID Site') }}</label>
+                <input wire:model.live.debounce.300ms="filterId" type="text" placeholder="{{ __('ID site') }}..."
                     class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
                     style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);" />
             </div>
             <div>
-                <label class="block text-xs font-medium text-muted mb-1">Nama Site</label>
-                <input wire:model.live.debounce.300ms="filterSite" type="text" placeholder="Nama site..."
+                <label class="block text-xs font-medium text-muted mb-1">{{ __('Nama Site') }}</label>
+                <input wire:model.live.debounce.300ms="filterSite" type="text" placeholder="{{ __('Nama site') }}..."
                     class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
                     style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);" />
             </div>
@@ -81,26 +81,26 @@
                     style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);" />
             </div>
             <div>
-                <label class="block text-xs font-medium text-muted mb-1">Corp Unit</label>
+                <label class="block text-xs font-medium text-muted mb-1">{{ __('Corp Unit') }}</label>
                 <input wire:model.live.debounce.300ms="filterCorp" type="text" placeholder="id_corp..."
                     class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
                     style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);" />
             </div>
             <div>
-                <label class="block text-xs font-medium text-muted mb-1">Negara</label>
-                <input wire:model.live.debounce.300ms="filterCountry" type="text" placeholder="Negara..."
+                <label class="block text-xs font-medium text-muted mb-1">{{ __('Negara') }}</label>
+                <input wire:model.live.debounce.300ms="filterCountry" type="text" placeholder="{{ __('Negara') }}..."
                     class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
                     style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);" />
             </div>
             <div>
-                <label class="block text-xs font-medium text-muted mb-1">Provinsi</label>
-                <input wire:model.live.debounce.300ms="filterProvincy" type="text" placeholder="Provinsi..."
+                <label class="block text-xs font-medium text-muted mb-1">{{ __('Provinsi') }}</label>
+                <input wire:model.live.debounce.300ms="filterProvincy" type="text" placeholder="{{ __('Provinsi') }}..."
                     class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
                     style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);" />
             </div>
             <div>
-                <label class="block text-xs font-medium text-muted mb-1">Kota</label>
-                <input wire:model.live.debounce.300ms="filterCity" type="text" placeholder="Kota..."
+                <label class="block text-xs font-medium text-muted mb-1">{{ __('Kota') }}</label>
+                <input wire:model.live.debounce.300ms="filterCity" type="text" placeholder="{{ __('Kota') }}..."
                     class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
                     style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);" />
             </div>
@@ -120,11 +120,11 @@
                                     @checked($allSelected)>
                             </th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">ID</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Nama Site</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden sm:table-cell">Provinsi</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden md:table-cell">Kota</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden lg:table-cell">Negara</th>
-                            <th class="px-4 py-3 text-right text-xs font-medium text-muted uppercase tracking-wider">Aksi</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">{{ __('Nama Site') }}</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden sm:table-cell">{{ __('Provinsi') }}</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden md:table-cell">{{ __('Kota') }}</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden lg:table-cell">{{ __('Negara') }}</th>
+                            <th class="px-4 py-3 text-right text-xs font-medium text-muted uppercase tracking-wider">{{ __('Aksi') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y" style="border-color: var(--color-border);">
@@ -149,12 +149,12 @@
                                         <a href="{{ route('admin.sites.edit', $s->id_site) }}" wire:navigate
                                             class="p-1.5 rounded-lg transition-colors duration-200"
                                             style="color: var(--color-text-secondary);"
-                                            title="Edit">
+                                            title="{{ __('Edit') }}">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                         </a>
                                         <button wire:click="confirmDelete('{{ $s->id_site }}', '{{ addslashes($s->site) }}')"
                                             class="p-1.5 rounded-lg transition-colors duration-200 text-red-400 hover:text-red-300"
-                                            title="Hapus">
+                                            title="{{ __('Hapus') }}">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                         </button>
                                     </div>
@@ -169,18 +169,18 @@
         @if(count($selected) > 0)
             <div class="glass-card p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
                 style="border-color: rgba(245, 158, 11, 0.4);">
-                <p class="text-sm text-primary">{{ count($selected) }} site terpilih</p>
+                <p class="text-sm text-primary">{{ count($selected) }} {{ __('site terpilih') }}</p>
                 <div class="flex items-center gap-2">
                     <button wire:click="openBulkEdit" type="button"
                         class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
                         style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                        Edit Massal
+                        {{ __('Edit Massal') }}
                     </button>
                     <button wire:click="confirmBulkDelete" type="button"
                         class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium bg-red-500 text-white hover:bg-red-600 transition-all duration-200">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                        Hapus Terpilih
+                        {{ __('Hapus Terpilih') }}
                     </button>
                 </div>
             </div>
@@ -195,7 +195,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
             </svg>
-            <p class="mt-3 text-muted">Tidak ada site ditemukan</p>
+            <p class="mt-3 text-muted">{{ __('Tidak ada site ditemukan') }}</p>
         </div>
     @endif
 
@@ -204,11 +204,11 @@
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);"
             x-data x-on:keydown.escape.window="$wire.cancelDelete()">
             <div class="glass-card p-6 w-full max-w-md space-y-4" @click.away="$wire.cancelDelete()">
-                <h3 class="text-lg font-bold text-primary">Hapus Site</h3>
-                <p class="text-sm text-muted">Yakin ingin menghapus site <span class="font-semibold text-primary">{{ $deleteSiteName }}</span> ({{ $deleteSiteId }})?</p>
+                <h3 class="text-lg font-bold text-primary">{{ __('Hapus Site') }}</h3>
+                <p class="text-sm text-muted">{{ __('Yakin ingin menghapus site') }} <span class="font-semibold text-primary">{{ $deleteSiteName }}</span> ({{ $deleteSiteId }})?</p>
                 <div class="flex gap-2">
-                    <button wire:click="cancelDelete" type="button" class="glass-button-secondary text-sm flex-1">Batal</button>
-                    <button wire:click="deleteSite" type="button" class="flex-1 px-4 py-2 rounded-lg font-medium text-sm bg-red-500 text-white hover:bg-red-600 transition-all duration-200">Hapus</button>
+                    <button wire:click="cancelDelete" type="button" class="glass-button-secondary text-sm flex-1">{{ __('Batal') }}</button>
+                    <button wire:click="deleteSite" type="button" class="flex-1 px-4 py-2 rounded-lg font-medium text-sm bg-red-500 text-white hover:bg-red-600 transition-all duration-200">{{ __('Hapus') }}</button>
                 </div>
             </div>
         </div>
@@ -219,11 +219,11 @@
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);"
             x-data x-on:keydown.escape.window="$wire.cancelBulkDelete()">
             <div class="glass-card p-6 w-full max-w-md space-y-4" @click.away="$wire.cancelBulkDelete()">
-                <h3 class="text-lg font-bold text-primary">Hapus Site Terpilih</h3>
-                <p class="text-sm text-muted">Yakin ingin menghapus <span class="font-semibold text-primary">{{ count($selected) }} site</span> yang terpilih?</p>
+                <h3 class="text-lg font-bold text-primary">{{ __('Hapus Site Terpilih') }}</h3>
+                <p class="text-sm text-muted">{{ __('Yakin ingin menghapus') }} <span class="font-semibold text-primary">{{ count($selected) }} {{ __('site') }}</span> {{ __('yang terpilih') }}?</p>
                 <div class="flex gap-2">
-                    <button wire:click="cancelBulkDelete" type="button" class="glass-button-secondary text-sm flex-1">Batal</button>
-                    <button wire:click="bulkDelete" type="button" class="flex-1 px-4 py-2 rounded-lg font-medium text-sm bg-red-500 text-white hover:bg-red-600 transition-all duration-200">Hapus</button>
+                    <button wire:click="cancelBulkDelete" type="button" class="glass-button-secondary text-sm flex-1">{{ __('Batal') }}</button>
+                    <button wire:click="bulkDelete" type="button" class="flex-1 px-4 py-2 rounded-lg font-medium text-sm bg-red-500 text-white hover:bg-red-600 transition-all duration-200">{{ __('Hapus') }}</button>
                 </div>
             </div>
         </div>
@@ -234,31 +234,31 @@
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);"
             x-data x-on:keydown.escape.window="$wire.cancelBulkEdit()">
             <div class="glass-card p-6 w-full max-w-md space-y-4" @click.away="$wire.cancelBulkEdit()">
-                <h3 class="text-lg font-bold text-primary">Edit Massal Site ({{ count($selected) }} site)</h3>
+                <h3 class="text-lg font-bold text-primary">{{ __('Edit Massal Site') }} ({{ count($selected) }} {{ __('site') }})</h3>
                 <div>
-                    <label class="block text-xs font-medium text-muted mb-1">Field</label>
+                    <label class="block text-xs font-medium text-muted mb-1">{{ __('Field') }}</label>
                     <select wire:model="bulkEditField"
                         class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
                         style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
-                        <option value="">Pilih Field</option>
+                        <option value="">{{ __('Pilih Field') }}</option>
                         <option value="buss">Buss</option>
                         <option value="id_corp">Corp Unit (id_corp)</option>
-                        <option value="country">Negara</option>
-                        <option value="provincy">Provinsi</option>
-                        <option value="city">Kota</option>
+                        <option value="country">{{ __('Negara') }}</option>
+                        <option value="provincy">{{ __('Provinsi') }}</option>
+                        <option value="city">{{ __('Kota') }}</option>
                     </select>
                     @error('bulkEditField') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-muted mb-1">Nilai Baru</label>
-                    <input type="text" wire:model="bulkEditValue" placeholder="Nilai baru"
+                    <label class="block text-xs font-medium text-muted mb-1">{{ __('Nilai Baru') }}</label>
+                    <input type="text" wire:model="bulkEditValue" placeholder="{{ __('Nilai baru') }}"
                         class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
                         style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);" />
                 </div>
                 <div class="flex gap-2">
-                    <button wire:click="cancelBulkEdit" type="button" class="glass-button-secondary text-sm flex-1">Batal</button>
+                    <button wire:click="cancelBulkEdit" type="button" class="glass-button-secondary text-sm flex-1">{{ __('Batal') }}</button>
                     <button wire:click="bulkEdit" type="button" class="flex-1 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200"
-                        style="background: var(--color-primary); color: var(--color-button-text);">Simpan</button>
+                        style="background: var(--color-primary); color: var(--color-button-text);">{{ __('Simpan') }}</button>
                 </div>
             </div>
         </div>

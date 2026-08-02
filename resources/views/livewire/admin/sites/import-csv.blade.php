@@ -2,7 +2,7 @@
     {{-- Toast Notification --}}
     <div x-data="{ toast: false, message: '', type: 'success' }"
         @show-toast.window="toast = true; message = $event.detail.message; type = $event.detail.type || 'success'; setTimeout(() => toast = false, 4000)"
-        x-on:livewire-upload-error.window="toast = true; message = 'Gagal mengunggah file CSV. Periksa ukuran (maks 10MB) dan format file, lalu coba lagi.'; type = 'error'; setTimeout(() => toast = false, 4000)"
+        x-on:livewire-upload-error.window="toast = true; message = '{{ __('Gagal mengunggah file CSV. Periksa ukuran (maks 10MB) dan format file, lalu coba lagi.') }}'; type = 'error'; setTimeout(() => toast = false, 4000)"
         x-show="toast" x-transition
         class="fixed top-20 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-sm font-medium max-w-xs"
         :class="type === 'success' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'"
@@ -18,8 +18,8 @@
                     </svg>
                 </div>
                 <div>
-                    <h3 class="font-semibold text-primary">Upload File CSV</h3>
-                    <p class="text-xs text-muted">Format: id_site, site, buss, id_corp, country, provincy, city, address, url_maps</p>
+                    <h3 class="font-semibold text-primary">{{ __('Upload File CSV') }}</h3>
+                    <p class="text-xs text-muted">{{ __('Format') }}: id_site, site, buss, id_corp, country, provincy, city, address, url_maps</p>
                 </div>
             </div>
 
@@ -34,8 +34,8 @@
                 <svg class="w-10 h-10 mx-auto text-muted mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                 </svg>
-                <p class="text-sm text-secondary mb-2">Seret file ke sini atau klik untuk memilih</p>
-                <p class="text-xs text-muted">Maksimal 10MB (.csv)</p>
+                <p class="text-sm text-secondary mb-2">{{ __('Seret file ke sini atau klik untuk memilih') }}</p>
+                <p class="text-xs text-muted">{{ __('Maksimal 10MB (.csv)') }}</p>
 
                 <input type="file" wire:model="file" x-ref="fileInput" accept=".csv,.txt"
                     class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
@@ -45,7 +45,7 @@
                 <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                 </svg>
-                <span>Mengunggah file, mohon tunggu...</span>
+                <span>{{ __('Mengunggah file, mohon tunggu') }}...</span>
             </div>
 
             @error('file') <p class="text-xs text-red-400">{{ $message }}</p> @enderror
@@ -54,12 +54,12 @@
         @if(!empty($preview) && empty($importErrors))
             <div class="glass-card p-6 space-y-4">
                 <div class="flex items-center justify-between">
-                    <h3 class="font-semibold text-primary">Preview ({{ min($totalRows, 5) }} dari {{ $totalRows }} baris)</h3>
+                    <h3 class="font-semibold text-primary">{{ __('Preview') }} ({{ min($totalRows, 5) }} {{ __('dari') }} {{ $totalRows }} {{ __('baris') }})</h3>
                     <button wire:click="processData" wire:loading.attr="disabled"
                         class="px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200"
                         style="background: var(--color-primary); color: var(--color-button-text);">
-                        <span wire:loading.remove wire:target="processData">Proses Load</span>
-                        <span wire:loading wire:target="processData">Memproses...</span>
+                        <span wire:loading.remove wire:target="processData">{{ __('Proses Load') }}</span>
+                        <span wire:loading wire:target="processData">{{ __('Memproses') }}...</span>
                     </button>
                 </div>
 
@@ -67,7 +67,7 @@
                     <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                     </svg>
-                    <span>Memvalidasi data, mohon tunggu...</span>
+                    <span>{{ __('Memvalidasi data, mohon tunggu') }}...</span>
                 </div>
 
                 <div class="overflow-x-auto">
@@ -75,13 +75,13 @@
                         <thead>
                             <tr class="border-b" style="border-color: var(--color-border);">
                                 <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">#</th>
-                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">ID Site</th>
-                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">Nama Site</th>
+                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">{{ __('ID Site') }}</th>
+                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">{{ __('Nama Site') }}</th>
                                 <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">Buss</th>
                                 <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">ID Corp</th>
                                 <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">Country</th>
-                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">Provinsi</th>
-                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">Kota</th>
+                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">{{ __('Provinsi') }}</th>
+                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">{{ __('Kota') }}</th>
                                 <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">Address</th>
                                 <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">URL Maps</th>
                             </tr>
@@ -118,7 +118,7 @@
                 <button wire:click="resetImport"
                     class="px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
                     style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);">
-                    Coba Lagi
+                    {{ __('Coba Lagi') }}
                 </button>
             </div>
         @endif
@@ -131,37 +131,37 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                 </svg>
             </div>
-            <h3 class="text-lg font-bold text-primary">Import Selesai</h3>
+            <h3 class="text-lg font-bold text-primary">{{ __('Import Selesai') }}</h3>
             <div class="flex items-center justify-center gap-4 text-sm">
                 <button wire:click="$set('resultTab', 'berhasil')" type="button"
                     class="px-4 py-2 rounded-xl transition-all duration-200 cursor-pointer"
                     style="{{ $resultTab === 'berhasil' ? 'background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.5);' : 'background: var(--color-glass-bg); border: 1px solid var(--color-border);' }}">
                     <span class="text-emerald-400 font-bold text-xl">{{ $successCount }}</span>
-                    <p class="text-muted text-xs">Berhasil</p>
+                    <p class="text-muted text-xs">{{ __('Berhasil') }}</p>
                 </button>
                 <button wire:click="$set('resultTab', 'gagal')" type="button"
                     class="px-4 py-2 rounded-xl transition-all duration-200 cursor-pointer"
                     style="{{ $resultTab === 'gagal' ? 'background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.5);' : 'background: var(--color-glass-bg); border: 1px solid var(--color-border);' }}">
                     <span class="text-red-400 font-bold text-xl">{{ $errorCount }}</span>
-                    <p class="text-muted text-xs">Gagal</p>
+                    <p class="text-muted text-xs">{{ __('Gagal') }}</p>
                 </button>
             </div>
 
             @if($resultTab === 'berhasil')
                 @if(count($importSuccess) > 0)
                     <div class="text-left mt-4 p-3 rounded-lg" style="background: var(--color-glass-bg); border: 1px solid var(--color-border);">
-                        <p class="text-xs font-semibold text-emerald-400 mb-2">Detail Data Berhasil ({{ count($importSuccess) }} baris):</p>
+                        <p class="text-xs font-semibold text-emerald-400 mb-2">{{ __('Detail Data Berhasil') }} ({{ count($importSuccess) }} {{ __('baris') }}):</p>
                         <div class="overflow-x-auto max-h-60 overflow-y-auto">
                             <table class="w-full text-xs">
                                 <thead>
                                     <tr class="border-b" style="border-color: var(--color-border);">
-                                        <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">Baris</th>
-                                        <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">ID Site</th>
-                                        <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">Nama Site</th>
+                                        <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">{{ __('Baris') }}</th>
+                                        <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">{{ __('ID Site') }}</th>
+                                        <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">{{ __('Nama Site') }}</th>
                                         <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">Buss</th>
                                         <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">ID Corp</th>
                                         <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">Country</th>
-                                        <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">Kota</th>
+                                        <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">{{ __('Kota') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y" style="border-color: var(--color-border);">
@@ -181,23 +181,23 @@
                         </div>
                     </div>
                 @else
-                    <p class="text-sm text-muted mt-4">Tidak ada data berhasil.</p>
+                    <p class="text-sm text-muted mt-4">{{ __('Tidak ada data berhasil.') }}</p>
                 @endif
             @else
         {{-- Processed Confirmation --}}
         @if($processed)
             <div class="glass-card p-6 space-y-4" style="border-color: rgba(245, 158, 11, 0.4);">
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <h3 class="font-semibold text-primary">Data Terbaca: {{ $successCount }} Berhasil, {{ $errorCount }} Gagal</h3>
+                    <h3 class="font-semibold text-primary">{{ __('Data Terbaca') }}: {{ $successCount }} {{ __('Berhasil') }}, {{ $errorCount }} {{ __('Gagal') }}</h3>
                     <div class="flex items-center gap-2">
                         <button wire:click="confirmCancelImport"
                             class="px-5 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 bg-red-500 text-white hover:bg-red-600">
-                            Batalkan Import
+                            {{ __('Batalkan Import') }}
                         </button>
                         <button wire:click="confirmSendImport"
                             class="px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200"
                             style="background: var(--color-primary); color: var(--color-button-text);">
-                            Konfirmasi Kirim Data ({{ $successCount }})
+                            {{ __('Konfirmasi Kirim Data') }} ({{ $successCount }})
                         </button>
                     </div>
                 </div>
@@ -206,7 +206,7 @@
                     <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                     </svg>
-                    <span>Menyimpan data ke database, mohon tunggu...</span>
+                    <span>{{ __('Menyimpan data ke database, mohon tunggu') }}...</span>
                 </div>
 
                 <div class="flex items-center justify-center gap-4 text-sm">
@@ -214,31 +214,31 @@
                         class="px-4 py-2 rounded-xl transition-all duration-200 cursor-pointer"
                         style="{{ $resultTab === 'berhasil' ? 'background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.5);' : 'background: var(--color-glass-bg); border: 1px solid var(--color-border);' }}">
                         <span class="text-emerald-400 font-bold text-xl">{{ $successCount }}</span>
-                        <p class="text-muted text-xs">Berhasil</p>
+                        <p class="text-muted text-xs">{{ __('Berhasil') }}</p>
                     </button>
                     <button wire:click="$set('resultTab', 'gagal')" type="button"
                         class="px-4 py-2 rounded-xl transition-all duration-200 cursor-pointer"
                         style="{{ $resultTab === 'gagal' ? 'background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.5);' : 'background: var(--color-glass-bg); border: 1px solid var(--color-border);' }}">
                         <span class="text-red-400 font-bold text-xl">{{ $errorCount }}</span>
-                        <p class="text-muted text-xs">Gagal</p>
+                        <p class="text-muted text-xs">{{ __('Gagal') }}</p>
                     </button>
                 </div>
 
                 @if($resultTab === 'berhasil')
                     @if(count($importSuccess) > 0)
                         <div class="text-left mt-2 p-3 rounded-lg" style="background: var(--color-glass-bg); border: 1px solid var(--color-border);">
-                            <p class="text-xs font-semibold text-emerald-400 mb-2">Detail Data Berhasil ({{ count($importSuccess) }} baris):</p>
+                            <p class="text-xs font-semibold text-emerald-400 mb-2">{{ __('Detail Data Berhasil') }} ({{ count($importSuccess) }} {{ __('baris') }}):</p>
                             <div class="overflow-x-auto max-h-60 overflow-y-auto">
                                 <table class="w-full text-xs">
                                     <thead>
                                         <tr class="border-b" style="border-color: var(--color-border);">
-                                            <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">Baris</th>
-                                            <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">ID Site</th>
-                                            <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">Nama Site</th>
+                                            <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">{{ __('Baris') }}</th>
+                                            <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">{{ __('ID Site') }}</th>
+                                            <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">{{ __('Nama Site') }}</th>
                                             <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">Buss</th>
                                             <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">ID Corp</th>
                                             <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">Country</th>
-                                            <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">Kota</th>
+                                            <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">{{ __('Kota') }}</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y" style="border-color: var(--color-border);">
@@ -258,12 +258,12 @@
                             </div>
                         </div>
                     @else
-                        <p class="text-sm text-muted mt-2">Tidak ada data berhasil.</p>
+                        <p class="text-sm text-muted mt-2">{{ __('Tidak ada data berhasil.') }}</p>
                     @endif
                 @else
                     @if(!empty($importErrors))
                         <div class="text-left mt-2 p-3 rounded-lg" style="background: var(--color-glass-bg); border: 1px solid var(--color-border);">
-                            <p class="text-xs font-semibold text-red-400 mb-2">Detail Error ({{ $errorCount }} baris gagal):</p>
+                            <p class="text-xs font-semibold text-red-400 mb-2">{{ __('Detail Error') }} ({{ $errorCount }} {{ __('baris gagal') }}):</p>
                             <div class="max-h-40 overflow-y-auto space-y-1">
                                 @foreach($importErrors as $error)
                                     <p class="text-xs text-red-400">• {{ $error }}</p>
@@ -271,7 +271,7 @@
                             </div>
                         </div>
                     @else
-                        <p class="text-sm text-muted mt-2">Tidak ada data gagal.</p>
+                        <p class="text-sm text-muted mt-2">{{ __('Tidak ada data gagal.') }}</p>
                     @endif
                 @endif
             </div>
@@ -279,13 +279,13 @@
 
         @if(!empty($importErrors) && !$processed)
                     <div class="text-left max-h-40 overflow-y-auto mt-4 p-3 rounded-lg" style="background: var(--color-glass-bg); border: 1px solid var(--color-border);">
-                        <p class="text-xs font-semibold text-red-400 mb-2">Detail Error ({{ $errorCount }} baris gagal):</p>
+                        <p class="text-xs font-semibold text-red-400 mb-2">{{ __('Detail Error') }} ({{ $errorCount }} {{ __('baris gagal') }}):</p>
                         @foreach($importErrors as $error)
                             <p class="text-xs text-red-400">• {{ $error }}</p>
                         @endforeach
                     </div>
                 @else
-                    <p class="text-sm text-muted mt-4">Tidak ada data gagal.</p>
+                    <p class="text-sm text-muted mt-4">{{ __('Tidak ada data gagal.') }}</p>
                 @endif
             @endif
 
@@ -293,16 +293,16 @@
                 <a href="{{ route('admin.sites.index') }}" wire:navigate
                     class="px-5 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200"
                     style="background: var(--color-primary); color: var(--color-button-text);">
-                    Lihat Sites
+                    {{ __('Lihat Sites') }}
                 </a>
                 <button wire:click="resetImport"
                     class="px-5 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200"
                     style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);">
-                    Import Lagi
+                    {{ __('Import Lagi') }}
                 </button>
                 <button wire:click="confirmCancelImport"
                     class="px-5 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 bg-red-500 text-white hover:bg-red-600">
-                    Batalkan Import
+                    {{ __('Batalkan Import') }}
                 </button>
             </div>
         </div>
@@ -313,15 +313,15 @@
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);"
             x-data x-on:keydown.escape.window="$wire.dismissCancelImport()">
             <div class="glass-card p-6 w-full max-w-md space-y-4" @click.away="$wire.dismissCancelImport()">
-                <h3 class="text-lg font-bold text-primary">Batalkan Import</h3>
+                <h3 class="text-lg font-bold text-primary">{{ __('Batalkan Import') }}</h3>
                 @if($imported)
-                    <p class="text-sm text-muted">Yakin ingin membatalkan import? Data site yang baru ditambahkan akan dihapus, dan site yang diperbarui akan dikembalikan ke data sebelumnya.</p>
+                    <p class="text-sm text-muted">{{ __('Yakin ingin membatalkan import? Data site yang baru ditambahkan akan dihapus, dan site yang diperbarui akan dikembalikan ke data sebelumnya.') }}</p>
                 @else
-                    <p class="text-sm text-muted">Yakin ingin membatalkan import? Data yang sudah terbaca akan dibuang dan tidak akan dikirim ke database.</p>
+                    <p class="text-sm text-muted">{{ __('Yakin ingin membatalkan import? Data yang sudah terbaca akan dibuang dan tidak akan dikirim ke database.') }}</p>
                 @endif
                 <div class="flex gap-2">
-                    <button wire:click="dismissCancelImport" type="button" class="glass-button-secondary text-sm flex-1">Tidak</button>
-                    <button wire:click="cancelImport" type="button" class="flex-1 px-4 py-2 rounded-lg font-medium text-sm bg-red-500 text-white hover:bg-red-600 transition-all duration-200">Ya, Batalkan</button>
+                    <button wire:click="dismissCancelImport" type="button" class="glass-button-secondary text-sm flex-1">{{ __('Tidak') }}</button>
+                    <button wire:click="cancelImport" type="button" class="flex-1 px-4 py-2 rounded-lg font-medium text-sm bg-red-500 text-white hover:bg-red-600 transition-all duration-200">{{ __('Ya, Batalkan') }}</button>
                 </div>
             </div>
         </div>
@@ -332,15 +332,15 @@
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);"
             x-data x-on:keydown.escape.window="$wire.dismissConfirmImport()">
             <div class="glass-card p-6 w-full max-w-md space-y-4" @click.away="$wire.dismissConfirmImport()">
-                <h3 class="text-lg font-bold text-primary">Konfirmasi Kirim Data</h3>
-                <p class="text-sm text-muted">Yakin ingin mengirim <span class="font-semibold text-primary">{{ $successCount }} data site</span> ke database? Setelah dikirim, Anda akan diarahkan ke halaman Sites.</p>
+                <h3 class="text-lg font-bold text-primary">{{ __('Konfirmasi Kirim Data') }}</h3>
+                <p class="text-sm text-muted">{{ __('Yakin ingin mengirim') }} <span class="font-semibold text-primary">{{ $successCount }} {{ __('data site') }}</span> {{ __('ke database? Setelah dikirim, Anda akan diarahkan ke halaman Sites.') }}</p>
                 <div class="flex gap-2">
-                    <button wire:click="dismissConfirmImport" type="button" class="glass-button-secondary text-sm flex-1">Tidak</button>
+                    <button wire:click="dismissConfirmImport" type="button" class="glass-button-secondary text-sm flex-1">{{ __('Tidak') }}</button>
                     <button wire:click="confirmImport" wire:loading.attr="disabled"
                         class="flex-1 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200"
                         style="background: var(--color-primary); color: var(--color-button-text);">
-                        <span wire:loading.remove wire:target="confirmImport">Ya, Kirim</span>
-                        <span wire:loading wire:target="confirmImport">Mengirim...</span>
+                        <span wire:loading.remove wire:target="confirmImport">{{ __('Ya, Kirim') }}</span>
+                        <span wire:loading wire:target="confirmImport">{{ __('Mengirim') }}...</span>
                     </button>
                 </div>
             </div>

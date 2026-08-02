@@ -30,12 +30,17 @@ class User extends Authenticatable
         'no_telepon',
         'status',
         'theme_preference',
+        'locale',
         'signature_path',
     ];
 
     public const STATUS_ACTIVE = 'active';
 
     public const STATUS_RESIGNED = 'resigned';
+
+    public const LOCALE_ID = 'id';
+
+    public const LOCALE_EN = 'en';
 
     /**
      * The attributes that should be hidden for serialization.

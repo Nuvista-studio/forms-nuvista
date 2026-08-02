@@ -2,15 +2,15 @@
     {{-- Header --}}
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-            <h1 class="text-2xl font-bold text-primary">Dashboard</h1>
-            <p class="text-sm text-muted mt-1">Laporan & Analitik</p>
+            <h1 class="text-2xl font-bold text-primary">{{ __('Dashboard') }}</h1>
+            <p class="text-sm text-muted mt-1">{{ __('Laporan & Analitik') }}</p>
         </div>
         <div class="flex items-center gap-2 flex-wrap">
-            <label class="text-xs text-muted">Dari:</label>
+            <label class="text-xs text-muted">{{ __('Dari') }}:</label>
             <input wire:model.live.debounce.500ms="startDate" type="date"
                 class="px-3 py-1.5 rounded-lg text-xs transition-colors duration-200"
                 style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);" />
-            <label class="text-xs text-muted">Sampai:</label>
+            <label class="text-xs text-muted">{{ __('Sampai') }}:</label>
             <input wire:model.live.debounce.500ms="endDate" type="date"
                 class="px-3 py-1.5 rounded-lg text-xs transition-colors duration-200"
                 style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);" />
@@ -19,7 +19,7 @@
 
     {{-- Report 1: Perawatan by Site --}}
     <div class="glass-card p-5">
-        <h3 class="text-sm font-bold text-primary mb-4">Laporan Perawatan Perangkat by Site Lokasi</h3>
+        <h3 class="text-sm font-bold text-primary mb-4">{{ __('Laporan Perawatan Perangkat by Site Lokasi') }}</h3>
         @if(count($perawatanBySite) > 0)
             @php
                 $pwLabels = json_encode(array_column($perawatanBySite, 'site'));
@@ -36,7 +36,7 @@
                             data: {
                                 labels: {{ $pwLabels }},
                                 datasets: [{
-                                    label: 'Jumlah Perawatan',
+                                    label: '{{ __('Jumlah Perawatan') }}',
                                     data: {{ $pwData }},
                                     backgroundColor: 'rgba(168, 85, 247, 0.6)',
                                     borderColor: 'rgba(168, 85, 247, 1)',
@@ -62,18 +62,18 @@
                 <canvas x-ref="chartPerawatan"></canvas>
             </div>
         @else
-            <p class="text-sm text-muted text-center py-4">Tidak ada data perawatan pada periode ini</p>
+            <p class="text-sm text-muted text-center py-4">{{ __('Tidak ada data perawatan pada periode ini') }}</p>
         @endif
         <div class="mt-3 text-right">
             <a href="{{ route('admin.perawatan.index') }}" wire:navigate class="text-xs font-medium transition-colors duration-200" style="color: var(--color-primary);">
-                Lihat Semua Perawatan →
+                {{ __('Lihat Semua Perawatan') }} →
             </a>
         </div>
     </div>
 
     {{-- Report 2: Pemeriksaan by Site --}}
     <div class="glass-card p-5">
-        <h3 class="text-sm font-bold text-primary mb-4">Laporan Pemeriksaan Perangkat by Site Lokasi</h3>
+        <h3 class="text-sm font-bold text-primary mb-4">{{ __('Laporan Pemeriksaan Perangkat by Site Lokasi') }}</h3>
         @if(count($pemeriksaanBySite) > 0)
             @php
                 $pmLabels = json_encode(array_column($pemeriksaanBySite, 'site'));
@@ -90,7 +90,7 @@
                             data: {
                                 labels: {{ $pmLabels }},
                                 datasets: [{
-                                    label: 'Jumlah Pemeriksaan',
+                                    label: '{{ __('Jumlah Pemeriksaan') }}',
                                     data: {{ $pmData }},
                                     backgroundColor: 'rgba(59, 130, 246, 0.6)',
                                     borderColor: 'rgba(59, 130, 246, 1)',
@@ -116,11 +116,11 @@
                 <canvas x-ref="chartPemeriksaan"></canvas>
             </div>
         @else
-            <p class="text-sm text-muted text-center py-4">Tidak ada data pemeriksaan pada periode ini</p>
+            <p class="text-sm text-muted text-center py-4">{{ __('Tidak ada data pemeriksaan pada periode ini') }}</p>
         @endif
         <div class="mt-3 text-right">
             <a href="{{ route('admin.pemeriksaan.index') }}" wire:navigate class="text-xs font-medium transition-colors duration-200" style="color: var(--color-primary);">
-                Lihat Semua Pemeriksaan →
+                {{ __('Lihat Semua Pemeriksaan') }} →
             </a>
         </div>
     </div>
@@ -128,22 +128,22 @@
     {{-- Report 3: Users by Site --}}
     <div class="glass-card p-5">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mb-4">
-            <h3 class="text-sm font-bold text-primary">Laporan Users by Site</h3>
+            <h3 class="text-sm font-bold text-primary">{{ __('Laporan Users by Site') }}</h3>
             <div class="flex items-center gap-2 flex-wrap">
-                <label class="text-xs text-muted">Corp Unit:</label>
+                <label class="text-xs text-muted">{{ __('Corp Unit') }}:</label>
                 <select wire:model.live.debounce.300ms="filterCorpUnit"
                     class="px-3 py-1.5 rounded-lg text-xs transition-colors duration-200"
                     style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
-                    <option value="">Semua</option>
+                    <option value="">{{ __('Semua') }}</option>
                     @foreach($corpUnits as $corp)
                         <option value="{{ $corp }}">{{ $corp }}</option>
                     @endforeach
                 </select>
-                <label class="text-xs text-muted">Site:</label>
+                <label class="text-xs text-muted">{{ __('Site') }}:</label>
                 <select wire:model.live.debounce.300ms="filterSite"
                     class="px-3 py-1.5 rounded-lg text-xs transition-colors duration-200"
                     style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
-                    <option value="">Semua</option>
+                    <option value="">{{ __('Semua') }}</option>
                     @foreach($filterSites as $site)
                         <option value="{{ $site['id'] }}">{{ $site['name'] }}</option>
                     @endforeach
@@ -166,7 +166,7 @@
                             data: {
                                 labels: {{ $ubLabels }},
                                 datasets: [{
-                                    label: 'Jumlah Users',
+                                    label: '{{ __('Jumlah Users') }}',
                                     data: {{ $ubData }},
                                     backgroundColor: 'rgba(16, 185, 129, 0.6)',
                                     borderColor: 'rgba(16, 185, 129, 1)',
@@ -197,9 +197,9 @@
                 <table class="w-full text-sm">
                     <thead>
                         <tr class="border-b" style="border-color: var(--color-border);">
-                            <th class="text-left py-2 text-xs text-muted font-medium">Site</th>
-                            <th class="text-left py-2 text-xs text-muted font-medium">Corp Unit</th>
-                            <th class="text-right py-2 text-xs text-muted font-medium">Total Users</th>
+                            <th class="text-left py-2 text-xs text-muted font-medium">{{ __('Site') }}</th>
+                            <th class="text-left py-2 text-xs text-muted font-medium">{{ __('Corp Unit') }}</th>
+                            <th class="text-right py-2 text-xs text-muted font-medium">{{ __('Total Users') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y" style="border-color: var(--color-border);">
@@ -218,11 +218,11 @@
                 </table>
             </div>
         @else
-            <p class="text-sm text-muted text-center py-4">Tidak ada data user pada filter ini</p>
+            <p class="text-sm text-muted text-center py-4">{{ __('Tidak ada data user pada filter ini') }}</p>
         @endif
         <div class="mt-3 text-right">
             <a href="{{ route('admin.users.index') }}" wire:navigate class="text-xs font-medium transition-colors duration-200" style="color: var(--color-primary);">
-                Lihat Semua Users →
+                {{ __('Lihat Semua Users') }} →
             </a>
         </div>
     </div>
@@ -230,13 +230,13 @@
     {{-- Report 4: Top 10 Assets --}}
     <div class="glass-card p-5">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-            <h3 class="text-sm font-bold text-primary">10 Perangkat yang Sering Diperiksa</h3>
+            <h3 class="text-sm font-bold text-primary">{{ __('10 Perangkat yang Sering Diperiksa') }}</h3>
             <div class="flex items-center gap-2">
-                <label class="text-xs text-muted">Operating Unit:</label>
+                <label class="text-xs text-muted">{{ __('Operating Unit') }}:</label>
                 <select wire:model.live.debounce.500ms="filterOperatingUnit"
                     class="px-3 py-1.5 rounded-lg text-xs transition-colors duration-200"
                     style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
-                    <option value="">Semua</option>
+                    <option value="">{{ __('Semua') }}</option>
                     @foreach($operatingUnits as $ou)
                         <option value="{{ $ou['id'] }}">{{ $ou['name'] }} ({{ $ou['id'] }})</option>
                     @endforeach
@@ -249,11 +249,11 @@
                     <thead>
                         <tr class="border-b" style="border-color: var(--color-border);">
                             <th class="text-left py-2 text-xs text-muted font-medium">#</th>
-                            <th class="text-left py-2 text-xs text-muted font-medium">No Asset</th>
-                            <th class="text-left py-2 text-xs text-muted font-medium">Nama Perangkat</th>
-                            <th class="text-left py-2 text-xs text-muted font-medium hidden md:table-cell">Operating Unit</th>
-                            <th class="text-left py-2 text-xs text-muted font-medium hidden lg:table-cell">Site Location</th>
-                            <th class="text-right py-2 text-xs text-muted font-medium">Jumlah</th>
+                            <th class="text-left py-2 text-xs text-muted font-medium">{{ __('No Asset') }}</th>
+                            <th class="text-left py-2 text-xs text-muted font-medium">{{ __('Nama Perangkat') }}</th>
+                            <th class="text-left py-2 text-xs text-muted font-medium hidden md:table-cell">{{ __('Operating Unit') }}</th>
+                            <th class="text-left py-2 text-xs text-muted font-medium hidden lg:table-cell">{{ __('Site Location') }}</th>
+                            <th class="text-right py-2 text-xs text-muted font-medium">{{ __('Jumlah') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y" style="border-color: var(--color-border);">
@@ -276,17 +276,17 @@
             </div>
             <div class="mt-3 text-right">
                 <a href="{{ route('admin.assets.index') }}" wire:navigate class="text-xs font-medium transition-colors duration-200" style="color: var(--color-primary);">
-                    Lihat Semua Asset →
+                    {{ __('Lihat Semua Asset') }} →
                 </a>
             </div>
         @else
-            <p class="text-sm text-muted text-center py-4">Tidak ada data pemeriksaan asset</p>
+            <p class="text-sm text-muted text-center py-4">{{ __('Tidak ada data pemeriksaan asset') }}</p>
         @endif
     </div>
 
     {{-- Report 5: Tren Perawatan per Bulan --}}
     <div class="glass-card p-5">
-        <h3 class="text-sm font-bold text-primary mb-4">Tren Perawatan per Bulan (12 Bulan)</h3>
+        <h3 class="text-sm font-bold text-primary mb-4">{{ __('Tren Perawatan per Bulan (12 Bulan)') }}</h3>
         @if(count($trendPerawatanBulanan) > 0)
             @php
                 $trLabels = json_encode(array_keys($trendPerawatanBulanan));
@@ -303,7 +303,7 @@
                             data: {
                                 labels: {{ $trLabels }},
                                 datasets: [{
-                                    label: 'Jumlah Perawatan',
+                                    label: '{{ __('Jumlah Perawatan') }}',
                                     data: {{ $trData }},
                                     borderColor: 'rgba(168, 85, 247, 1)',
                                     backgroundColor: 'rgba(168, 85, 247, 0.1)',
@@ -332,11 +332,11 @@
                 <canvas x-ref="chartTrend"></canvas>
             </div>
         @else
-            <p class="text-sm text-muted text-center py-4">Tidak ada data tren perawatan</p>
+            <p class="text-sm text-muted text-center py-4">{{ __('Tidak ada data tren perawatan') }}</p>
         @endif
         <div class="mt-3 text-right">
             <a href="{{ route('admin.perawatan.index') }}" wire:navigate class="text-xs font-medium transition-colors duration-200" style="color: var(--color-primary);">
-                Lihat Semua Perawatan →
+                {{ __('Lihat Semua Perawatan') }} →
             </a>
         </div>
     </div>
@@ -344,13 +344,13 @@
     {{-- Report 6: Perawatan vs Belum by Operating Unit --}}
     <div class="glass-card p-5">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-            <h3 class="text-sm font-bold text-primary">Perangkat Dilakukan Perawatan vs Belum Perawatan by Operating Unit</h3>
+            <h3 class="text-sm font-bold text-primary">{{ __('Perangkat Dilakukan Perawatan vs Belum Perawatan by Operating Unit') }}</h3>
             <div class="flex items-center gap-2">
-                <label class="text-xs text-muted">Status Asset:</label>
+                <label class="text-xs text-muted">{{ __('Status Asset') }}:</label>
                 <select wire:model.live.debounce.300ms="filterAssetStatus"
                     class="px-3 py-1.5 rounded-lg text-xs transition-colors duration-200"
                     style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
-                    <option value="">Semua</option>
+                    <option value="">{{ __('Semua') }}</option>
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
                 </select>
@@ -375,7 +375,7 @@
                                 labels: {{ $pvbLabels }},
                                 datasets: [
                                     {
-                                        label: 'Dilakukan Perawatan',
+                                        label: '{{ __('Dilakukan Perawatan') }}',
                                         data: {{ $pvbDilakukan }},
                                         backgroundColor: 'rgba(16, 185, 129, 0.7)',
                                         borderColor: 'rgba(16, 185, 129, 1)',
@@ -383,7 +383,7 @@
                                         borderRadius: 4,
                                     },
                                     {
-                                        label: 'Belum Perawatan',
+                                        label: '{{ __('Belum Perawatan') }}',
                                         data: {{ $pvbBelum }},
                                         backgroundColor: 'rgba(239, 68, 68, 0.5)',
                                         borderColor: 'rgba(239, 68, 68, 1)',
@@ -408,7 +408,7 @@
                                         stacked: true,
                                         ticks: { color: 'rgb(156,163,175)', stepSize: 1 },
                                         grid: { color: 'rgb(229,231,235)' },
-                                        title: { display: true, text: 'Jumlah Asset', color: 'rgb(156,163,175)', font: { size: 11 } }
+                                        title: { display: true, text: '{{ __('Jumlah Asset') }}', color: 'rgb(156,163,175)', font: { size: 11 } }
                                     },
                                     y: {
                                         stacked: true,
@@ -430,11 +430,11 @@
                 <table class="w-full text-sm">
                     <thead>
                         <tr class="border-b" style="border-color: var(--color-border);">
-                            <th class="text-left py-2 text-xs text-muted font-medium">Operating Unit</th>
-                            <th class="text-right py-2 text-xs text-muted font-medium">Total Asset</th>
-                            <th class="text-right py-2 text-xs text-muted font-medium">Dilakukan</th>
-                            <th class="text-right py-2 text-xs text-muted font-medium">Belum</th>
-                            <th class="text-right py-2 text-xs text-muted font-medium">% Selesai</th>
+                            <th class="text-left py-2 text-xs text-muted font-medium">{{ __('Operating Unit') }}</th>
+                            <th class="text-right py-2 text-xs text-muted font-medium">{{ __('Total Asset') }}</th>
+                            <th class="text-right py-2 text-xs text-muted font-medium">{{ __('Dilakukan') }}</th>
+                            <th class="text-right py-2 text-xs text-muted font-medium">{{ __('Belum') }}</th>
+                            <th class="text-right py-2 text-xs text-muted font-medium">% {{ __('Selesai') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y" style="border-color: var(--color-border);">
@@ -474,7 +474,7 @@
                 </table>
             </div>
         @else
-            <p class="text-sm text-muted text-center py-4">Tidak ada data asset</p>
+            <p class="text-sm text-muted text-center py-4">{{ __('Tidak ada data asset') }}</p>
         @endif
     </div>
 </div>

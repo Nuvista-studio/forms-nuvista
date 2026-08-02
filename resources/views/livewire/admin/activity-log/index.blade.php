@@ -1,16 +1,16 @@
 <div class="space-y-6">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-            <h1 class="text-2xl font-bold text-primary">Activity Log</h1>
-            <p class="text-sm text-muted mt-1">Riwayat aktivitas pengguna</p>
+            <h1 class="text-2xl font-bold text-primary">{{ __('Activity Log') }}</h1>
+            <p class="text-sm text-muted mt-1">{{ __('Riwayat aktivitas pengguna') }}</p>
         </div>
-        <button wire:click="clearAll" wire:confirm="Hapus semua log aktivitas?"
+        <button wire:click="clearAll" wire:confirm="{{ __('Hapus semua log aktivitas?') }}"
             class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors duration-200"
             style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: rgb(239, 68, 68);">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
             </svg>
-            Hapus Semua
+            {{ __('Hapus Semua') }}
         </button>
     </div>
 
@@ -26,14 +26,14 @@
                 <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
-                <input type="text" wire:model.live.debounce.300ms="search" placeholder="Cari deskripsi..." 
+                <input type="text" wire:model.live.debounce.300ms="search" placeholder="{{ __('Cari deskripsi...') }}" 
                     class="w-full pl-10 pr-4 py-2 rounded-lg text-sm bg-transparent border" 
                     style="border-color: var(--color-border); color: var(--color-text-primary);">
             </div>
             <select wire:model.live="filterType" 
                 class="px-3 py-2 rounded-lg text-sm bg-transparent border" 
                 style="border-color: var(--color-border); color: var(--color-text-primary);">
-                <option value="">Semua Tipe</option>
+                <option value="">{{ __('Semua Tipe') }}</option>
                 @foreach($types as $type)
                     <option value="{{ $type }}">{{ ucfirst($type) }}</option>
                 @endforeach
@@ -41,7 +41,7 @@
             <select wire:model.live="filterUserId" 
                 class="px-3 py-2 rounded-lg text-sm bg-transparent border" 
                 style="border-color: var(--color-border); color: var(--color-text-primary);">
-                <option value="">Semua User</option>
+                <option value="">{{ __('Semua User') }}</option>
                 @foreach($users as $user)
                     <option value="{{ $user->id }}">{{ $user->name }}</option>
                 @endforeach
@@ -50,7 +50,7 @@
                 <button wire:click="resetFilters"
                     class="px-3 py-2 rounded-lg text-sm transition-colors duration-200"
                     style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);">
-                    Reset
+                    {{ __('Reset') }}
                 </button>
             @endif
         </div>
@@ -62,14 +62,14 @@
                 <thead>
                     <tr class="border-b" style="border-color: var(--color-border);">
                         <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap cursor-pointer" wire:click="sortBy('created_at')">
-                            Waktu
+                            {{ __('Waktu') }}
                             @if($sortField === 'created_at') {{ $sortDirection === 'asc' ? '↑' : '↓' }} @endif
                         </th>
-                        <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">User</th>
-                        <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">Tipe</th>
-                        <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">Deskripsi</th>
-                        <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap hidden md:table-cell">Detail</th>
-                        <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap hidden lg:table-cell">IP</th>
+                        <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">{{ __('User') }}</th>
+                        <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">{{ __('Tipe') }}</th>
+                        <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">{{ __('Deskripsi') }}</th>
+                        <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap hidden md:table-cell">{{ __('Detail') }}</th>
+                        <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap hidden lg:table-cell">{{ __('IP') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y" style="border-color: var(--color-border);">
@@ -96,7 +96,7 @@
                     @empty
                         <tr>
                             <td colspan="6" class="px-3 py-8 text-center text-muted text-sm">
-                                Belum ada aktivitas
+                                {{ __('Belum ada aktivitas') }}
                             </td>
                         </tr>
                     @endforelse

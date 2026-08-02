@@ -1,8 +1,8 @@
 <div class="space-y-6" x-data x-on:backup-deleted.window="$wire.$refresh()">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-            <h1 class="text-2xl font-bold text-primary">Backup Data</h1>
-            <p class="text-sm text-muted mt-1">Buat dan unduh cadangan database serta file penyimpanan</p>
+            <h1 class="text-2xl font-bold text-primary">{{ __('Backup Data') }}</h1>
+            <p class="text-sm text-muted mt-1">{{ __('Buat dan unduh cadangan database serta file penyimpanan') }}</p>
         </div>
         <div class="flex items-center gap-2">
             <button wire:click="createBackup" wire:loading.attr="disabled"
@@ -14,8 +14,8 @@
                 <svg wire:loading wire:target="createBackup" class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                 </svg>
-                <span wire:loading.remove wire:target="createBackup">Buat Backup Baru</span>
-                <span wire:loading wire:target="createBackup">Membuat...</span>
+                <span wire:loading.remove wire:target="createBackup">{{ __('Buat Backup Baru') }}</span>
+                <span wire:loading wire:target="createBackup">{{ __('Membuat') }}...</span>
             </button>
         </div>
     </div>
@@ -36,8 +36,8 @@
     <div class="glass-card p-4">
         <div class="flex items-center justify-between gap-4 flex-wrap">
             <div>
-                <h2 class="text-sm font-bold text-primary">Upload & Restore Database</h2>
-                <p class="text-xs text-muted mt-0.5">Upload file .sql atau .zip untuk mengembalikan database</p>
+                <h2 class="text-sm font-bold text-primary">{{ __('Upload & Restore Database') }}</h2>
+                <p class="text-xs text-muted mt-0.5">{{ __('Upload file .sql atau .zip untuk mengembalikan database') }}</p>
             </div>
             <form wire:submit="uploadAndRestore" class="flex items-center gap-2 flex-wrap">
                 <input type="file" wire:model="uploadedFile" accept=".sql,.zip"
@@ -48,7 +48,7 @@
                     <svg class="w-3.5 h-3.5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                     </svg>
-                    <span>Mengunggah...</span>
+                    <span>{{ __('Mengunggah') }}...</span>
                 </span>
                 <button type="submit" wire:loading.attr="disabled"
                     class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors duration-200"
@@ -59,8 +59,8 @@
                     <svg wire:loading wire:target="uploadAndRestore" class="w-3.5 h-3.5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                     </svg>
-                    <span wire:loading.remove wire:target="uploadAndRestore">Restore</span>
-                    <span wire:loading wire:target="uploadAndRestore">Merestore...</span>
+                    <span wire:loading.remove wire:target="uploadAndRestore">{{ __('Restore') }}</span>
+                    <span wire:loading wire:target="uploadAndRestore">{{ __('Merestore') }}...</span>
                 </button>
             </form>
         </div>
@@ -71,7 +71,7 @@
             <svg class="w-8 h-8 mx-auto mb-3 animate-spin" style="color: var(--color-primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
             </svg>
-            <p class="text-sm text-muted">{{ $isRestoring ? 'Sedang merestore database, mohon tunggu...' : 'Sedang membuat backup, mohon tunggu...' }}</p>
+            <p class="text-sm text-muted">{{ $isRestoring ? __('Sedang merestore database, mohon tunggu') . '...' : __('Sedang membuat backup, mohon tunggu') . '...' }}</p>
         </div>
     @endif
 
@@ -81,18 +81,18 @@
                 <svg class="w-12 h-12 mx-auto mb-3" style="color: var(--color-text-muted);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/>
                 </svg>
-                <p class="text-sm text-muted">Belum ada backup tersedia</p>
-                <p class="text-xs text-muted mt-1">Klik tombol "Buat Backup Baru" untuk memulai</p>
+                <p class="text-sm text-muted">{{ __('Belum ada backup tersedia') }}</p>
+                <p class="text-xs text-muted mt-1">{{ __('Klik tombol "Buat Backup Baru" untuk memulai') }}</p>
             </div>
         @else
             <div class="overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead>
                         <tr class="border-b" style="border-color: var(--color-border);">
-                            <th class="text-left py-2.5 px-3 text-xs font-medium text-muted">Nama File</th>
-                            <th class="text-left py-2.5 px-3 text-xs font-medium text-muted">Ukuran</th>
-                            <th class="text-left py-2.5 px-3 text-xs font-medium text-muted">Tanggal Dibuat</th>
-                            <th class="text-right py-2.5 px-3 text-xs font-medium text-muted">Aksi</th>
+                            <th class="text-left py-2.5 px-3 text-xs font-medium text-muted">{{ __('Nama File') }}</th>
+                            <th class="text-left py-2.5 px-3 text-xs font-medium text-muted">{{ __('Ukuran') }}</th>
+                            <th class="text-left py-2.5 px-3 text-xs font-medium text-muted">{{ __('Tanggal Dibuat') }}</th>
+                            <th class="text-right py-2.5 px-3 text-xs font-medium text-muted">{{ __('Aksi') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y" style="border-color: color-mix(in srgb, var(--color-border) 25%, transparent);">
@@ -113,26 +113,26 @@
                                         <a href="{{ route('admin.backup.download', $backup['filename']) }}"
                                             class="p-1.5 rounded transition-colors hover:opacity-80"
                                             style="color: var(--color-primary);"
-                                            title="Download">
+                                            title="{{ __('Download') }}">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                                             </svg>
                                         </a>
                                         <button wire:click="restoreBackup('{{ $backup['filename'] }}')"
-                                            wire:confirm="PERHATIAN! Merestore backup akan MENIMPA SELURUH DATA database saat ini. Lanjutkan?"
+                                            wire:confirm="{{ __('PERHATIAN! Merestore backup akan MENIMPA SELURUH DATA database saat ini. Lanjutkan?') }}"
                                             class="p-1.5 rounded transition-colors hover:opacity-80"
                                             wire:loading.attr="disabled"
                                             style="color: #f59e0b;"
-                                            title="Restore Database">
+                                            title="{{ __('Restore Database') }}">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                                             </svg>
                                         </button>
                                         <button wire:click="deleteBackup('{{ $backup['filename'] }}')"
-                                            wire:confirm="Yakin ingin menghapus backup {{ $backup['filename'] }}?"
+                                            wire:confirm="{{ __('Yakin ingin menghapus backup') }} {{ $backup['filename'] }}?"
                                             class="p-1.5 rounded transition-colors hover:opacity-80"
                                             style="color: #ef4444;"
-                                            title="Hapus">
+                                            title="{{ __('Hapus') }}">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                             </svg>

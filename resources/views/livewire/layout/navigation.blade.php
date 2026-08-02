@@ -13,6 +13,22 @@ new class extends Component
 
         $this->dispatch('theme-changed', theme: $newTheme);
     }
+
+    public function setLocale(string $locale)
+    {
+        if (! in_array($locale, ['id', 'en'], true)) {
+            return;
+        }
+
+        $user = auth()->user();
+        if ($user) {
+            $user->update(['locale' => $locale]);
+        }
+
+        session(['locale' => $locale]);
+
+        $this->js('window.location.reload()');
+    }
 }; ?>
 
 <div>
@@ -56,13 +72,27 @@ new class extends Component
             <div class="hidden sm:flex sm:items-center sm:ms-6 gap-2">
                 <livewire:layout.notification-bell />
 
+                <div class="flex items-center gap-1 p-1 rounded-lg"
+                    style="background: var(--color-glass-bg); border: 1px solid var(--color-border);">
+                    <button
+                        wire:click="setLocale('id')"
+                        class="px-2 py-1 rounded-md text-xs font-semibold transition-colors duration-200"
+                        style="{{ app()->getLocale() === 'id' ? 'background: var(--color-primary); color: var(--color-button-text);' : 'color: var(--color-text-secondary);' }}"
+                        title="{{ __('Bahasa Indonesia') }}">ID</button>
+                    <button
+                        wire:click="setLocale('en')"
+                        class="px-2 py-1 rounded-md text-xs font-semibold transition-colors duration-200"
+                        style="{{ app()->getLocale() === 'en' ? 'background: var(--color-primary); color: var(--color-button-text);' : 'color: var(--color-text-secondary);' }}"
+                        title="{{ __('English') }}">EN</button>
+                </div>
+
                 <button
                     wire:click="toggleTheme"
                     x-data="{ dark: {{ Str::contains(Auth::user()->theme_preference ?? 'light', 'dark') ? 'true' : 'false' }} }"
                     x-on:theme-changed.window="dark = ($event.detail.theme === 'dark')"
                     class="p-2 rounded-lg transition-colors duration-200"
                     style="color: var(--color-text-secondary);"
-                    title="Toggle Dark Mode"
+                    title="{{ __('Toggle Dark Mode') }}"
                 >
                     <svg x-show="dark" x-cloak class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -157,6 +187,17 @@ new class extends Component
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                     </svg>
                 </button>
+                <div class="flex items-center gap-1 p-1 rounded-lg"
+                    style="background: var(--color-glass-bg); border: 1px solid var(--color-border);">
+                    <button
+                        wire:click="setLocale('id')"
+                        class="px-2 py-1 rounded-md text-xs font-semibold transition-colors duration-200"
+                        style="{{ app()->getLocale() === 'id' ? 'background: var(--color-primary); color: var(--color-button-text);' : 'color: var(--color-text-secondary);' }}">ID</button>
+                    <button
+                        wire:click="setLocale('en')"
+                        class="px-2 py-1 rounded-md text-xs font-semibold transition-colors duration-200"
+                        style="{{ app()->getLocale() === 'en' ? 'background: var(--color-primary); color: var(--color-button-text);' : 'color: var(--color-text-secondary);' }}">EN</button>
+                </div>
             </div>
 
             <div class="mt-3 space-y-1">
@@ -185,7 +226,7 @@ new class extends Component
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
             </svg>
-            <span class="text-[10px] font-medium">Cari</span>
+            <span class="text-[10px] font-medium">{{ __('Cari') }}</span>
         </a>
 
         @if(auth()->user()->hasAnyRole(['admin', 'teknisi']))
@@ -195,7 +236,7 @@ new class extends Component
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                 </svg>
-                <span class="text-[10px] font-medium">Pemeriksaan</span>
+                <span class="text-[10px] font-medium">{{ __('Pemeriksaan') }}</span>
             </a>
         @endif
 
@@ -207,7 +248,7 @@ new class extends Component
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                 </svg>
-                <span class="text-[10px] font-medium">Perawatan</span>
+                <span class="text-[10px] font-medium">{{ __('Perawatan') }}</span>
             </a>
         @endif
 
@@ -226,7 +267,7 @@ new class extends Component
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
             </svg>
-            <span class="text-[10px] font-medium">Profil</span>
+            <span class="text-[10px] font-medium">{{ __('Profil') }}</span>
         </a>
     </div>
 </nav>

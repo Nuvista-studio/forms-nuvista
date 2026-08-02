@@ -17,11 +17,11 @@
     {{-- Header --}}
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-            <h1 class="text-2xl font-bold text-primary">Data Assets</h1>
-            <p class="text-sm text-muted mt-1">Daftar seluruh perangkat / asset</p>
+            <h1 class="text-2xl font-bold text-primary">{{ __('Data Assets') }}</h1>
+            <p class="text-sm text-muted mt-1">{{ __('Daftar seluruh perangkat / asset') }}</p>
         </div>
         <div class="flex items-center gap-2 flex-wrap">
-            <span class="text-sm text-muted">{{ $assets->total() }} asset</span>
+            <span class="text-sm text-muted">{{ $assets->total() }} {{ __('asset') }}</span>
             <a href="{{ route('admin.assets.export.csv') }}"
                 class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors duration-200"
                 style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);">
@@ -44,7 +44,7 @@
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
-                Tambah Asset
+                {{ __('Tambah Asset') }}
             </a>
         </div>
     </div>
@@ -52,58 +52,58 @@
     {{-- Search & Filters --}}
     <div class="glass-card p-4">
         <div class="flex items-center justify-between mb-3">
-            <p class="text-xs font-medium text-muted uppercase tracking-wider">Filter Data</p>
+            <p class="text-xs font-medium text-muted uppercase tracking-wider">{{ __('Filter Data') }}</p>
             @if($filterNoAsset || $filterNama || $filterKategori || $filterBrand || $filterTipe || $filterNoSerial || $filterStatus || $filterOperatingUnit || $filterPerawatanStatus)
                 <a href="{{ route('admin.assets.index') }}" wire:navigate
                     class="inline-flex items-center px-3 py-1 rounded-lg text-xs transition-colors duration-200"
                     style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);">
-                    Reset
+                    {{ __('Reset') }}
                 </a>
             @endif
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <div>
-                <label class="block text-xs font-medium text-muted mb-1">No Asset</label>
-                <input wire:model.live.debounce.300ms="filterNoAsset" type="text" placeholder="No asset..."
+                <label class="block text-xs font-medium text-muted mb-1">{{ __('No Asset') }}</label>
+                <input wire:model.live.debounce.300ms="filterNoAsset" type="text" placeholder="{{ __('No asset') }}..."
                     class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
                     style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);" />
             </div>
             <div>
-                <label class="block text-xs font-medium text-muted mb-1">Nama Perangkat</label>
-                <input wire:model.live.debounce.300ms="filterNama" type="text" placeholder="Nama perangkat..."
+                <label class="block text-xs font-medium text-muted mb-1">{{ __('Nama Perangkat') }}</label>
+                <input wire:model.live.debounce.300ms="filterNama" type="text" placeholder="{{ __('Nama perangkat') }}..."
                     class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
                     style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);" />
             </div>
             <div>
-                <label class="block text-xs font-medium text-muted mb-1">Kategori</label>
-                <input wire:model.live.debounce.300ms="filterKategori" type="text" placeholder="Kategori..."
+                <label class="block text-xs font-medium text-muted mb-1">{{ __('Kategori') }}</label>
+                <input wire:model.live.debounce.300ms="filterKategori" type="text" placeholder="{{ __('Kategori') }}..."
                     class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
                     style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);" />
             </div>
             <div>
-                <label class="block text-xs font-medium text-muted mb-1">Brand</label>
-                <input wire:model.live.debounce.300ms="filterBrand" type="text" placeholder="Brand..."
+                <label class="block text-xs font-medium text-muted mb-1">{{ __('Brand') }}</label>
+                <input wire:model.live.debounce.300ms="filterBrand" type="text" placeholder="{{ __('Brand') }}..."
                     class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
                     style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);" />
             </div>
             <div>
-                <label class="block text-xs font-medium text-muted mb-1">Tipe</label>
-                <input wire:model.live.debounce.300ms="filterTipe" type="text" placeholder="Tipe..."
+                <label class="block text-xs font-medium text-muted mb-1">{{ __('Tipe') }}</label>
+                <input wire:model.live.debounce.300ms="filterTipe" type="text" placeholder="{{ __('Tipe') }}..."
                     class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
                     style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);" />
             </div>
             <div>
-                <label class="block text-xs font-medium text-muted mb-1">No Serial</label>
-                <input wire:model.live.debounce.300ms="filterNoSerial" type="text" placeholder="No serial..."
+                <label class="block text-xs font-medium text-muted mb-1">{{ __('No Serial') }}</label>
+                <input wire:model.live.debounce.300ms="filterNoSerial" type="text" placeholder="{{ __('No serial') }}..."
                     class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
                     style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);" />
             </div>
             <div>
-                <label class="block text-xs font-medium text-muted mb-1">Status</label>
+                <label class="block text-xs font-medium text-muted mb-1">{{ __('Status') }}</label>
                 <select wire:model.live="filterStatus"
                     class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
                     style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
-                    <option value="">Semua Status</option>
+                    <option value="">{{ __('Semua Status') }}</option>
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
                     <option value="maintenance">Maintenance</option>
@@ -111,24 +111,24 @@
                 </select>
             </div>
             <div>
-                <label class="block text-xs font-medium text-muted mb-1">Operating Unit</label>
+                <label class="block text-xs font-medium text-muted mb-1">{{ __('Operating Unit') }}</label>
                 <select wire:model.live="filterOperatingUnit"
                     class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
                     style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
-                    <option value="">Semua Operating Unit</option>
+                    <option value="">{{ __('Semua Operating Unit') }}</option>
                     @foreach(\App\Models\Site::whereIn('id_site', \App\Models\Asset::whereNotNull('operating_unit')->where('operating_unit', '!=', '')->pluck('operating_unit'))->orderBy('site')->get() as $ou)
                         <option value="{{ $ou->id_site }}">{{ $ou->site }} ({{ $ou->id_site }})</option>
                     @endforeach
                 </select>
             </div>
             <div>
-                <label class="block text-xs font-medium text-muted mb-1">Status Perawatan</label>
+                <label class="block text-xs font-medium text-muted mb-1">{{ __('Status Perawatan') }}</label>
                 <select wire:model.live="filterPerawatanStatus"
                     class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
                     style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
-                    <option value="">Semua Status Perawatan</option>
-                    <option value="pending">Belum Perawatan</option>
-                    <option value="done">Sudah Perawatan</option>
+                    <option value="">{{ __('Semua Status Perawatan') }}</option>
+                    <option value="pending">{{ __('Belum Perawatan') }}</option>
+                    <option value="done">{{ __('Sudah Perawatan') }}</option>
                 </select>
             </div>
         </div>
@@ -146,16 +146,16 @@
                                     class="rounded cursor-pointer" style="accent-color: var(--color-primary);"
                                     @checked($allSelected)>
                             </th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">No Asset</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Nama Perangkat</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden sm:table-cell">Kategori</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden md:table-cell">Brand / Tipe</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden lg:table-cell">No Serial</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden xl:table-cell">Operating Unit</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden xl:table-cell">Site (Location)</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden lg:table-cell">Pengguna</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Status</th>
-                            <th class="px-4 py-3 text-right text-xs font-medium text-muted uppercase tracking-wider">Aksi</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">{{ __('No Asset') }}</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">{{ __('Nama Perangkat') }}</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden sm:table-cell">{{ __('Kategori') }}</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden md:table-cell">{{ __('Brand / Tipe') }}</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden lg:table-cell">{{ __('No Serial') }}</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden xl:table-cell">{{ __('Operating Unit') }}</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden xl:table-cell">{{ __('Site (Location)') }}</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden lg:table-cell">{{ __('Pengguna') }}</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">{{ __('Status') }}</th>
+                            <th class="px-4 py-3 text-right text-xs font-medium text-muted uppercase tracking-wider">{{ __('Aksi') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y" style="border-color: var(--color-border);">
@@ -210,12 +210,12 @@
                                         <a href="{{ route('admin.assets.edit', $a->id) }}" wire:navigate
                                             class="p-1.5 rounded-lg transition-colors duration-200"
                                             style="color: var(--color-text-secondary);"
-                                            title="Edit">
+                                            title="{{ __('Edit') }}">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                         </a>
                                         <button wire:click="confirmDelete('{{ $a->id }}', '{{ addslashes($a->nama_perangkat) }}')"
                                             class="p-1.5 rounded-lg transition-colors duration-200 text-red-400 hover:text-red-300"
-                                            title="Hapus">
+                                            title="{{ __('Hapus') }}">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                         </button>
                                     </div>
@@ -230,18 +230,18 @@
         @if(count($selected) > 0)
             <div class="glass-card p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
                 style="border-color: rgba(245, 158, 11, 0.4);">
-                <p class="text-sm text-primary">{{ count($selected) }} asset terpilih</p>
+                <p class="text-sm text-primary">{{ count($selected) }} {{ __('asset terpilih') }}</p>
                 <div class="flex items-center gap-2">
                     <button wire:click="openBulkEdit" type="button"
                         class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
                         style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                        Edit Massal
+                        {{ __('Edit Massal') }}
                     </button>
                     <button wire:click="confirmBulkDelete" type="button"
                         class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium bg-red-500 text-white hover:bg-red-600 transition-all duration-200">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                        Hapus Terpilih
+                        {{ __('Hapus Terpilih') }}
                     </button>
                 </div>
             </div>
@@ -255,7 +255,7 @@
             <svg class="w-12 h-12 mx-auto text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
             </svg>
-            <p class="mt-3 text-muted">Tidak ada asset ditemukan</p>
+            <p class="mt-3 text-muted">{{ __('Tidak ada asset ditemukan') }}</p>
         </div>
     @endif
 
@@ -264,11 +264,11 @@
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);"
             x-data x-on:keydown.escape.window="$wire.cancelDelete()">
             <div class="glass-card p-6 w-full max-w-md space-y-4" @click.away="$wire.cancelDelete()">
-                <h3 class="text-lg font-bold text-primary">Hapus Asset</h3>
-                <p class="text-sm text-muted">Yakin ingin menghapus asset <span class="font-semibold text-primary">{{ $deleteAssetName }}</span>?</p>
+                <h3 class="text-lg font-bold text-primary">{{ __('Hapus Asset') }}</h3>
+                <p class="text-sm text-muted">{{ __('Yakin ingin menghapus asset') }} <span class="font-semibold text-primary">{{ $deleteAssetName }}</span>?</p>
                 <div class="flex gap-2">
-                    <button wire:click="cancelDelete" type="button" class="glass-button-secondary text-sm flex-1">Batal</button>
-                    <button wire:click="deleteAsset" type="button" class="flex-1 px-4 py-2 rounded-lg font-medium text-sm bg-red-500 text-white hover:bg-red-600 transition-all duration-200">Hapus</button>
+                    <button wire:click="cancelDelete" type="button" class="glass-button-secondary text-sm flex-1">{{ __('Batal') }}</button>
+                    <button wire:click="deleteAsset" type="button" class="flex-1 px-4 py-2 rounded-lg font-medium text-sm bg-red-500 text-white hover:bg-red-600 transition-all duration-200">{{ __('Hapus') }}</button>
                 </div>
             </div>
         </div>
@@ -279,11 +279,11 @@
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);"
             x-data x-on:keydown.escape.window="$wire.cancelBulkDelete()">
             <div class="glass-card p-6 w-full max-w-md space-y-4" @click.away="$wire.cancelBulkDelete()">
-                <h3 class="text-lg font-bold text-primary">Hapus Asset Terpilih</h3>
-                <p class="text-sm text-muted">Yakin ingin menghapus <span class="font-semibold text-primary">{{ count($selected) }} asset</span> yang terpilih?</p>
+                <h3 class="text-lg font-bold text-primary">{{ __('Hapus Asset Terpilih') }}</h3>
+                <p class="text-sm text-muted">{{ __('Yakin ingin menghapus') }} <span class="font-semibold text-primary">{{ count($selected) }} {{ __('asset') }}</span> {{ __('yang terpilih?') }}</p>
                 <div class="flex gap-2">
-                    <button wire:click="cancelBulkDelete" type="button" class="glass-button-secondary text-sm flex-1">Batal</button>
-                    <button wire:click="bulkDelete" type="button" class="flex-1 px-4 py-2 rounded-lg font-medium text-sm bg-red-500 text-white hover:bg-red-600 transition-all duration-200">Hapus</button>
+                    <button wire:click="cancelBulkDelete" type="button" class="glass-button-secondary text-sm flex-1">{{ __('Batal') }}</button>
+                    <button wire:click="bulkDelete" type="button" class="flex-1 px-4 py-2 rounded-lg font-medium text-sm bg-red-500 text-white hover:bg-red-600 transition-all duration-200">{{ __('Hapus') }}</button>
                 </div>
             </div>
         </div>
@@ -294,46 +294,46 @@
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);"
             x-data x-on:keydown.escape.window="$wire.cancelBulkEdit()">
             <div class="glass-card p-6 w-full max-w-md space-y-4" @click.away="$wire.cancelBulkEdit()">
-                <h3 class="text-lg font-bold text-primary">Edit Massal ({{ count($selected) }} asset)</h3>
+                <h3 class="text-lg font-bold text-primary">{{ __('Edit Massal') }} ({{ count($selected) }} {{ __('asset') }})</h3>
                 <div>
-                    <label class="block text-xs font-medium text-muted mb-1">Field</label>
+                    <label class="block text-xs font-medium text-muted mb-1">{{ __('Field') }}</label>
                     <select wire:model="bulkEditField"
                         class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
                         style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
-                        <option value="">Pilih Field</option>
-                        <option value="status">Status</option>
-                        <option value="kategori">Kategori</option>
-                        <option value="brand">Brand</option>
-                        <option value="tipe">Tipe</option>
-                        <option value="no_serial">No. Serial</option>
-                        <option value="operating_unit">Operating Unit</option>
-                        <option value="site_location_asset">Site Location</option>
+                        <option value="">{{ __('Pilih Field') }}</option>
+                        <option value="status">{{ __('Status') }}</option>
+                        <option value="kategori">{{ __('Kategori') }}</option>
+                        <option value="brand">{{ __('Brand') }}</option>
+                        <option value="tipe">{{ __('Tipe') }}</option>
+                        <option value="no_serial">{{ __('No. Serial') }}</option>
+                        <option value="operating_unit">{{ __('Operating Unit') }}</option>
+                        <option value="site_location_asset">{{ __('Site Location') }}</option>
                     </select>
                     @error('bulkEditField') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-muted mb-1">Nilai Baru</label>
+                    <label class="block text-xs font-medium text-muted mb-1">{{ __('Nilai Baru') }}</label>
                     @if($bulkEditField === 'status')
                         <select wire:model="bulkEditValue"
                             class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
                             style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
-                            <option value="">Pilih Status</option>
+                            <option value="">{{ __('Pilih Status') }}</option>
                             <option value="active">Active</option>
                             <option value="inactive">Inactive</option>
                             <option value="maintenance">Maintenance</option>
                             <option value="disposed">Disposed</option>
                         </select>
                     @else
-                        <input type="text" wire:model="bulkEditValue" placeholder="Nilai baru"
+                        <input type="text" wire:model="bulkEditValue" placeholder="{{ __('Nilai baru') }}"
                             class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
                             style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);" />
                     @endif
                     @error('bulkEditValue') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
                 </div>
                 <div class="flex gap-2">
-                    <button wire:click="cancelBulkEdit" type="button" class="glass-button-secondary text-sm flex-1">Batal</button>
+                    <button wire:click="cancelBulkEdit" type="button" class="glass-button-secondary text-sm flex-1">{{ __('Batal') }}</button>
                     <button wire:click="bulkEdit" type="button" class="flex-1 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200"
-                        style="background: var(--color-primary); color: var(--color-button-text);">Simpan</button>
+                        style="background: var(--color-primary); color: var(--color-button-text);">{{ __('Simpan') }}</button>
                 </div>
             </div>
         </div>
