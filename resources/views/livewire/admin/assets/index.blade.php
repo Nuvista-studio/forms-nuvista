@@ -8,6 +8,12 @@
         :class="type === 'success' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'"
         x-text="message">
     </div>
+    @if (session()->has('success'))
+        <div class="p-3 rounded-lg text-sm"
+            style="background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3); color: #22c55e;">
+            {{ session('success') }}
+        </div>
+    @endif
     {{-- Header --}}
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>

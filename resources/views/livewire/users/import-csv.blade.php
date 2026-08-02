@@ -136,11 +136,10 @@
                             class="px-5 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 bg-red-500 text-white hover:bg-red-600">
                             Batalkan Import
                         </button>
-                        <button wire:click="confirmImport" wire:loading.attr="disabled"
+                        <button wire:click="confirmSendImport"
                             class="px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200"
                             style="background: var(--color-primary); color: var(--color-button-text);">
-                            <span wire:loading.remove wire:target="confirmImport">Konfirmasi Kirim Data ({{ $successCount }})</span>
-                            <span wire:loading wire:target="confirmImport">Mengirim...</span>
+                            Konfirmasi Kirim Data ({{ $successCount }})
                         </button>
                     </div>
                 </div>
@@ -387,6 +386,26 @@
                 <div class="flex gap-2">
                     <button wire:click="dismissCancelImport" type="button" class="glass-button-secondary text-sm flex-1">Tidak</button>
                     <button wire:click="cancelImport" type="button" class="flex-1 px-4 py-2 rounded-lg font-medium text-sm bg-red-500 text-white hover:bg-red-600 transition-all duration-200">Ya, Batalkan</button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- Confirm Import Confirmation Modal --}}
+    @if($showConfirmModal)
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);"
+            x-data x-on:keydown.escape.window="$wire.dismissConfirmImport()">
+            <div class="glass-card p-6 w-full max-w-md space-y-4" @click.away="$wire.dismissConfirmImport()">
+                <h3 class="text-lg font-bold text-primary">Konfirmasi Kirim Data</h3>
+                <p class="text-sm text-muted">Yakin ingin mengirim <span class="font-semibold text-primary">{{ $successCount }} data user</span> ke database? Setelah dikirim, Anda akan diarahkan ke halaman Users.</p>
+                <div class="flex gap-2">
+                    <button wire:click="dismissConfirmImport" type="button" class="glass-button-secondary text-sm flex-1">Tidak</button>
+                    <button wire:click="confirmImport" wire:loading.attr="disabled"
+                        class="flex-1 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200"
+                        style="background: var(--color-primary); color: var(--color-button-text);">
+                        <span wire:loading.remove wire:target="confirmImport">Ya, Kirim</span>
+                        <span wire:loading wire:target="confirmImport">Mengirim...</span>
+                    </button>
                 </div>
             </div>
         </div>

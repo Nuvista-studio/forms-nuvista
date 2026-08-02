@@ -25,6 +25,7 @@ class ImportCsv extends Component
     public bool $imported = false;
     public array $importedIds = [];
     public bool $showCancelModal = false;
+    public bool $showConfirmModal = false;
 
     protected $listeners = ['resetImport' => 'resetImport'];
 
@@ -43,6 +44,7 @@ class ImportCsv extends Component
         $this->imported = false;
         $this->importedIds = [];
         $this->showCancelModal = false;
+        $this->showConfirmModal = false;
         $this->resetValidation();
     }
 
@@ -291,7 +293,7 @@ class ImportCsv extends Component
         }
     }
 
-    public function confirmImport(): void
+    public function confirmImport()
     {
         if (!$this->processed || $this->imported) return;
 
@@ -339,13 +341,25 @@ class ImportCsv extends Component
 
         $this->imported = true;
 
-        if ($this->errorCount > 0) {
-            $this->dispatch('show-toast', message: "Import selesai: {$importedCount} berhasil, {$this->errorCount} gagal. Lihat detail error di bawah.", type: 'error');
-        } else {
-            $this->dispatch('show-toast', message: "Import selesai: {$importedCount} data berhasil diimpor.", type: 'success');
-        }
+        $message = $this->errorCount > 0
+            ? "Import selesai: {$importedCount} berhasil, {$this->errorCount} gagal."
+            : "Import selesai: {$importedCount} data berhasil diimpor.";
 
         ActivityLogger::log('import', "Mengimpor {$importedCount} data user" . ($this->errorCount ? " ({$this->errorCount} gagal)" : ''));
+
+        session()->flash('success', $message);
+
+        return redirect()->route('admin.users.index');
+    }
+
+    public function confirmSendImport(): void
+    {
+        $this->showConfirmModal = true;
+    }
+
+    public function dismissConfirmImport(): void
+    {
+        $this->showConfirmModal = false;
     }
 
     public function confirmCancelImport(): void
