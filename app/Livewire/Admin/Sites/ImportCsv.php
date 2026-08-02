@@ -22,6 +22,8 @@ class ImportCsv extends Component
     public array $validRows = [];
     public bool $processed = false;
     public bool $imported = false;
+    public array $importedSites = [];
+    public bool $showCancelModal = false;
 
     protected $listeners = ['resetImport' => 'resetImport'];
 
@@ -38,6 +40,8 @@ class ImportCsv extends Component
         $this->validRows = [];
         $this->processed = false;
         $this->imported = false;
+        $this->importedSites = [];
+        $this->showCancelModal = false;
         $this->resetValidation();
     }
 
@@ -229,19 +233,36 @@ class ImportCsv extends Component
             foreach ($this->validRows as $validRow) {
                 $data = $validRow['data'];
 
-                Site::updateOrCreate(
-                    ['id_site' => $data['id_site']],
-                    [
-                        'site' => $data['site'],
-                        'buss' => $data['buss'],
-                        'id_corp' => $data['id_corp'],
-                        'country' => $data['country'],
-                        'provincy' => $data['provincy'],
-                        'city' => $data['city'],
-                        'address' => $data['address'],
-                        'url_maps' => $data['url_maps'],
-                    ]
-                );
+                $attributes = [
+                    'site' => $data['site'],
+                    'buss' => $data['buss'],
+                    'id_corp' => $data['id_corp'],
+                    'country' => $data['country'],
+                    'provincy' => $data['provincy'],
+                    'city' => $data['city'],
+                    'address' => $data['address'],
+                    'url_maps' => $data['url_maps'],
+                ];
+
+                $existing = Site::find($data['id_site']);
+
+                if ($existing) {
+                    $original = [
+                        'site' => $existing->site,
+                        'buss' => $existing->buss,
+                        'id_corp' => $existing->id_corp,
+                        'country' => $existing->country,
+                        'provincy' => $existing->provincy,
+                        'city' => $existing->city,
+                        'address' => $existing->address,
+                        'url_maps' => $existing->url_maps,
+                    ];
+                    $existing->update($attributes);
+                    $this->importedSites[] = ['id_site' => $data['id_site'], 'existed' => true, 'original' => $original];
+                } else {
+                    Site::create(array_merge(['id_site' => $data['id_site']], $attributes));
+                    $this->importedSites[] = ['id_site' => $data['id_site'], 'existed' => false, 'original' => null];
+                }
 
                 $importedCount++;
             }
@@ -265,6 +286,58 @@ class ImportCsv extends Component
         }
 
         ActivityLogger::log('import', "Mengimpor {$importedCount} data site" . ($this->errorCount ? " ({$this->errorCount} gagal)" : ''));
+    }
+
+    public function confirmCancelImport(): void
+    {
+        $this->showCancelModal = true;
+    }
+
+    public function dismissCancelImport(): void
+    {
+        $this->showCancelModal = false;
+    }
+
+    public function cancelImport(): void
+    {
+        if (!$this->imported) {
+            if ($this->processed) {
+                $this->dispatch('show-toast', message: 'Import dibatalkan. Data belum dikirim ke database.', type: 'success');
+                $this->resetImport();
+            }
+            return;
+        }
+
+        $count = count($this->importedSites);
+
+        \Illuminate\Support\Facades\DB::beginTransaction();
+
+        try {
+            foreach ($this->importedSites as $importedSite) {
+                $site = Site::find($importedSite['id_site']);
+                if (!$site) continue;
+
+                if ($importedSite['existed']) {
+                    $site->update($importedSite['original']);
+                } else {
+                    $site->delete();
+                }
+            }
+
+            \Illuminate\Support\Facades\DB::commit();
+        } catch (\Throwable $e) {
+            if (\Illuminate\Support\Facades\DB::transactionLevel() > 0) {
+                \Illuminate\Support\Facades\DB::rollBack();
+            }
+            $this->dismissCancelImport();
+            $this->dispatch('show-toast', message: 'Batalkan import gagal (perubahan dibatalkan): ' . $e->getMessage(), type: 'error');
+
+            return;
+        }
+
+        ActivityLogger::log('delete', "Membatalkan import: mengembalikan/hapus {$count} data site");
+        $this->dispatch('show-toast', message: "Import dibatalkan: {$count} data site dikembalikan/dihapus.", type: 'success');
+        $this->resetImport();
     }
 
     public function render()

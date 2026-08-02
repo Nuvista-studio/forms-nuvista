@@ -23,6 +23,8 @@ class ImportCsv extends Component
     public array $validRows = [];
     public bool $processed = false;
     public bool $imported = false;
+    public array $importedIds = [];
+    public bool $showCancelModal = false;
 
     protected $listeners = ['resetImport' => 'resetImport'];
 
@@ -39,6 +41,8 @@ class ImportCsv extends Component
         $this->validRows = [];
         $this->processed = false;
         $this->imported = false;
+        $this->importedIds = [];
+        $this->showCancelModal = false;
         $this->resetValidation();
     }
 
@@ -319,6 +323,8 @@ class ImportCsv extends Component
                 }
 
                 $importedCount++;
+
+                $this->importedIds[] = $user->id;
             }
 
             \Illuminate\Support\Facades\DB::commit();
@@ -340,6 +346,52 @@ class ImportCsv extends Component
         }
 
         ActivityLogger::log('import', "Mengimpor {$importedCount} data user" . ($this->errorCount ? " ({$this->errorCount} gagal)" : ''));
+    }
+
+    public function confirmCancelImport(): void
+    {
+        $this->showCancelModal = true;
+    }
+
+    public function dismissCancelImport(): void
+    {
+        $this->showCancelModal = false;
+    }
+
+    public function cancelImport(): void
+    {
+        if (!$this->imported) {
+            if ($this->processed) {
+                $this->dispatch('show-toast', message: 'Import dibatalkan. Data belum dikirim ke database.', type: 'success');
+                $this->resetImport();
+            }
+            return;
+        }
+
+        $count = count($this->importedIds);
+
+        \Illuminate\Support\Facades\DB::beginTransaction();
+
+        try {
+            foreach (User::whereIn('id', $this->importedIds)->get() as $user) {
+                $user->roles()->detach();
+                $user->forceDelete();
+            }
+
+            \Illuminate\Support\Facades\DB::commit();
+        } catch (\Throwable $e) {
+            if (\Illuminate\Support\Facades\DB::transactionLevel() > 0) {
+                \Illuminate\Support\Facades\DB::rollBack();
+            }
+            $this->dismissCancelImport();
+            $this->dispatch('show-toast', message: 'Batalkan import gagal (perubahan dibatalkan): ' . $e->getMessage(), type: 'error');
+
+            return;
+        }
+
+        ActivityLogger::log('delete', "Membatalkan import: menghapus {$count} data user");
+        $this->dispatch('show-toast', message: "Import dibatalkan: {$count} data user dihapus.", type: 'success');
+        $this->resetImport();
     }
 
     public function getRoleList(): array

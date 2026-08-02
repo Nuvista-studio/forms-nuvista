@@ -193,12 +193,18 @@
             <div class="glass-card p-6 space-y-4" style="border-color: rgba(245, 158, 11, 0.4);">
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <h3 class="font-semibold text-primary">Data Terbaca: {{ $successCount }} Berhasil, {{ $errorCount }} Gagal</h3>
-                    <button wire:click="confirmImport" wire:loading.attr="disabled"
-                        class="px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200"
-                        style="background: var(--color-primary); color: var(--color-button-text);">
-                        <span wire:loading.remove wire:target="confirmImport">Konfirmasi Kirim Data ({{ $successCount }})</span>
-                        <span wire:loading wire:target="confirmImport">Mengirim...</span>
-                    </button>
+                    <div class="flex items-center gap-2">
+                        <button wire:click="confirmCancelImport"
+                            class="px-5 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 bg-red-500 text-white hover:bg-red-600">
+                            Batalkan Import
+                        </button>
+                        <button wire:click="confirmImport" wire:loading.attr="disabled"
+                            class="px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200"
+                            style="background: var(--color-primary); color: var(--color-button-text);">
+                            <span wire:loading.remove wire:target="confirmImport">Konfirmasi Kirim Data ({{ $successCount }})</span>
+                            <span wire:loading wire:target="confirmImport">Mengirim...</span>
+                        </button>
+                    </div>
                 </div>
 
                 <div wire:loading wire:target="confirmImport" class="flex items-center gap-2 text-xs" style="color: var(--color-primary);">
@@ -303,6 +309,29 @@
                     style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);">
                     Import Lagi
                 </button>
+                <button wire:click="confirmCancelImport"
+                    class="px-5 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 bg-red-500 text-white hover:bg-red-600">
+                    Batalkan Import
+                </button>
+            </div>
+        </div>
+    @endif
+
+    {{-- Cancel Import Confirmation Modal --}}
+    @if($showCancelModal)
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);"
+            x-data x-on:keydown.escape.window="$wire.dismissCancelImport()">
+            <div class="glass-card p-6 w-full max-w-md space-y-4" @click.away="$wire.dismissCancelImport()">
+                <h3 class="text-lg font-bold text-primary">Batalkan Import</h3>
+                @if($imported)
+                    <p class="text-sm text-muted">Yakin ingin membatalkan import? Data asset yang baru ditambahkan akan dihapus, dan asset yang diperbarui akan dikembalikan ke data sebelumnya.</p>
+                @else
+                    <p class="text-sm text-muted">Yakin ingin membatalkan import? Data yang sudah terbaca akan dibuang dan tidak akan dikirim ke database.</p>
+                @endif
+                <div class="flex gap-2">
+                    <button wire:click="dismissCancelImport" type="button" class="glass-button-secondary text-sm flex-1">Tidak</button>
+                    <button wire:click="cancelImport" type="button" class="flex-1 px-4 py-2 rounded-lg font-medium text-sm bg-red-500 text-white hover:bg-red-600 transition-all duration-200">Ya, Batalkan</button>
+                </div>
             </div>
         </div>
     @endif

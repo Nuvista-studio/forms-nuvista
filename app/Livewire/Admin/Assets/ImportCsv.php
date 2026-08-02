@@ -23,6 +23,8 @@ class ImportCsv extends Component
     public array $validRows = [];
     public bool $processed = false;
     public bool $imported = false;
+    public array $importedAssets = [];
+    public bool $showCancelModal = false;
 
     protected $listeners = ['resetImport' => 'resetImport'];
 
@@ -39,6 +41,8 @@ class ImportCsv extends Component
         $this->validRows = [];
         $this->processed = false;
         $this->imported = false;
+        $this->importedAssets = [];
+        $this->showCancelModal = false;
         $this->resetValidation();
     }
 
@@ -233,21 +237,29 @@ class ImportCsv extends Component
                     $assignedUserId = $user?->id;
                 }
 
-                Asset::updateOrCreate(
-                    ['no_asset' => $data['no_asset']],
-                    [
-                        'kategori' => $data['kategori'],
-                        'brand' => $data['brand'],
-                        'tipe' => $data['tipe'],
-                        'nama_perangkat' => $data['nama_perangkat'],
-                        'no_serial' => $data['no_serial'],
-                        'qr_code' => $data['no_asset'],
-                        'operating_unit' => $data['operating_unit'],
-                        'site_location_asset' => $data['site_location_asset'],
-                        'assigned_user_id' => $assignedUserId,
-                        'status' => $assignedUserId ? 'active' : 'inactive',
-                    ]
-                );
+                $attributes = [
+                    'kategori' => $data['kategori'],
+                    'brand' => $data['brand'],
+                    'tipe' => $data['tipe'],
+                    'nama_perangkat' => $data['nama_perangkat'],
+                    'no_serial' => $data['no_serial'],
+                    'qr_code' => $data['no_asset'],
+                    'operating_unit' => $data['operating_unit'],
+                    'site_location_asset' => $data['site_location_asset'],
+                    'assigned_user_id' => $assignedUserId,
+                    'status' => $assignedUserId ? 'active' : 'inactive',
+                ];
+
+                $existing = Asset::where('no_asset', $data['no_asset'])->first();
+
+                if ($existing) {
+                    $original = $existing->only(['kategori', 'brand', 'tipe', 'nama_perangkat', 'no_serial', 'operating_unit', 'site_location_asset', 'assigned_user_id', 'status']);
+                    $existing->update($attributes);
+                    $this->importedAssets[] = ['no_asset' => $data['no_asset'], 'existed' => true, 'original' => $original];
+                } else {
+                    Asset::create(array_merge(['no_asset' => $data['no_asset']], $attributes));
+                    $this->importedAssets[] = ['no_asset' => $data['no_asset'], 'existed' => false, 'original' => null];
+                }
 
                 $importedCount++;
             }
@@ -271,6 +283,58 @@ class ImportCsv extends Component
         }
 
         ActivityLogger::log('import', "Mengimpor {$importedCount} data asset" . ($this->errorCount ? " ({$this->errorCount} gagal)" : ''));
+    }
+
+    public function confirmCancelImport(): void
+    {
+        $this->showCancelModal = true;
+    }
+
+    public function dismissCancelImport(): void
+    {
+        $this->showCancelModal = false;
+    }
+
+    public function cancelImport(): void
+    {
+        if (!$this->imported) {
+            if ($this->processed) {
+                $this->dispatch('show-toast', message: 'Import dibatalkan. Data belum dikirim ke database.', type: 'success');
+                $this->resetImport();
+            }
+            return;
+        }
+
+        $count = count($this->importedAssets);
+
+        \Illuminate\Support\Facades\DB::beginTransaction();
+
+        try {
+            foreach ($this->importedAssets as $importedAsset) {
+                $asset = Asset::where('no_asset', $importedAsset['no_asset'])->first();
+                if (!$asset) continue;
+
+                if ($importedAsset['existed']) {
+                    $asset->update($importedAsset['original']);
+                } else {
+                    $asset->forceDelete();
+                }
+            }
+
+            \Illuminate\Support\Facades\DB::commit();
+        } catch (\Throwable $e) {
+            if (\Illuminate\Support\Facades\DB::transactionLevel() > 0) {
+                \Illuminate\Support\Facades\DB::rollBack();
+            }
+            $this->dismissCancelImport();
+            $this->dispatch('show-toast', message: 'Batalkan import gagal (perubahan dibatalkan): ' . $e->getMessage(), type: 'error');
+
+            return;
+        }
+
+        ActivityLogger::log('delete', "Membatalkan import: mengembalikan/hapus {$count} data asset");
+        $this->dispatch('show-toast', message: "Import dibatalkan: {$count} data asset dikembalikan/dihapus.", type: 'success');
+        $this->resetImport();
     }
 
     public function render()
