@@ -221,7 +221,20 @@ class ImportCsv extends Component
 
     public function confirmImport()
     {
-        if (!$this->processed || $this->imported) return;
+        if (!$this->processed) {
+            $this->dismissConfirmImport();
+            $this->dispatch('show-toast', message: 'Tidak ada data untuk dikirim. Proses file CSV terlebih dahulu.', type: 'error');
+            return;
+        }
+
+        if ($this->imported) {
+            // The confirmation modal was restored from a stale snapshot (e.g. browser
+            // back after a successful import). Data is already committed, so just take
+            // the user to the list instead of silently doing nothing.
+            $this->dismissConfirmImport();
+
+            return redirect()->route('admin.assets.index');
+        }
 
         set_time_limit(0);
 
@@ -277,6 +290,7 @@ class ImportCsv extends Component
         }
 
         $this->imported = true;
+        $this->showConfirmModal = false;
 
         $message = $this->errorCount > 0
             ? "Import selesai: {$importedCount} berhasil, {$this->errorCount} gagal."

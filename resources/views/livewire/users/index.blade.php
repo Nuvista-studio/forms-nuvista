@@ -14,6 +14,12 @@
             {{ session('success') }}
         </div>
     @endif
+    @if (session()->has('error'))
+        <div class="p-3 rounded-lg text-sm"
+            style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444;">
+            {{ session('error') }}
+        </div>
+    @endif
     {{-- Header --}}
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>

@@ -170,7 +170,9 @@ class ImportCsv extends Component
         $this->resultTab = 'gagal';
 
         // Pre-fetch lookups once instead of querying the database per row.
-        $existingEmails = User::pluck('email')
+        // withTrashed() is required: a soft-deleted user still occupies the unique
+        // email index, so their email must be treated as already registered.
+        $existingEmails = User::withTrashed()->pluck('email')
             ->map(fn ($email) => strtolower(trim($email)))
             ->flip()
             ->all();
@@ -295,12 +297,26 @@ class ImportCsv extends Component
 
     public function confirmImport()
     {
-        if (!$this->processed || $this->imported) return;
+        if (!$this->processed) {
+            $this->dismissConfirmImport();
+            $this->dispatch('show-toast', message: 'Tidak ada data untuk dikirim. Proses file CSV terlebih dahulu.', type: 'error');
+            return;
+        }
+
+        if ($this->imported) {
+            // The confirmation modal was restored from a stale snapshot (e.g. browser
+            // back after a successful import). Data is already committed, so just take
+            // the user to the list instead of silently doing nothing.
+            $this->dismissConfirmImport();
+
+            return redirect()->route('admin.users.index');
+        }
 
         // Allow long-running imports (hashing thousands of rows takes minutes).
         set_time_limit(0);
 
         $importedCount = 0;
+        $skipped = [];
 
         \Illuminate\Support\Facades\DB::beginTransaction();
 
@@ -308,25 +324,36 @@ class ImportCsv extends Component
             foreach ($this->validRows as $validRow) {
                 $data = $validRow['data'];
 
-                $user = User::create([
-                    'name' => $data['name'],
-                    'email' => $data['email'],
-                    // Bcrypt cost 10 keeps import ~4x faster while staying OWASP-recommended.
-                    'password' => Hash::make($data['password'], ['rounds' => 10]),
-                    'nik' => $data['nik'],
-                    'department' => $data['department'],
-                    'business_unit' => $data['business_unit'],
-                    'site' => $data['site'],
-                    'no_telepon' => $data['no_telepon'],
-                ]);
+                try {
+                    // Re-check against the DB (including soft-deleted users): a row may
+                    // exist concurrently or have slipped through validation. A single
+                    // duplicate must never abort the whole batch.
+                    if (User::withTrashed()->where('email', $data['email'])->exists()) {
+                        throw new \Exception("Email sudah terdaftar ({$data['email']}).");
+                    }
 
-                if (!empty($data['role_id'])) {
-                    $user->roles()->attach($data['role_id']);
+                    $user = User::create([
+                        'name' => $data['name'],
+                        'email' => $data['email'],
+                        // Bcrypt cost 10 keeps import ~4x faster while staying OWASP-recommended.
+                        'password' => Hash::make($data['password'], ['rounds' => 10]),
+                        'nik' => $data['nik'],
+                        'department' => $data['department'],
+                        'business_unit' => $data['business_unit'],
+                        'site' => $data['site'],
+                        'no_telepon' => $data['no_telepon'],
+                    ]);
+
+                    if (!empty($data['role_id'])) {
+                        $user->roles()->attach($data['role_id']);
+                    }
+
+                    $importedCount++;
+
+                    $this->importedIds[] = $user->id;
+                } catch (\Throwable $e) {
+                    $skipped[] = "Baris {$validRow['row']}: " . $e->getMessage();
                 }
-
-                $importedCount++;
-
-                $this->importedIds[] = $user->id;
             }
 
             \Illuminate\Support\Facades\DB::commit();
@@ -334,18 +361,34 @@ class ImportCsv extends Component
             if (\Illuminate\Support\Facades\DB::transactionLevel() > 0) {
                 \Illuminate\Support\Facades\DB::rollBack();
             }
-            $this->dispatch('show-toast', message: 'Kirim data gagal (perubahan dibatalkan): ' . $e->getMessage(), type: 'error');
+            $this->dismissConfirmImport();
+            session()->flash('error', 'Kirim data gagal (perubahan dibatalkan): ' . $e->getMessage());
 
-            return;
+            return redirect()->route('admin.users.index');
         }
 
-        $this->imported = true;
+        $this->imported = $importedCount > 0;
+        $this->showConfirmModal = false;
 
-        $message = $this->errorCount > 0
-            ? "Import selesai: {$importedCount} berhasil, {$this->errorCount} gagal."
-            : "Import selesai: {$importedCount} data berhasil diimpor.";
+        if ($importedCount === 0) {
+            // Nothing could be imported: surface the reason on the list page instead
+            // of failing silently (which previously left the client stuck on the page).
+            session()->flash('error', 'Tidak ada data yang berhasil diimpor: ' . ($skipped[0] ?? 'Periksa kembali file CSV.'));
 
-        ActivityLogger::log('import', "Mengimpor {$importedCount} data user" . ($this->errorCount ? " ({$this->errorCount} gagal)" : ''));
+            return redirect()->route('admin.users.index');
+        }
+
+        if (!empty($skipped)) {
+            $this->importErrors = array_merge($this->importErrors, $skipped);
+            $this->errorCount += count($skipped);
+            $message = "Import selesai: {$importedCount} berhasil, " . count($skipped) . " gagal.";
+        } else {
+            $message = $this->errorCount > 0
+                ? "Import selesai: {$importedCount} berhasil, {$this->errorCount} gagal."
+                : "Import selesai: {$importedCount} data berhasil diimpor.";
+        }
+
+        ActivityLogger::log('import', "Mengimpor {$importedCount} data user" . (!empty($skipped) ? ' (' . count($skipped) . ' gagal)' : ''));
 
         session()->flash('success', $message);
 
