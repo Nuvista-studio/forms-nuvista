@@ -22,7 +22,7 @@
                 <div>
                     <h3 class="font-semibold text-primary">Upload File CSV</h3>
                     <p class="text-xs text-muted">Format: name, email, password, nik, department, business_unit, site,
-                        no_telepon, role</p>
+                        no_telepon, role, status</p>
                 </div>
             </div>
 
@@ -116,6 +116,7 @@
                                 <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">No Telepon
                                 </th>
                                 <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">Role</th>
+                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">Status</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y" style="border-color: var(--color-border);">
@@ -140,6 +141,8 @@
                                         {{ $row['no_telepon'] ?? '-' }}</td>
                                     <td class="px-3 py-2 text-secondary whitespace-nowrap">{{ $row['role'] ?? '-' }}
                                     </td>
+                                    <td class="px-3 py-2 text-secondary whitespace-nowrap">
+                                        {{ isset($row['status']) ? ucfirst($row['status']) : '-' }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -234,6 +237,8 @@
                                                 Site</th>
                                             <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">
                                                 Role</th>
+                                            <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">
+                                                Status</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y" style="border-color: var(--color-border);">
@@ -255,6 +260,8 @@
                                                     {{ $row['data']['site'] }}</td>
                                                 <td class="px-2 py-1.5 text-secondary whitespace-nowrap">
                                                     {{ $row['data']['role'] }}</td>
+                                                <td class="px-2 py-1.5 text-secondary whitespace-nowrap">
+                                                    {{ $row['data']['status'] }}</td>
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -374,6 +381,8 @@
                                         </th>
                                         <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">Role
                                         </th>
+                                        <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">Status
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y" style="border-color: var(--color-border);">
@@ -395,6 +404,8 @@
                                                 {{ $row['data']['site'] }}</td>
                                             <td class="px-2 py-1.5 text-secondary whitespace-nowrap">
                                                 {{ $row['data']['role'] }}</td>
+                                            <td class="px-2 py-1.5 text-secondary whitespace-nowrap">
+                                                {{ $row['data']['status'] }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>

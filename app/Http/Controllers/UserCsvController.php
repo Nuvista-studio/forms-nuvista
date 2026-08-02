@@ -19,7 +19,7 @@ class UserCsvController extends Controller
         $callback = function () use ($users) {
             $file = fopen('php://output', 'w');
 
-            fputcsv($file, ['name', 'email', 'password', 'nik', 'department', 'business_unit', 'site', 'no_telepon', 'role']);
+            fputcsv($file, ['name', 'email', 'password', 'nik', 'department', 'business_unit', 'site', 'no_telepon', 'role', 'status']);
 
             foreach ($users as $user) {
                 fputcsv($file, [
@@ -32,6 +32,7 @@ class UserCsvController extends Controller
                     $user->site ?? '',
                     $user->no_telepon ?? '',
                     $user->getRoleNames()->first() ?? '',
+                    $user->status ?? 'active',
                 ]);
             }
 
@@ -51,7 +52,7 @@ class UserCsvController extends Controller
         $callback = function () {
             $file = fopen('php://output', 'w');
 
-            fputcsv($file, ['name', 'email', 'password', 'nik', 'department', 'business_unit', 'site', 'no_telepon', 'role']);
+            fputcsv($file, ['name', 'email', 'password', 'nik', 'department', 'business_unit', 'site', 'no_telepon', 'role', 'status']);
 
             fputcsv($file, [
                 'John Doe',
@@ -63,6 +64,7 @@ class UserCsvController extends Controller
                 'O99',
                 '081234567890',
                 'pengguna',
+                'active',
             ]);
 
             fputcsv($file, [
@@ -75,6 +77,7 @@ class UserCsvController extends Controller
                 'M01',
                 '081234567891',
                 'teknisi',
+                'active',
             ]);
 
             fputcsv($file, [
@@ -87,6 +90,7 @@ class UserCsvController extends Controller
                 'A03',
                 '081234567892',
                 'admin',
+                'resigned',
             ]);
 
             fclose($file);

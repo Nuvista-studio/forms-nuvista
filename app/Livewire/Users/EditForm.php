@@ -20,6 +20,7 @@ class EditForm extends Component
     public string $business_unit = '';
     public string $site = '';
     public string $no_telepon = '';
+    public string $status = 'active';
     public string $role = '';
 
     public function mount(int $userId): void
@@ -33,6 +34,7 @@ class EditForm extends Component
         $this->business_unit = $user->business_unit ?? '';
         $this->site = $user->site ?? '';
         $this->no_telepon = $user->no_telepon ?? '';
+        $this->status = $user->status ?? 'active';
         $this->role = $user->getRoleNames()->first() ?? '';
     }
 
@@ -47,6 +49,7 @@ class EditForm extends Component
             'business_unit' => 'nullable|string|max:50|exists:sites,id_corp',
             'site' => 'nullable|string|max:50|exists:sites,id_site',
             'no_telepon' => 'nullable|string|max:50',
+            'status' => 'nullable|in:active,resigned',
             'role' => 'required|exists:roles,name',
         ];
     }
@@ -61,6 +64,7 @@ class EditForm extends Component
             'password.min' => 'Password minimal 6 karakter.',
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
             'nik.unique' => 'NIK sudah terdaftar.',
+            'status.in' => 'Status harus Active atau Resigned.',
             'role.required' => 'Role wajib dipilih.',
             'role.exists' => 'Role tidak valid.',
         ];
@@ -79,6 +83,7 @@ class EditForm extends Component
                 'business_unit' => $this->business_unit ?: null,
                 'site' => $this->site ?: null,
                 'no_telepon' => $this->no_telepon ?: null,
+                'status' => $this->status,
             ];
 
             if ($this->password) {

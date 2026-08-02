@@ -19,6 +19,7 @@ class Index extends Component
     public string $filterBusinessUnit = '';
     public string $filterSite = '';
     public string $filterRole = '';
+    public string $filterStatus = '';
     public string $sortBy = 'name';
     public string $sortDirection = 'asc';
     public bool $showDeleteModal = false;
@@ -38,6 +39,7 @@ class Index extends Component
         'filterBusinessUnit' => ['except' => ''],
         'filterSite' => ['except' => ''],
         'filterRole' => ['except' => ''],
+        'filterStatus' => ['except' => ''],
         'sortBy' => ['except' => 'name'],
         'sortDirection' => ['except' => 'asc'],
     ];
@@ -87,6 +89,18 @@ class Index extends Component
             'pengguna' => 'Pengguna',
             default => ucfirst($role),
         };
+    }
+
+    public function getStatusBadge(string $status): string
+    {
+        return $status === 'resigned'
+            ? 'bg-gray-500/15 text-gray-400'
+            : 'bg-emerald-500/15 text-emerald-400';
+    }
+
+    public function getStatusLabel(string $status): string
+    {
+        return $status === 'resigned' ? 'Resigned' : 'Active';
     }
 
     public function confirmDelete(int $id, string $name): void
@@ -180,7 +194,7 @@ class Index extends Component
             return;
         }
 
-        $allowed = ['role', 'name', 'email', 'nik', 'department', 'business_unit', 'site', 'no_telepon'];
+        $allowed = ['role', 'status', 'name', 'email', 'nik', 'department', 'business_unit', 'site', 'no_telepon'];
         if (!in_array($this->bulkEditField, $allowed)) {
             $this->addError('bulkEditField', 'Pilih field terlebih dahulu.');
             return;
@@ -200,6 +214,16 @@ class Index extends Component
 
             ActivityLogger::log('update', "Mengubah role {$count} user menjadi {$this->bulkEditValue}");
             $this->dispatch('show-toast', message: "Role {$count} user diperbarui menjadi {$this->getRoleLabel($this->bulkEditValue)}.", type: 'success');
+        } elseif ($this->bulkEditField === 'status') {
+            if (!in_array($this->bulkEditValue, ['active', 'resigned'], true)) {
+                $this->addError('bulkEditValue', 'Pilih status terlebih dahulu.');
+                return;
+            }
+
+            $count = User::whereIn('id', $this->selected)->update(['status' => $this->bulkEditValue]);
+
+            ActivityLogger::log('update', "Mengubah status {$count} user menjadi " . ucfirst($this->bulkEditValue));
+            $this->dispatch('show-toast', message: "Status {$count} user diperbarui menjadi {$this->getStatusLabel($this->bulkEditValue)}.", type: 'success');
         } else {
             $value = trim($this->bulkEditValue);
             $count = User::whereIn('id', $this->selected)->update([$this->bulkEditField => $value ?: null]);
@@ -217,6 +241,7 @@ class Index extends Component
     {
         return match ($field) {
             'role' => 'Role',
+            'status' => 'Status',
             'name' => 'Nama',
             'email' => 'Email',
             'nik' => 'NIK',
@@ -240,7 +265,8 @@ class Index extends Component
                 $q->where('site', 'like', "%{$this->filterSite}%")
                     ->orWhereHas('siteDetail', fn ($q) => $q->where('site', 'like', "%{$this->filterSite}%"));
             }))
-            ->when($this->filterRole, fn ($q) => $q->role($this->filterRole));
+            ->when($this->filterRole, fn ($q) => $q->role($this->filterRole))
+            ->when($this->filterStatus, fn ($q) => $q->where('status', $this->filterStatus));
     }
 
     public function render()

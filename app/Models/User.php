@@ -28,9 +28,14 @@ class User extends Authenticatable
         'business_unit',
         'site',
         'no_telepon',
+        'status',
         'theme_preference',
         'signature_path',
     ];
+
+    public const STATUS_ACTIVE = 'active';
+
+    public const STATUS_RESIGNED = 'resigned';
 
     /**
      * The attributes that should be hidden for serialization.

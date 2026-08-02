@@ -59,7 +59,7 @@
     <div class="glass-card p-4">
         <div class="flex items-center justify-between mb-3">
             <p class="text-xs font-medium text-muted uppercase tracking-wider">Filter Data</p>
-            @if($filterName || $filterEmail || $filterNik || $filterDepartment || $filterBusinessUnit || $filterSite || $filterRole)
+            @if($filterName || $filterEmail || $filterNik || $filterDepartment || $filterBusinessUnit || $filterSite || $filterRole || $filterStatus)
                 <a href="{{ route('admin.users.index') }}" wire:navigate
                     class="inline-flex items-center px-3 py-1 rounded-lg text-xs transition-colors duration-200"
                     style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);">
@@ -115,6 +115,16 @@
                     @endforeach
                 </select>
             </div>
+            <div>
+                <label class="block text-xs font-medium text-muted mb-1">Status</label>
+                <select wire:model.live="filterStatus"
+                    class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
+                    style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
+                    <option value="">Semua Status</option>
+                    <option value="active">Active</option>
+                    <option value="resigned">Resigned</option>
+                </select>
+            </div>
         </div>
     </div>
 
@@ -146,6 +156,7 @@
                             <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden md:table-cell">Department</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden lg:table-cell">Corp Unit</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Role</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Status</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden lg:table-cell">Site</th>
                             <th class="px-4 py-3 text-right text-xs font-medium text-muted uppercase tracking-wider">Aksi</th>
                         </tr>
@@ -180,6 +191,11 @@
                                     @empty
                                         <span class="text-xs text-muted">-</span>
                                     @endforelse
+                                </td>
+                                <td class="px-4 py-3">
+                                    <span class="inline-block px-2 py-0.5 rounded-full text-xs font-medium {{ $this->getStatusBadge($user->status) }}">
+                                        {{ $this->getStatusLabel($user->status) }}
+                                    </span>
                                 </td>
                                 <td class="px-4 py-3 text-secondary hidden lg:table-cell">{{ $user->site_name ?? '-' }}</td>
                                 <td class="px-4 py-3 text-right">
@@ -279,6 +295,7 @@
                         style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
                         <option value="">Pilih Field</option>
                         <option value="role">Role</option>
+                        <option value="status">Status</option>
                         <option value="name">Nama</option>
                         <option value="email">Email</option>
                         <option value="nik">NIK</option>
@@ -299,6 +316,14 @@
                             @foreach($this->getRoleList() as $role)
                                 <option value="{{ $role }}">{{ $this->getRoleLabel($role) }}</option>
                             @endforeach
+                        </select>
+                    @elseif($bulkEditField === 'status')
+                        <select wire:model="bulkEditValue"
+                            class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
+                            style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
+                            <option value="">Pilih Status</option>
+                            <option value="active">Active</option>
+                            <option value="resigned">Resigned</option>
                         </select>
                     @else
                         <input type="text" wire:model="bulkEditValue" placeholder="Nilai baru"

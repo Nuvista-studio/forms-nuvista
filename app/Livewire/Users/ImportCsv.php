@@ -239,6 +239,16 @@ class ImportCsv extends Component
                     continue;
                 }
 
+                $status = strtolower(trim($data['status'] ?? ''));
+                if ($status === '') {
+                    $status = 'active';
+                }
+                if (!in_array($status, ['active', 'resigned'], true)) {
+                    $this->importErrors[] = "Baris {$rowNumber}: Status tidak valid ({$status}). Gunakan Active atau Resigned.";
+                    $this->errorCount++;
+                    continue;
+                }
+
                 $password = trim($data['password'] ?? '');
                 if (empty($password)) {
                     $password = 'password';
@@ -258,6 +268,7 @@ class ImportCsv extends Component
                         'business_unit' => trim($data['business_unit'] ?? '') ?: null,
                         'site' => trim($data['site'] ?? '') ?: null,
                         'no_telepon' => trim($data['no_telepon'] ?? '') ?: null,
+                        'status' => $status,
                         'role_id' => $roleId,
                     ],
                 ];
@@ -272,6 +283,7 @@ class ImportCsv extends Component
                         'business_unit' => trim($data['business_unit'] ?? '') ?: '-',
                         'site' => trim($data['site'] ?? '') ?: '-',
                         'no_telepon' => trim($data['no_telepon'] ?? '') ?: '-',
+                        'status' => ucfirst($status),
                         'role' => $role ?: '-',
                     ],
                 ];
@@ -342,6 +354,7 @@ class ImportCsv extends Component
                         'business_unit' => $data['business_unit'],
                         'site' => $data['site'],
                         'no_telepon' => $data['no_telepon'],
+                        'status' => $data['status'] ?? 'active',
                     ]);
 
                     if (!empty($data['role_id'])) {

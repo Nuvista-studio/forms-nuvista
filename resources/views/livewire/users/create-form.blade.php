@@ -129,6 +129,18 @@
             </div>
         </div>
 
+        {{-- Status --}}
+        <div>
+            <label class="block text-sm font-medium text-secondary mb-1">Status Employee</label>
+            <select wire:model="status"
+                class="w-full px-4 py-2 rounded-lg text-sm transition-colors duration-200"
+                style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
+                <option value="active">Active</option>
+                <option value="resigned">Resigned</option>
+            </select>
+            @error('status') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
+        </div>
+
         {{-- Role --}}
         <div>
             <label class="block text-sm font-medium text-secondary mb-1">Role <span class="text-red-400">*</span></label>
