@@ -52,7 +52,7 @@
                 </div>
             @else
                 <div class="relative">
-                    <input wire:model.live="penggunaSearch" wire:keyup="searchPengguna" type="text" placeholder="{{ __('Cari nama, NIK, atau email...') }}"
+                    <input wire:model.live="penggunaSearch" wire:keyup="searchPengguna" type="text" placeholder="{{ __('Cari nama, NIK, atau department...') }}"
                         class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
                         style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);" />
                     @if ($showPenggunaDropdown && count($penggunaResults))
@@ -71,7 +71,7 @@
                         </div>
                     @endif
                 </div>
-                <p class="text-xs mt-2" style="color: var(--color-text-secondary);">{{ __('Hanya user berstatus Active yang bisa dipilih.') }}</p>
+                <p class="text-xs mt-2" style="color: var(--color-text-secondary);">{{ __('Hanya employee berstatus Active yang bisa dipilih.') }}</p>
                 @error('penggunaId') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
             @endif
         </div>

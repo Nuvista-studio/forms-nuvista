@@ -17,7 +17,7 @@ class FormPengembalian extends Model
     protected $fillable = [
         'nomor_form',
         'teknisi_id',
-        'pengguna_id',
+        'pengguna_employee_id',
         'tanggal_pengembalian',
         'kondisi',
         'kelengkapan',
@@ -38,7 +38,7 @@ class FormPengembalian extends Model
 
     public function pengguna(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'pengguna_id');
+        return $this->belongsTo(Employee::class, 'pengguna_employee_id');
     }
 
     public function items(): HasMany

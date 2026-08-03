@@ -29,6 +29,7 @@ class User extends Authenticatable
         'site',
         'no_telepon',
         'status',
+        'employee_id',
         'theme_preference',
         'locale',
         'signature_path',
@@ -69,7 +70,12 @@ class User extends Authenticatable
 
     public function assignedAssets(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(Asset::class, 'assigned_user_id');
+        return $this->hasMany(Asset::class, 'assigned_employee_id', 'employee_id');
+    }
+
+    public function employee(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Employee::class, 'employee_id');
     }
 
     public function getSiteNameAttribute(): ?string

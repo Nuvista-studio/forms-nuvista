@@ -19,7 +19,7 @@
                 </div>
                 <div>
                     <h3 class="font-semibold text-primary">{{ __('Upload File CSV') }}</h3>
-                    <p class="text-xs text-muted">Format: no_asset, kategori, brand, tipe, nama_perangkat, no_serial, operating_unit, site_location_asset, assigned_user_email</p>
+                    <p class="text-xs text-muted">Format: no_asset, kategori, brand, tipe, nama_perangkat, no_serial, operating_unit, site_location_asset, assigned_employee_email</p>
                 </div>
             </div>
 
@@ -98,7 +98,7 @@
                                     <td class="px-3 py-2 text-secondary font-mono whitespace-nowrap">{{ $row['no_serial'] ?? '-' }}</td>
                                     <td class="px-3 py-2 text-secondary whitespace-nowrap">{{ $row['operating_unit'] ?? '-' }}</td>
                                     <td class="px-3 py-2 text-secondary whitespace-nowrap">{{ $row['site_location_asset'] ?? '-' }}</td>
-                                    <td class="px-3 py-2 text-secondary whitespace-nowrap">{{ $row['assigned_user_email'] ?? '-' }}</td>
+                                    <td class="px-3 py-2 text-secondary whitespace-nowrap">{{ $row['assigned_employee_email'] ?? '-' }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -177,7 +177,7 @@
                                             <td class="px-2 py-1.5 text-secondary whitespace-nowrap">{{ $row['data']['nama_perangkat'] }}</td>
                                             <td class="px-2 py-1.5 text-secondary whitespace-nowrap">{{ $row['data']['operating_unit'] }}</td>
                                             <td class="px-2 py-1.5 text-secondary whitespace-nowrap">{{ $row['data']['site_location_asset'] }}</td>
-                                            <td class="px-2 py-1.5 text-secondary whitespace-nowrap">{{ $row['data']['assigned_user_email'] }}</td>
+                                                <td class="px-2 py-1.5 text-secondary whitespace-nowrap">{{ $row['data']['assigned_employee_email'] }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -258,7 +258,7 @@
                                                 <td class="px-2 py-1.5 text-secondary whitespace-nowrap">{{ $row['data']['nama_perangkat'] }}</td>
                                                 <td class="px-2 py-1.5 text-secondary whitespace-nowrap">{{ $row['data']['operating_unit'] }}</td>
                                                 <td class="px-2 py-1.5 text-secondary whitespace-nowrap">{{ $row['data']['site_location_asset'] }}</td>
-                                                <td class="px-2 py-1.5 text-secondary whitespace-nowrap">{{ $row['data']['assigned_user_email'] }}</td>
+                                            <td class="px-2 py-1.5 text-secondary whitespace-nowrap">{{ $row['data']['assigned_employee_email'] }}</td>
                                             </tr>
                                         @endforeach
                                     </tbody>

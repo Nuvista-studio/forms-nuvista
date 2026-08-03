@@ -4,8 +4,8 @@ namespace App\Livewire\Admin\Assets;
 
 use App\Helpers\ActivityLogger;
 use App\Models\Asset;
+use App\Models\Employee;
 use App\Models\Site;
-use App\Models\User;
 use Livewire\Component;
 
 class CreateForm extends Component
@@ -18,7 +18,7 @@ class CreateForm extends Component
     public string $noAsset = '';
     public string $operatingUnit = '';
     public string $siteLocationAsset = '';
-    public ?int $assignedUserId = null;
+    public ?int $assignedEmployeeId = null;
 
     protected function rules(): array
     {
@@ -31,7 +31,7 @@ class CreateForm extends Component
             'noAsset' => 'required|string|max:255|unique:assets,no_asset',
             'operatingUnit' => 'nullable|string|max:255',
             'siteLocationAsset' => 'nullable|string|max:255',
-            'assignedUserId' => 'nullable|exists:users,id',
+            'assignedEmployeeId' => 'nullable|exists:employees,id',
         ];
     }
 
@@ -44,7 +44,7 @@ class CreateForm extends Component
             'namaPerangkat.required' => 'Nama Perangkat wajib diisi.',
             'noAsset.required' => 'No Asset wajib diisi.',
             'noAsset.unique' => 'No Asset sudah terdaftar.',
-            'assignedUserId.exists' => 'Pengguna tidak valid.',
+            'assignedEmployeeId.exists' => 'Pengguna tidak valid.',
         ];
     }
 
@@ -60,10 +60,10 @@ class CreateForm extends Component
                 'nama_perangkat' => $this->namaPerangkat,
                 'no_serial' => $this->noSerial ?: null,
                 'no_asset' => $this->noAsset,
-                'status' => $this->assignedUserId ? 'active' : 'inactive',
+                'status' => $this->assignedEmployeeId ? 'active' : 'inactive',
                 'operating_unit' => $this->operatingUnit ?: null,
                 'site_location_asset' => $this->siteLocationAsset ?: null,
-                'assigned_user_id' => $this->assignedUserId,
+                'assigned_employee_id' => $this->assignedEmployeeId,
             ]);
 
             ActivityLogger::log('create', "Menambahkan asset baru: {$this->noAsset} - {$this->namaPerangkat}", 'App\Models\Asset', null, ['no_asset' => $this->noAsset]);
@@ -78,7 +78,7 @@ class CreateForm extends Component
     {
         return view('livewire.admin.assets.create-form', [
             'sites' => Site::orderBy('site')->get(),
-            'users' => User::orderBy('name')->get(),
+            'employees' => Employee::where('status', Employee::STATUS_ACTIVE)->orderBy('name')->get(),
         ]);
     }
 }

@@ -122,6 +122,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('users/import/template', [UserCsvController::class, 'template'])
             ->name('users.import.template');
 
+        // Employees
+        Volt::route('employees', 'admin.pages.employees.index')
+            ->name('employees.index');
+
+        Volt::route('employees/create', 'admin.pages.employees.create')
+            ->name('employees.create');
+
+        Volt::route('employees/{id}/edit', 'admin.pages.employees.edit')
+            ->name('employees.edit');
+
         // Form Pemeriksaan (PMR)
         Volt::route('pemeriksaan', 'admin.pages.pemeriksaan.index')
             ->name('pemeriksaan.index');

@@ -4,7 +4,7 @@ namespace App\Livewire\Admin\Assets;
 
 use App\Helpers\ActivityLogger;
 use App\Models\Asset;
-use App\Models\User;
+use App\Models\Employee;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -170,7 +170,7 @@ class ImportCsv extends Component
                     continue;
                 }
 
-                $assignedEmail = trim($data['assigned_user_email'] ?? '');
+                $assignedEmail = trim($data['assigned_employee_email'] ?? $data['assigned_user_email'] ?? '');
 
                 $this->validRows[] = [
                     'row' => $rowNumber,
@@ -183,7 +183,7 @@ class ImportCsv extends Component
                         'no_serial' => trim($data['no_serial'] ?? '') ?: null,
                         'operating_unit' => trim($data['operating_unit'] ?? '') ?: null,
                         'site_location_asset' => trim($data['site_location_asset'] ?? '') ?: null,
-                        'assigned_user_email' => $assignedEmail,
+                        'assigned_employee_email' => $assignedEmail,
                     ],
                 ];
 
@@ -198,7 +198,7 @@ class ImportCsv extends Component
                         'no_serial' => trim($data['no_serial'] ?? '') ?: '-',
                         'operating_unit' => trim($data['operating_unit'] ?? '') ?: '-',
                         'site_location_asset' => trim($data['site_location_asset'] ?? '') ?: '-',
-                        'assigned_user_email' => $assignedEmail ?: '-',
+                        'assigned_employee_email' => $assignedEmail ?: '-',
                     ],
                 ];
 
@@ -246,10 +246,13 @@ class ImportCsv extends Component
             foreach ($this->validRows as $validRow) {
                 $data = $validRow['data'];
 
-                $assignedUserId = null;
-                if (!empty($data['assigned_user_email'])) {
-                    $user = User::where('email', $data['assigned_user_email'])->first();
-                    $assignedUserId = $user?->id;
+                $assignedEmployeeId = null;
+                $assignedEmail = trim($data['assigned_employee_email'] ?? '');
+                if ($assignedEmail !== '') {
+                    $employee = Employee::where('email', $assignedEmail)
+                        ->orWhere('nik', $assignedEmail)
+                        ->first();
+                    $assignedEmployeeId = $employee?->id;
                 }
 
                 $attributes = [
@@ -261,14 +264,14 @@ class ImportCsv extends Component
                     'qr_code' => $data['no_asset'],
                     'operating_unit' => $data['operating_unit'],
                     'site_location_asset' => $data['site_location_asset'],
-                    'assigned_user_id' => $assignedUserId,
-                    'status' => $assignedUserId ? 'active' : 'inactive',
+                    'assigned_employee_id' => $assignedEmployeeId,
+                    'status' => $assignedEmployeeId ? 'active' : 'inactive',
                 ];
 
                 $existing = Asset::where('no_asset', $data['no_asset'])->first();
 
                 if ($existing) {
-                    $original = $existing->only(['kategori', 'brand', 'tipe', 'nama_perangkat', 'no_serial', 'operating_unit', 'site_location_asset', 'assigned_user_id', 'status']);
+                    $original = $existing->only(['kategori', 'brand', 'tipe', 'nama_perangkat', 'no_serial', 'operating_unit', 'site_location_asset', 'assigned_employee_id', 'status']);
                     $existing->update($attributes);
                     $this->importedAssets[] = ['no_asset' => $data['no_asset'], 'existed' => true, 'original' => $original];
                 } else {

@@ -127,7 +127,7 @@
                             </li>
                         @endforeach
                     </ul>
-                    <a href="{{ route('admin.pengembalian.create', ['user' => $this->user->id]) }}" wire:navigate
+                    <a href="{{ route('admin.pengembalian.create', ['employee' => $this->user->employee_id]) }}" wire:navigate
                         class="inline-flex items-center gap-1.5 mt-3 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors duration-200"
                         style="background: var(--color-primary); color: var(--color-button-text);">
                         {{ __('Buat Form Pengembalian Asset') }}

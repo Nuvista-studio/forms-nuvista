@@ -195,7 +195,7 @@
                                         <span class="text-secondary">-</span>
                                     @endif
                                 </td>
-                                <td class="px-4 py-3 text-secondary hidden lg:table-cell">{{ $a->assignedUser->name ?? '-' }}</td>
+                                <td class="px-4 py-3 text-secondary hidden lg:table-cell">{{ $a->assignedEmployee->name ?? '-' }}</td>
                                 <td class="px-4 py-3">
                                     @if($a->is_active)
                                         <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium" style="background: rgba(34,197,94,0.15); color: #22c55e;">Active</span>

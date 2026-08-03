@@ -187,7 +187,7 @@ class Index extends Component
 
     private function filteredQuery()
     {
-        $query = Asset::with('assignedUser', 'operatingUnitSite', 'siteAsset')
+        $query = Asset::with('assignedEmployee', 'operatingUnitSite', 'siteAsset')
             ->when($this->filterNoAsset, fn ($q) => $q->where('no_asset', 'like', "%{$this->filterNoAsset}%"))
             ->when($this->filterNama, fn ($q) => $q->where('nama_perangkat', 'like', "%{$this->filterNama}%"))
             ->when($this->filterKategori, fn ($q) => $q->where('kategori', 'like', "%{$this->filterKategori}%"))

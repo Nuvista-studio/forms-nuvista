@@ -18,7 +18,7 @@ class FormPerawatan extends Model
     protected $fillable = [
         'nomor_form',
         'user_id',
-        'pengguna_id',
+        'pengguna_employee_id',
         'asset_id',
         'site_location',
         'location_detail',
@@ -41,7 +41,7 @@ class FormPerawatan extends Model
 
     public function pengguna(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'pengguna_id');
+        return $this->belongsTo(Employee::class, 'pengguna_employee_id');
     }
 
     public function asset(): BelongsTo

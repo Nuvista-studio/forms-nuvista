@@ -3,15 +3,15 @@
 namespace Database\Seeders;
 
 use App\Models\Asset;
-use App\Models\User;
+use App\Models\Employee;
 use Illuminate\Database\Seeder;
 
 class AssetSeeder extends Seeder
 {
     public function run(): void
     {
-        $penggunaUsers = User::role('pengguna')->pluck('id', 'email')->toArray();
-        $getUserId = fn(string $email) => $penggunaUsers[$email] ?? null;
+        $employees = Employee::pluck('id', 'email')->toArray();
+        $getEmployeeId = fn(string $email) => $employees[$email] ?? null;
 
         $assets = [
             // Laptops
@@ -63,7 +63,7 @@ class AssetSeeder extends Seeder
         ];
 
         foreach ($assets as $data) {
-            $assignedUserId = $data['assigned_user_email'] ? $getUserId($data['assigned_user_email']) : null;
+            $assignedEmployeeId = $data['assigned_user_email'] ? $getEmployeeId($data['assigned_user_email']) : null;
 
             Asset::create([
                 'kategori' => $data['kategori'],
@@ -73,10 +73,10 @@ class AssetSeeder extends Seeder
                 'no_serial' => $data['no_serial'],
                 'no_asset' => $data['no_asset'],
                 'qr_code' => $data['no_asset'],
-                'status' => $assignedUserId ? 'active' : 'inactive',
+                'status' => $assignedEmployeeId ? 'active' : 'inactive',
                 'operating_unit' => $data['operating_unit'],
                 'site_location_asset' => $data['site_location_asset'],
-                'assigned_user_id' => $assignedUserId,
+                'assigned_employee_id' => $assignedEmployeeId,
             ]);
         }
     }

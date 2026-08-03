@@ -6,6 +6,7 @@ use App\Helpers\ActivityLogger;
 use App\Enums\FormStatus;
 use App\Models\Asset;
 use App\Models\ChecklistTemplate;
+use App\Models\Employee;
 use App\Models\FormApproval;
 use App\Models\FormPerawatan;
 use App\Models\Site;
@@ -121,15 +122,6 @@ class CreateForm extends Component
 
     public string $newPenggunaEmail = '';
 
-    public string $newPenggunaPassword = '';
-
-    // Credentials info after pengguna created
-    public bool $showPenggunaCredentials = false;
-
-    public string $createdPenggunaEmail = '';
-
-    public string $createdPenggunaPassword = '';
-
     // Search - Asset
     public string $assetSearch = '';
 
@@ -165,7 +157,7 @@ class CreateForm extends Component
     protected function rules(): array
     {
         return [
-            'penggunaId' => 'required|exists:users,id',
+            'penggunaId' => 'required|exists:employees,id',
             'assetId' => 'required|exists:assets,id',
             'hardwareItems.*.status' => 'nullable|in:baik,tidak_baik',
             'hardwareItems.*.keterangan' => 'nullable|string|max:1000',
@@ -218,12 +210,12 @@ class CreateForm extends Component
         $this->nomorForm = $form->nomor_form;
         $this->isDraft = true;
 
-        $this->penggunaId = $form->pengguna_id;
+        $this->penggunaId = $form->pengguna_employee_id;
         if ($form->pengguna) {
             $this->penggunaName = $form->pengguna->name;
             $this->penggunaNik = $form->pengguna->nik ?? '';
             $this->penggunaDepartment = $form->pengguna->department ?? '';
-            $this->penggunaEmail = $form->pengguna->email;
+            $this->penggunaEmail = $form->pengguna->email ?? '';
         }
 
         $this->assetId = $form->asset_id;
@@ -323,9 +315,13 @@ class CreateForm extends Component
             return;
         }
 
-        $this->penggunaResults = User::where('name', 'like', "%{$this->penggunaSearch}%")
-            ->orWhere('nik', 'like', "%{$this->penggunaSearch}%")
-            ->orWhere('email', 'like', "%{$this->penggunaSearch}%")
+        $this->penggunaResults = Employee::where('status', Employee::STATUS_ACTIVE)
+            ->where(function ($q) {
+                $q->where('name', 'like', "%{$this->penggunaSearch}%")
+                    ->orWhere('nik', 'like', "%{$this->penggunaSearch}%")
+                    ->orWhere('department', 'like', "%{$this->penggunaSearch}%")
+                    ->orWhere('email', 'like', "%{$this->penggunaSearch}%");
+            })
             ->limit(10)
             ->get()
             ->toArray();
@@ -333,16 +329,16 @@ class CreateForm extends Component
         $this->showPenggunaDropdown = strlen($this->penggunaSearch) >= 2;
     }
 
-    public function selectPengguna(int $userId): void
+    public function selectPengguna(int $employeeId): void
     {
-        $user = User::find($userId);
-        if ($user) {
-            $this->penggunaId = $userId;
-            $this->penggunaName = $user->name;
-            $this->penggunaNik = $user->nik ?? '';
-            $this->penggunaDepartment = $user->department ?? '';
-            $this->penggunaEmail = $user->email;
-            $this->penggunaSearch = $user->name;
+        $employee = Employee::find($employeeId);
+        if ($employee) {
+            $this->penggunaId = $employeeId;
+            $this->penggunaName = $employee->name;
+            $this->penggunaNik = $employee->nik ?? '';
+            $this->penggunaDepartment = $employee->department ?? '';
+            $this->penggunaEmail = $employee->email ?? '';
+            $this->penggunaSearch = $employee->name;
             $this->showPenggunaDropdown = false;
         }
     }
@@ -376,51 +372,40 @@ class CreateForm extends Component
     {
         $this->validate([
             'newPenggunaName' => 'required|string|max:255',
-            'newPenggunaEmail' => 'required|email|max:255|unique:users,email',
+            'newPenggunaEmail' => 'nullable|email|max:255',
             'newPenggunaNik' => 'nullable|string|max:50',
             'newPenggunaDepartment' => 'nullable|string|max:255',
             'newPenggunaBusinessUnit' => 'nullable|string|max:255',
             'newPenggunaSite' => 'nullable|string|max:255',
         ]);
 
-        $password = $this->newPenggunaPassword ?: 'password';
-
-        $user = User::create([
+        $employee = Employee::create([
             'name' => $this->newPenggunaName,
-            'email' => $this->newPenggunaEmail,
-            'password' => bcrypt($password),
+            'email' => $this->newPenggunaEmail ?: null,
             'nik' => $this->newPenggunaNik ?: null,
             'department' => $this->newPenggunaDepartment ?: null,
             'business_unit' => $this->newPenggunaBusinessUnit ?: null,
             'site' => $this->newPenggunaSite ?: null,
-            'theme_preference' => 'light',
+            'status' => Employee::STATUS_ACTIVE,
         ]);
 
-        $user->assignRole('pengguna');
-
-        $this->penggunaId = $user->id;
-        $this->penggunaName = $user->name;
-        $this->penggunaNik = $user->nik ?? '';
-        $this->penggunaDepartment = $user->department ?? '';
-        $this->penggunaEmail = $user->email;
-        $this->penggunaSearch = $user->name;
+        $this->penggunaId = $employee->id;
+        $this->penggunaName = $employee->name;
+        $this->penggunaNik = $employee->nik ?? '';
+        $this->penggunaDepartment = $employee->department ?? '';
+        $this->penggunaEmail = $employee->email ?? '';
+        $this->penggunaSearch = $employee->name;
         $this->showPenggunaDropdown = false;
         $this->showCreatePengguna = false;
 
-        $this->createdPenggunaEmail = $user->email;
-        $this->createdPenggunaPassword = $password;
-        $this->showPenggunaCredentials = true;
-
         $this->resetNewPenggunaFields();
 
-        $this->dispatch('penggunaCreated', name: $user->name);
+        $this->dispatch('penggunaCreated', name: $employee->name);
     }
 
     public function closePenggunaCredentials(): void
     {
-        $this->showPenggunaCredentials = false;
-        $this->createdPenggunaEmail = '';
-        $this->createdPenggunaPassword = '';
+        $this->showCreatePengguna = false;
     }
 
     private function resetNewPenggunaFields(): void
@@ -431,7 +416,6 @@ class CreateForm extends Component
         $this->newPenggunaBusinessUnit = '';
         $this->newPenggunaSite = '';
         $this->newPenggunaEmail = '';
-        $this->newPenggunaPassword = '';
     }
 
     public function searchAsset(): void
@@ -451,7 +435,7 @@ class CreateForm extends Component
 
         $user = Auth::user();
         if ($user && ! $user->hasPermissionTo('view-all-forms') && $user->hasPermissionTo('view-assigned-forms')) {
-            $query->where('assigned_user_id', $user->id);
+            $query->where('assigned_employee_id', $user->employee_id);
         }
 
         $this->assetResults = $query->limit(10)->get()->toArray();
@@ -610,7 +594,7 @@ class CreateForm extends Component
             if ($form) {
                 $form->update($data);
                 $this->syncItems($form);
-                ActivityLogger::log('create', "Menyimpan draft form Perawatan: {$this->noAsset}", 'App\Models\FormPerawatan', $this->formPerawatan?->id);
+                ActivityLogger::log('create', "Menyimpan draft form Perawatan: {$this->noAsset}", 'App\Models\FormPerawatan', $form->id);
                 $this->dispatch('draftSaved');
                 $this->redirect(route('forms.search'));
 
@@ -629,7 +613,7 @@ class CreateForm extends Component
 
         $this->syncItems($form);
 
-        ActivityLogger::log('create', "Menyimpan draft form Perawatan: {$this->noAsset}", 'App\Models\FormPerawatan', $this->formPerawatan?->id);
+        ActivityLogger::log('create', "Menyimpan draft form Perawatan: {$this->noAsset}", 'App\Models\FormPerawatan', $form->id);
 
         $this->dispatch('draftSaved');
         $this->redirect(route('forms.search'));
@@ -639,7 +623,7 @@ class CreateForm extends Component
     {
         return [
             'user_id' => Auth::id(),
-            'pengguna_id' => $this->penggunaId,
+            'pengguna_employee_id' => $this->penggunaId,
             'asset_id' => $this->assetId,
             'site_location' => $this->siteLocation ?: null,
             'location_detail' => $this->locationDetail ?: null,
@@ -709,11 +693,11 @@ class CreateForm extends Component
 
             $this->syncItems($form);
 
-            ActivityLogger::log('submit', "Mengirim form Perawatan: {$this->formPerawatan?->id} - {$this->noAsset}", 'App\Models\FormPerawatan', $this->formPerawatan?->id);
+            ActivityLogger::log('submit', "Mengirim form Perawatan: {$form->id} - {$this->noAsset}", 'App\Models\FormPerawatan', $form->id);
 
-            if ($this->asset_id && $this->pengguna_id) {
-                Asset::where('id', $this->asset_id)->update([
-                    'assigned_user_id' => $this->pengguna_id,
+            if ($this->assetId && $this->penggunaId) {
+                Asset::where('id', $this->assetId)->update([
+                    'assigned_employee_id' => $this->penggunaId,
                     'status' => 'active',
                 ]);
             }

@@ -6,6 +6,7 @@ use App\Helpers\ActivityLogger;
 use App\Enums\ApprovalLevel;
 use App\Enums\FormStatus;
 use App\Models\FormApproval;
+use App\Models\Employee;
 use App\Models\FormPemeriksaan;
 use App\Models\FormPemeriksaanItem;
 use App\Models\FormPerawatan;
@@ -106,7 +107,7 @@ class ReviewForm extends Component
         $pendingStatuses = [FormStatus::Diketahui->value, FormStatus::Submitted->value, FormStatus::Revisi->value];
 
         if ($this->formType === 'pemeriksaan') {
-            if ($form->pengguna_id === $user->id && in_array($form->status, $pendingStatuses)) {
+            if ($user->employee_id && $form->pengguna_employee_id === $user->employee_id && in_array($form->status, $pendingStatuses)) {
                 $this->approvalLevel = ApprovalLevel::DiketahuiOleh->value;
                 $this->canApprove = true;
             } elseif ($user->hasAnyRole(['supervisor_it', 'manager_it', 'admin']) && $form->status === FormStatus::Disetujui->value) {
@@ -114,7 +115,7 @@ class ReviewForm extends Component
                 $this->canApprove = true;
             }
         } else {
-            if ($form->pengguna_id === $user->id && in_array($form->status, $pendingStatuses)) {
+            if ($user->employee_id && $form->pengguna_employee_id === $user->employee_id && in_array($form->status, $pendingStatuses)) {
                 $this->approvalLevel = ApprovalLevel::DiketahuiOleh->value;
                 $this->canApprove = true;
             } elseif ($user->hasAnyRole(['supervisor_it', 'manager_it', 'admin']) && $form->status === FormStatus::Disetujui->value) {
@@ -410,9 +411,13 @@ class ReviewForm extends Component
             return;
         }
 
-        $this->signerResults = User::where('name', 'like', "%{$this->customSignerName}%")
-            ->orWhere('nik', 'like', "%{$this->customSignerName}%")
-            ->orWhere('email', 'like', "%{$this->customSignerName}%")
+        $this->signerResults = Employee::where('status', Employee::STATUS_ACTIVE)
+            ->where(function ($q) {
+                $q->where('name', 'like', "%{$this->customSignerName}%")
+                    ->orWhere('nik', 'like', "%{$this->customSignerName}%")
+                    ->orWhere('department', 'like', "%{$this->customSignerName}%")
+                    ->orWhere('email', 'like', "%{$this->customSignerName}%");
+            })
             ->limit(10)
             ->get()
             ->toArray();

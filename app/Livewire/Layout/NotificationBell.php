@@ -39,7 +39,7 @@ class NotificationBell extends Component
     {
         $queryDiketahui = FormPemeriksaan::where('status', 'diketahui')
             ->with(['teknisi', 'asset'])
-            ->where('pengguna_id', $user->id);
+            ->where('pengguna_employee_id', $user->employee_id);
 
         foreach ($queryDiketahui->get() as $form) {
             $this->notifications[] = [
@@ -80,7 +80,7 @@ class NotificationBell extends Component
     {
         $queryDiketahui = FormPerawatan::where('status', 'diketahui')
             ->with(['teknisi', 'asset'])
-            ->where('pengguna_id', $user->id);
+            ->where('pengguna_employee_id', $user->employee_id);
 
         foreach ($queryDiketahui->get() as $form) {
             $this->notifications[] = [

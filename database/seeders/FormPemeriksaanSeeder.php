@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Asset;
 use App\Models\ChecklistTemplate;
+use App\Models\Employee;
 use App\Models\FormPemeriksaan;
 use App\Models\User;
 use Carbon\Carbon;
@@ -14,10 +15,10 @@ class FormPemeriksaanSeeder extends Seeder
     public function run(): void
     {
         $teknisiUsers = User::role('teknisi')->get();
-        $penggunaUsers = User::role('pengguna')->get();
-        $assets = Asset::whereNotNull('assigned_user_id')->get();
+        $employees = Employee::where('status', Employee::STATUS_ACTIVE)->get();
+        $assets = Asset::whereNotNull('assigned_employee_id')->get();
 
-        if ($teknisiUsers->isEmpty() || $penggunaUsers->isEmpty() || $assets->isEmpty()) {
+        if ($teknisiUsers->isEmpty() || $employees->isEmpty() || $assets->isEmpty()) {
             return;
         }
 
@@ -48,7 +49,7 @@ class FormPemeriksaanSeeder extends Seeder
         foreach ($statusConfig as $status => $count) {
             for ($i = 0; $i < $count; $i++) {
                 $teknisi = $teknisiUsers->random();
-                $pengguna = $penggunaUsers->random();
+                $pengguna = $employees->random();
                 $asset = $assets->random();
 
                 $submittedAt = match ($status) {
@@ -61,7 +62,7 @@ class FormPemeriksaanSeeder extends Seeder
                 $form = FormPemeriksaan::create([
                     'nomor_form' => 'PBR-' . str_pad($formNumber++, 4, '0', STR_PAD_LEFT),
                     'user_id' => $teknisi->id,
-                    'pengguna_id' => $pengguna->id,
+                    'pengguna_employee_id' => $pengguna->id,
                     'asset_id' => $asset->id,
                     'site_location' => $asset->operating_unit,
                     'location_detail' => 'Lantai ' . rand(1, 5) . ' Ruang ' . fake()->randomElement(['A', 'B', 'C', 'D']) . '-' . rand(1, 20),

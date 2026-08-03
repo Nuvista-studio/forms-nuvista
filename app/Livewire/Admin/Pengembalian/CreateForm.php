@@ -4,9 +4,9 @@ namespace App\Livewire\Admin\Pengembalian;
 
 use App\Helpers\ActivityLogger;
 use App\Models\Asset;
+use App\Models\Employee;
 use App\Models\FormPengembalian;
 use App\Models\FormPengembalianItem;
-use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
@@ -41,19 +41,19 @@ class CreateForm extends Component
 
     public string $notes = '';
 
-    public function mount(?int $user = null): void
+    public function mount(?int $employee = null): void
     {
-        $userId = $user ?? request('user');
+        $employeeId = $employee ?? request('employee');
 
-        if ($userId) {
-            $this->selectPengguna((int) $userId);
+        if ($employeeId) {
+            $this->selectPengguna((int) $employeeId);
         }
     }
 
     protected function rules(): array
     {
         return [
-            'penggunaId' => 'required|exists:users,id',
+            'penggunaId' => 'required|exists:employees,id',
             'selectedAssets' => 'required|array|min:1',
             'tanggalPengembalian' => 'nullable|date',
             'kondisi' => 'nullable|in:baik,rusak,hilang',
@@ -65,8 +65,8 @@ class CreateForm extends Component
     protected function messages(): array
     {
         return [
-            'penggunaId.required' => 'Pilih user yang mengembalikan asset.',
-            'penggunaId.exists' => 'User tidak ditemukan.',
+            'penggunaId.required' => 'Pilih employee yang mengembalikan asset.',
+            'penggunaId.exists' => 'Employee tidak ditemukan.',
             'selectedAssets.required' => 'Pilih minimal satu asset.',
             'selectedAssets.min' => 'Pilih minimal satu asset.',
             'tanggalPengembalian.date' => 'Format tanggal tidak valid.',
@@ -84,10 +84,11 @@ class CreateForm extends Component
             return;
         }
 
-        $this->penggunaResults = User::where('status', User::STATUS_ACTIVE)
+        $this->penggunaResults = Employee::where('status', Employee::STATUS_ACTIVE)
             ->where(function ($q) {
                 $q->where('name', 'like', "%{$this->penggunaSearch}%")
                     ->orWhere('nik', 'like', "%{$this->penggunaSearch}%")
+                    ->orWhere('department', 'like', "%{$this->penggunaSearch}%")
                     ->orWhere('email', 'like', "%{$this->penggunaSearch}%");
             })
             ->limit(10)
@@ -97,24 +98,24 @@ class CreateForm extends Component
         $this->showPenggunaDropdown = strlen($this->penggunaSearch) >= 2;
     }
 
-    public function selectPengguna(int $userId): void
+    public function selectPengguna(int $employeeId): void
     {
-        $user = User::find($userId);
+        $employee = Employee::find($employeeId);
 
-        if (! $user) {
+        if (! $employee) {
             return;
         }
 
-        $this->penggunaId = $user->id;
-        $this->penggunaName = $user->name;
-        $this->penggunaNik = $user->nik ?? '';
-        $this->penggunaDepartment = $user->department ?? '';
-        $this->penggunaEmail = $user->email;
-        $this->penggunaSearch = $user->name;
+        $this->penggunaId = $employee->id;
+        $this->penggunaName = $employee->name;
+        $this->penggunaNik = $employee->nik ?? '';
+        $this->penggunaDepartment = $employee->department ?? '';
+        $this->penggunaEmail = $employee->email ?? '';
+        $this->penggunaSearch = $employee->name;
         $this->showPenggunaDropdown = false;
         $this->selectedAssets = [];
 
-        $this->availableAssets = $user->assignedAssets()
+        $this->availableAssets = $employee->assignedAssets()
             ->get(['id', 'no_asset', 'nama_perangkat', 'brand', 'tipe', 'no_serial'])
             ->toArray();
     }
@@ -156,7 +157,7 @@ class CreateForm extends Component
             $form = FormPengembalian::create([
                 'nomor_form' => $this->generateNomorForm(),
                 'teknisi_id' => Auth::id(),
-                'pengguna_id' => $this->penggunaId,
+                'pengguna_employee_id' => $this->penggunaId,
                 'tanggal_pengembalian' => $this->tanggalPengembalian ?: null,
                 'kondisi' => $this->kondisi ?: null,
                 'kelengkapan' => $this->kelengkapan ?: null,
@@ -173,7 +174,7 @@ class CreateForm extends Component
             }
 
             Asset::whereIn('id', $this->selectedAssets)
-                ->update(['assigned_user_id' => null, 'status' => 'inactive']);
+                ->update(['assigned_employee_id' => null, 'status' => 'inactive']);
 
             ActivityLogger::log(
                 'submit',

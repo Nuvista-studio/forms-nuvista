@@ -69,22 +69,22 @@
             <label class="block text-sm font-medium text-secondary mb-1">{{ __('Status') }}</label>
             <div class="w-full px-4 py-2 rounded-lg text-sm"
                 style="background: var(--color-bg-tertiary); border: 1px solid var(--color-border); color: var(--color-text-muted);">
-                <span x-show="!$wire.assignedUserId" class="text-amber-400">Inactive</span>
-                <span x-show="$wire.assignedUserId" class="text-emerald-400">Active</span>
+                <span x-show="!$wire.assignedEmployeeId" class="text-amber-400">Inactive</span>
+                <span x-show="$wire.assignedEmployeeId" class="text-emerald-400">Active</span>
             </div>
             <p class="text-xs text-muted mt-1">{{ __('Otomatis berdasarkan asign pengguna') }}</p>
         </div>
         <div>
             <label class="block text-sm font-medium text-secondary mb-1">{{ __('Pengguna') }}</label>
-            <select wire:model="assignedUserId"
+            <select wire:model="assignedEmployeeId"
                 class="w-full px-4 py-2 rounded-lg text-sm transition-colors duration-200"
                 style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
                 <option value="">-- {{ __('Tidak Ada Pengguna') }} --</option>
-                @foreach($users as $u)
-                    <option value="{{ $u->id }}">{{ $u->name }} ({{ $u->email }})</option>
+                @foreach($employees as $u)
+                    <option value="{{ $u->id }}">{{ $u->name }} ({{ $u->nik ?? '-' }})</option>
                 @endforeach
             </select>
-            @error('assignedUserId') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
+            @error('assignedEmployeeId') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
         </div>
     </div>
 

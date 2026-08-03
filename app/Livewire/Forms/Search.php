@@ -327,7 +327,7 @@ class Search extends Component
         if ($user->hasPermissionTo('view-all-forms')) return;
 
         if ($user->hasPermissionTo('view-assigned-forms')) {
-            $query->where('pengguna_id', $user->id);
+            $query->where('pengguna_employee_id', $user->employee_id);
             return;
         }
 

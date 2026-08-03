@@ -132,7 +132,7 @@
                             <div class="relative">
                                 <input type="text" wire:model.live="penggunaSearch"
                                     wire:input.debounce.300ms="searchPengguna"
-                                    placeholder="Cari nama, NIK, atau email..."
+                                    placeholder="Cari nama, NIK, atau department..."
                                     class="glass-input w-full rounded-lg px-3 py-2 text-sm">
                                 @if($showPenggunaDropdown && count($penggunaResults) > 0)
                                     <div class="absolute z-20 mt-1 w-full rounded-lg shadow-lg max-h-48 overflow-auto"
@@ -142,7 +142,7 @@
                                                 class="w-full text-left px-3 py-2 text-sm hover:opacity-80 transition"
                                                 style="color: var(--color-text-primary);">
                                                 <span class="font-medium">{{ $u['name'] }}</span>
-                                                <span class="text-xs text-muted ml-2">{{ $u['nik'] ?? '' }} · {{ $u['email'] }}</span>
+                                                <span class="text-xs text-muted ml-2">{{ $u['nik'] ?? '' }} · {{ $u['department'] ?? '' }}</span>
                                             </button>
                                         @endforeach
                                     </div>
@@ -171,8 +171,8 @@
                                         @error('newPenggunaName') <span class="text-xs text-red-400">{{ $message }}</span> @enderror
                                     </div>
                                     <div>
-                                        <label class="text-xs text-muted">Email <span class="text-red-400">*</span></label>
-                                        <input type="email" wire:model.live="newPenggunaEmail" class="glass-input w-full rounded-lg px-3 py-1.5 text-sm mt-1" placeholder="email@asri.co.id">
+                                        <label class="text-xs text-muted">Email</label>
+                                        <input type="email" wire:model.live="newPenggunaEmail" class="glass-input w-full rounded-lg px-3 py-1.5 text-sm mt-1" placeholder="Opsional">
                                         @error('newPenggunaEmail') <span class="text-xs text-red-400">{{ $message }}</span> @enderror
                                     </div>
                                     <div class="grid grid-cols-2 gap-2">
@@ -200,34 +200,8 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="flex items-center gap-1.5 text-xs text-muted py-1">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                        Role otomatis: <strong>Pengguna</strong> &middot; Password: <strong>password</strong>
-                                    </div>
                                     <button wire:click="createPengguna" type="button" class="glass-button-primary text-xs w-full py-1.5 mt-1">
                                         Simpan & Pilih Pengguna
-                                    </button>
-                                </div>
-                            @endif
-
-                            @if($showPenggunaCredentials)
-                                <div class="glass-card p-3 mt-2 space-y-2" style="border: 1px solid var(--color-border);">
-                                    <div class="flex items-center gap-2 mb-1">
-                                        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                        <p class="text-xs font-semibold text-emerald-400">Pengguna berhasil dibuat!</p>
-                                    </div>
-                                    <div class="grid grid-cols-2 gap-2">
-                                        <div class="rounded-lg px-3 py-2" style="background: var(--color-bg-tertiary);">
-                                            <span class="text-xs text-muted block">Email</span>
-                                            <p class="text-xs font-mono font-semibold text-primary">{{ $createdPenggunaEmail }}</p>
-                                        </div>
-                                        <div class="rounded-lg px-3 py-2" style="background: var(--color-bg-tertiary);">
-                                            <span class="text-xs text-muted block">Password</span>
-                                            <p class="text-xs font-mono font-semibold text-primary">{{ $createdPenggunaPassword }}</p>
-                                        </div>
-                                    </div>
-                                    <button wire:click="closePenggunaCredentials" type="button" class="glass-button-secondary text-xs w-full py-1.5">
-                                        Tutup
                                     </button>
                                 </div>
                             @endif

@@ -41,9 +41,11 @@ class FormApprovalSeeder extends Seeder
 
             // Diketahui oleh (pengguna) - for forms that have been acknowledged
             if (in_array($form->status, ['diketahui', 'disetujui', 'selesai'])) {
+                $penggunaUserId = $form->pengguna?->user?->id;
                 $form->approvals()->create([
                     'approval_level' => ApprovalLevel::DiketahuiOleh->value,
-                    'user_id' => $form->pengguna_id,
+                    'user_id' => $penggunaUserId,
+                    'custom_signer_name' => $penggunaUserId ? null : $form->pengguna?->name,
                     'status' => 'approved',
                     'approved_at' => $submittedAt->copy()->addHours(rand(1, 24)),
                     'catatan' => 'Mengetahui hasil ' . $label . ' dan kondisi sesuai',
@@ -77,9 +79,11 @@ class FormApprovalSeeder extends Seeder
             // Revisi - create approval with rejection note
             if ($form->status === 'revisi') {
                 // Diketahui but rejected (needs revision)
+                $penggunaUserId = $form->pengguna?->user?->id;
                 $form->approvals()->create([
                     'approval_level' => ApprovalLevel::DiketahuiOleh->value,
-                    'user_id' => $form->pengguna_id,
+                    'user_id' => $penggunaUserId,
+                    'custom_signer_name' => $penggunaUserId ? null : $form->pengguna?->name,
                     'status' => 'approved',
                     'approved_at' => $submittedAt->copy()->addHours(rand(1, 24)),
                     'catatan' => 'Mengetahui hasil ' . $label,
