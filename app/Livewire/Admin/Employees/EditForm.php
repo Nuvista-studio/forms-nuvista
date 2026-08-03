@@ -45,12 +45,12 @@ class EditForm extends Component
     {
         return [
             'name' => 'required|string|max:255',
-            'nik' => 'nullable|string|max:50',
+            'nik' => 'nullable|string|max:50|unique:employees,nik,'.$this->employee->id,
             'department' => 'nullable|string|max:255',
             'business_unit' => 'nullable|string|max:50|exists:sites,id_corp',
             'site' => 'nullable|string|max:50|exists:sites,id_site',
             'no_telepon' => 'nullable|string|max:50',
-            'email' => 'nullable|email|max:255',
+            'email' => 'nullable|email|max:255|unique:employees,email,'.$this->employee->id,
             'status' => 'nullable|in:active,resigned',
             'linkedUserId' => 'nullable|exists:users,id',
         ];
@@ -60,7 +60,9 @@ class EditForm extends Component
     {
         return [
             'name.required' => 'Nama wajib diisi.',
+            'nik.unique' => 'NIK sudah terdaftar pada employee lain.',
             'email.email' => 'Format email tidak valid.',
+            'email.unique' => 'Email sudah terdaftar pada employee lain.',
             'status.in' => 'Status harus Active atau Resigned.',
             'linkedUserId.exists' => 'Akun login tidak valid.',
         ];
@@ -76,6 +78,7 @@ class EditForm extends Component
                     'status',
                     'Employee masih memiliki ' . count($this->assignedAssets) . ' asset terpasang. Kembalikan asset terlebih dahulu melalui Form Pengembalian Asset.'
                 );
+                $this->dispatch('show-toast', message: 'Data gagal disimpan. Employee masih memiliki asset terpasang.', type: 'error');
 
                 return;
             }
@@ -94,9 +97,10 @@ class EditForm extends Component
             $this->syncLinkedUser();
 
             ActivityLogger::log('update', "Mengubah employee: {$this->name}", 'App\Models\Employee', $this->employee->id);
-            $this->dispatch('employee-updated');
-            $this->dispatch('show-toast', message: 'Employee berhasil diperbarui.', type: 'success');
+            session()->flash('success', 'Employee berhasil diperbarui.');
+            $this->redirect(route('admin.employees.index'));
         } catch (\Illuminate\Validation\ValidationException $e) {
+            $this->dispatch('show-toast', message: 'Data gagal disimpan. Periksa kembali isian form, termasuk NIK/Email yang sudah terdaftar.', type: 'error');
             $this->dispatch('validation-error', errors: $e->errors());
         }
     }

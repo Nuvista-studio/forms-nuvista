@@ -22,12 +22,12 @@ class CreateForm extends Component
     {
         return [
             'name' => 'required|string|max:255',
-            'nik' => 'nullable|string|max:50',
+            'nik' => 'nullable|string|max:50|unique:employees,nik',
             'department' => 'nullable|string|max:255',
             'business_unit' => 'nullable|string|max:50|exists:sites,id_corp',
             'site' => 'nullable|string|max:50|exists:sites,id_site',
             'no_telepon' => 'nullable|string|max:50',
-            'email' => 'nullable|email|max:255',
+            'email' => 'nullable|email|max:255|unique:employees,email',
             'status' => 'nullable|in:active,resigned',
         ];
     }
@@ -36,7 +36,9 @@ class CreateForm extends Component
     {
         return [
             'name.required' => 'Nama wajib diisi.',
+            'nik.unique' => 'NIK sudah terdaftar pada employee lain.',
             'email.email' => 'Format email tidak valid.',
+            'email.unique' => 'Email sudah terdaftar pada employee lain.',
             'status.in' => 'Status harus Active atau Resigned.',
         ];
     }
@@ -58,9 +60,10 @@ class CreateForm extends Component
             ]);
 
             ActivityLogger::log('create', "Menambahkan employee baru: {$this->name}", 'App\Models\Employee', $employee->id);
-            $this->dispatch('employee-created');
-            $this->redirect(route('admin.employees.edit', $employee->id));
+            session()->flash('success', 'Employee berhasil ditambahkan.');
+            $this->redirect(route('admin.employees.index'));
         } catch (\Illuminate\Validation\ValidationException $e) {
+            $this->dispatch('show-toast', message: 'Data gagal disimpan. Periksa kembali isian form, termasuk NIK/Email yang sudah terdaftar.', type: 'error');
             $this->dispatch('validation-error', errors: $e->errors());
         }
     }

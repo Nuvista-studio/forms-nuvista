@@ -2,6 +2,14 @@
     x-data="{ errors: {} }"
     x-on:validation-error.window="errors = $event.detail.errors[0]">
 
+    <div x-data="{ toast: false, message: '', type: 'success' }"
+        @show-toast.window="toast = true; message = $event.detail.message; type = $event.detail.type || 'success'; setTimeout(() => toast = false, 4000)"
+        x-show="toast" x-transition
+        class="fixed top-20 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-sm font-medium max-w-xs"
+        :class="type === 'success' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'"
+        x-text="message">
+    </div>
+
     {{-- Nama --}}
     <div>
         <label class="block text-sm font-medium text-secondary mb-1">{{ __('Nama') }} <span class="text-red-400">*</span></label>
