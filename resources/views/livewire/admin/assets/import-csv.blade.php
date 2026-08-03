@@ -107,7 +107,104 @@
             </div>
         @endif
 
-        @if(!empty($importErrors))
+        {{-- Processed Confirmation --}}
+        @if($processed)
+        <div class="glass-card p-6 space-y-4" style="border-color: rgba(245, 158, 11, 0.4);">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <h3 class="font-semibold text-primary">{{ __('Data Terbaca') }}: {{ $successCount }} {{ __('Berhasil') }}, {{ $errorCount }} {{ __('Gagal') }}</h3>
+                <div class="flex items-center gap-2">
+                    <button wire:click="confirmCancelImport"
+                        class="px-5 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 bg-red-500 text-white hover:bg-red-600">
+                        {{ __('Batalkan Import') }}
+                    </button>
+                    <button wire:click="confirmSendImport"
+                        class="px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200"
+                        style="background: var(--color-primary); color: var(--color-button-text);">
+                        {{ __('Konfirmasi Kirim Data') }} ({{ $successCount }})
+                    </button>
+                </div>
+            </div>
+
+            <div wire:loading wire:target="confirmImport" class="flex items-center gap-2 text-xs" style="color: var(--color-primary);">
+                <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+                <span>{{ __('Menyimpan data ke database, mohon tunggu') }}...</span>
+            </div>
+
+            <div class="flex items-center justify-center gap-4 text-sm">
+                <button wire:click="$set('resultTab', 'berhasil')" type="button"
+                    class="px-4 py-2 rounded-xl transition-all duration-200 cursor-pointer"
+                    style="{{ $resultTab === 'berhasil' ? 'background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.5);' : 'background: var(--color-glass-bg); border: 1px solid var(--color-border);' }}">
+                    <span class="text-emerald-400 font-bold text-xl">{{ $successCount }}</span>
+                    <p class="text-muted text-xs">{{ __('Berhasil') }}</p>
+                </button>
+                <button wire:click="$set('resultTab', 'gagal')" type="button"
+                    class="px-4 py-2 rounded-xl transition-all duration-200 cursor-pointer"
+                    style="{{ $resultTab === 'gagal' ? 'background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.5);' : 'background: var(--color-glass-bg); border: 1px solid var(--color-border);' }}">
+                    <span class="text-red-400 font-bold text-xl">{{ $errorCount }}</span>
+                    <p class="text-muted text-xs">{{ __('Gagal') }}</p>
+                </button>
+            </div>
+
+            @if($resultTab === 'berhasil')
+                @if(count($importSuccess) > 0)
+                    <div class="text-left mt-2 p-3 rounded-lg" style="background: var(--color-glass-bg); border: 1px solid var(--color-border);">
+                        <p class="text-xs font-semibold text-emerald-400 mb-2">{{ __('Detail Data Berhasil') }} ({{ count($importSuccess) }} {{ __('baris') }}):</p>
+                        <div class="overflow-x-auto max-h-60 overflow-y-auto">
+                            <table class="w-full text-xs">
+                                <thead>
+                                    <tr class="border-b" style="border-color: var(--color-border);">
+                                        <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">{{ __('Baris') }}</th>
+                                        <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">{{ __('No Asset') }}</th>
+                                        <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">{{ __('Kategori') }}</th>
+                                        <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">{{ __('Brand') }}</th>
+                                        <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">{{ __('Tipe') }}</th>
+                                        <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">{{ __('Nama Perangkat') }}</th>
+                                        <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">{{ __('Operating Unit') }}</th>
+                                        <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">{{ __('Site Location') }}</th>
+                                        <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">Assigned User</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y" style="border-color: var(--color-border);">
+                                    @foreach($importSuccess as $row)
+                                        <tr>
+                                            <td class="px-2 py-1.5 text-muted whitespace-nowrap">{{ $row['row'] }}</td>
+                                            <td class="px-2 py-1.5 text-primary font-mono font-medium whitespace-nowrap">{{ $row['data']['no_asset'] }}</td>
+                                            <td class="px-2 py-1.5 text-secondary whitespace-nowrap">{{ $row['data']['kategori'] }}</td>
+                                            <td class="px-2 py-1.5 text-secondary whitespace-nowrap">{{ $row['data']['brand'] }}</td>
+                                            <td class="px-2 py-1.5 text-secondary whitespace-nowrap">{{ $row['data']['tipe'] }}</td>
+                                            <td class="px-2 py-1.5 text-secondary whitespace-nowrap">{{ $row['data']['nama_perangkat'] }}</td>
+                                            <td class="px-2 py-1.5 text-secondary whitespace-nowrap">{{ $row['data']['operating_unit'] }}</td>
+                                            <td class="px-2 py-1.5 text-secondary whitespace-nowrap">{{ $row['data']['site_location_asset'] }}</td>
+                                        <td class="px-2 py-1.5 text-secondary whitespace-nowrap">{{ $row['data']['assigned_employee_email'] }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                @else
+                    <p class="text-sm text-muted mt-2">{{ __('Tidak ada data berhasil.') }}</p>
+                @endif
+            @else
+                @if(!empty($importErrors))
+                    <div class="text-left mt-2 p-3 rounded-lg" style="background: var(--color-glass-bg); border: 1px solid var(--color-border);">
+                        <p class="text-xs font-semibold text-red-400 mb-2">{{ __('Detail Error') }} ({{ $errorCount }} {{ __('baris gagal') }}):</p>
+                        <div class="max-h-40 overflow-y-auto space-y-1">
+                            @foreach($importErrors as $error)
+                                <p class="text-xs text-red-400">• {{ $error }}</p>
+                            @endforeach
+                        </div>
+                    </div>
+                @else
+                    <p class="text-sm text-muted mt-2">{{ __('Tidak ada data gagal.') }}</p>
+                @endif
+            @endif
+        </div>
+        @endif
+
+        @if(!empty($importErrors) && !$processed)
             <div class="glass-card p-6 space-y-3">
                 <h3 class="font-semibold text-red-400">Error</h3>
                 <div class="space-y-1 max-h-60 overflow-y-auto">
@@ -188,109 +285,14 @@
                     <p class="text-sm text-muted mt-4">{{ __('Tidak ada data berhasil.') }}</p>
                 @endif
             @else
-        {{-- Processed Confirmation --}}
-        @if($processed)
-            <div class="glass-card p-6 space-y-4" style="border-color: rgba(245, 158, 11, 0.4);">
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <h3 class="font-semibold text-primary">{{ __('Data Terbaca') }}: {{ $successCount }} {{ __('Berhasil') }}, {{ $errorCount }} {{ __('Gagal') }}</h3>
-                    <div class="flex items-center gap-2">
-                        <button wire:click="confirmCancelImport"
-                            class="px-5 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 bg-red-500 text-white hover:bg-red-600">
-                            {{ __('Batalkan Import') }}
-                        </button>
-                        <button wire:click="confirmSendImport"
-                            class="px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200"
-                            style="background: var(--color-primary); color: var(--color-button-text);">
-                            {{ __('Konfirmasi Kirim Data') }} ({{ $successCount }})
-                        </button>
-                    </div>
-                </div>
-
-                <div wire:loading wire:target="confirmImport" class="flex items-center gap-2 text-xs" style="color: var(--color-primary);">
-                    <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                    </svg>
-                    <span>{{ __('Menyimpan data ke database, mohon tunggu') }}...</span>
-                </div>
-
-                <div class="flex items-center justify-center gap-4 text-sm">
-                    <button wire:click="$set('resultTab', 'berhasil')" type="button"
-                        class="px-4 py-2 rounded-xl transition-all duration-200 cursor-pointer"
-                        style="{{ $resultTab === 'berhasil' ? 'background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.5);' : 'background: var(--color-glass-bg); border: 1px solid var(--color-border);' }}">
-                        <span class="text-emerald-400 font-bold text-xl">{{ $successCount }}</span>
-                        <p class="text-muted text-xs">{{ __('Berhasil') }}</p>
-                    </button>
-                    <button wire:click="$set('resultTab', 'gagal')" type="button"
-                        class="px-4 py-2 rounded-xl transition-all duration-200 cursor-pointer"
-                        style="{{ $resultTab === 'gagal' ? 'background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.5);' : 'background: var(--color-glass-bg); border: 1px solid var(--color-border);' }}">
-                        <span class="text-red-400 font-bold text-xl">{{ $errorCount }}</span>
-                        <p class="text-muted text-xs">{{ __('Gagal') }}</p>
-                    </button>
-                </div>
-
-                @if($resultTab === 'berhasil')
-                    @if(count($importSuccess) > 0)
-                        <div class="text-left mt-2 p-3 rounded-lg" style="background: var(--color-glass-bg); border: 1px solid var(--color-border);">
-                            <p class="text-xs font-semibold text-emerald-400 mb-2">{{ __('Detail Data Berhasil') }} ({{ count($importSuccess) }} {{ __('baris') }}):</p>
-                            <div class="overflow-x-auto max-h-60 overflow-y-auto">
-                                <table class="w-full text-xs">
-                                    <thead>
-                                        <tr class="border-b" style="border-color: var(--color-border);">
-                                            <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">{{ __('Baris') }}</th>
-                                            <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">{{ __('No Asset') }}</th>
-                                            <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">{{ __('Kategori') }}</th>
-                                            <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">{{ __('Brand') }}</th>
-                                            <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">{{ __('Tipe') }}</th>
-                                            <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">{{ __('Nama Perangkat') }}</th>
-                                            <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">{{ __('Operating Unit') }}</th>
-                                            <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">{{ __('Site Location') }}</th>
-                                            <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">Assigned User</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y" style="border-color: var(--color-border);">
-                                        @foreach($importSuccess as $row)
-                                            <tr>
-                                                <td class="px-2 py-1.5 text-muted whitespace-nowrap">{{ $row['row'] }}</td>
-                                                <td class="px-2 py-1.5 text-primary font-mono font-medium whitespace-nowrap">{{ $row['data']['no_asset'] }}</td>
-                                                <td class="px-2 py-1.5 text-secondary whitespace-nowrap">{{ $row['data']['kategori'] }}</td>
-                                                <td class="px-2 py-1.5 text-secondary whitespace-nowrap">{{ $row['data']['brand'] }}</td>
-                                                <td class="px-2 py-1.5 text-secondary whitespace-nowrap">{{ $row['data']['tipe'] }}</td>
-                                                <td class="px-2 py-1.5 text-secondary whitespace-nowrap">{{ $row['data']['nama_perangkat'] }}</td>
-                                                <td class="px-2 py-1.5 text-secondary whitespace-nowrap">{{ $row['data']['operating_unit'] }}</td>
-                                                <td class="px-2 py-1.5 text-secondary whitespace-nowrap">{{ $row['data']['site_location_asset'] }}</td>
-                                            <td class="px-2 py-1.5 text-secondary whitespace-nowrap">{{ $row['data']['assigned_employee_email'] }}</td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    @else
-                        <p class="text-sm text-muted mt-2">{{ __('Tidak ada data berhasil.') }}</p>
-                    @endif
-                @else
-                    @if(!empty($importErrors))
-                        <div class="text-left mt-2 p-3 rounded-lg" style="background: var(--color-glass-bg); border: 1px solid var(--color-border);">
-                            <p class="text-xs font-semibold text-red-400 mb-2">{{ __('Detail Error') }} ({{ $errorCount }} {{ __('baris gagal') }}):</p>
-                            <div class="max-h-40 overflow-y-auto space-y-1">
-                                @foreach($importErrors as $error)
-                                    <p class="text-xs text-red-400">• {{ $error }}</p>
-                                @endforeach
-                            </div>
-                        </div>
-                    @else
-                        <p class="text-sm text-muted mt-2">{{ __('Tidak ada data gagal.') }}</p>
-                    @endif
-                @endif
-            </div>
-        @endif
-
-        @if(!empty($importErrors) && !$processed)
-                    <div class="text-left max-h-40 overflow-y-auto mt-4 p-3 rounded-lg" style="background: var(--color-glass-bg); border: 1px solid var(--color-border);">
+                @if(!empty($importErrors))
+                    <div class="text-left mt-2 p-3 rounded-lg" style="background: var(--color-glass-bg); border: 1px solid var(--color-border);">
                         <p class="text-xs font-semibold text-red-400 mb-2">{{ __('Detail Error') }} ({{ $errorCount }} {{ __('baris gagal') }}):</p>
-                        @foreach($importErrors as $error)
-                            <p class="text-xs text-red-400">• {{ $error }}</p>
-                        @endforeach
+                        <div class="max-h-40 overflow-y-auto space-y-1">
+                            @foreach($importErrors as $error)
+                                <p class="text-xs text-red-400">• {{ $error }}</p>
+                            @endforeach
+                        </div>
                     </div>
                 @else
                     <p class="text-sm text-muted mt-4">{{ __('Tidak ada data gagal.') }}</p>

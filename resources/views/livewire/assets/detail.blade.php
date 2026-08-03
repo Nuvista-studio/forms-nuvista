@@ -13,10 +13,20 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                 <h1 class="text-2xl font-bold text-primary">{{ $asset->nama_perangkat }}</h1>
                 <p class="text-sm text-muted mt-1">{{ $asset->brand }} &middot; {{ $asset->tipe }}</p>
             </div>
-            <span class="px-3 py-1 rounded-full text-xs font-medium
-                {{ $asset->status === 'active' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-gray-500/15 text-gray-400' }}">
-                {{ ucfirst($asset->status ?? 'Active') }}
-            </span>
+            <div class="flex items-center gap-2">
+                @if (auth()->user()?->hasRole(['admin', 'teknisi']))
+                    <a href="{{ route('assets.edit', $asset->id) }}" wire:navigate
+                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium transition-colors duration-200"
+                        style="background: var(--color-primary); color: var(--color-button-text);">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                        {{ __('Edit') }}
+                    </a>
+                @endif
+                <span class="px-3 py-1 rounded-full text-xs font-medium
+                    {{ $asset->status === 'active' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-gray-500/15 text-gray-400' }}">
+                    {{ ucfirst($asset->status ?? 'Active') }}
+                </span>
+            </div>
         </div>
         <div class="grid grid-cols-2 sm:grid-cols-5 gap-4 mt-4 text-sm">
             <div>

@@ -45,6 +45,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Volt::route('assets', 'pages.assets.index')
         ->name('assets.index');
 
+    Volt::route('assets/{id}/edit', 'pages.assets.edit')
+        ->middleware('role:admin|teknisi')
+        ->name('assets.edit');
+
     Volt::route('assets/{id}', 'pages.assets.show')
         ->name('assets.show');
 

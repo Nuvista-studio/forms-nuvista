@@ -51,9 +51,9 @@
     @if ($assets->count() > 0)
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             @foreach ($assets as $asset)
-                <a href="{{ route('assets.show', $asset->id) }}" wire:navigate
-                    class="glass-card p-5 transition-all duration-200 hover:scale-[1.01]"
-                    style="text-decoration: none;">
+                <div class="glass-card p-5 transition-all duration-200 hover:scale-[1.01]">
+                    <a href="{{ route('assets.show', $asset->id) }}" wire:navigate
+                        class="block" style="text-decoration: none;">
                     <div class="flex items-start justify-between mb-3">
                         <div class="flex-1 min-w-0">
                             <h3 class="font-semibold text-primary truncate">{{ $asset->nama_perangkat }}</h3>
@@ -100,6 +100,18 @@
                         </div>
                     @endif
                 </a>
+                    @if (auth()->user()?->hasRole(['admin', 'teknisi']))
+                        <div class="mt-3 pt-3 border-t"
+                            style="border-color: var(--color-border); display: flex; justify-content: flex-end;">
+                            <a href="{{ route('assets.edit', $asset->id) }}" wire:navigate
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors duration-200"
+                                style="background: var(--color-primary); color: var(--color-button-text);">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                {{ __('Edit') }}
+                            </a>
+                        </div>
+                    @endif
+                </div>
             @endforeach
         </div>
 
