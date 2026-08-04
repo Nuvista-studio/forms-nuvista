@@ -32,7 +32,7 @@ class FormApprovalSeeder extends Seeder
             if (in_array($form->status, ['submitted', 'diketahui', 'disetujui', 'selesai', 'revisi'])) {
                 $form->approvals()->create([
                     'approval_level' => ApprovalLevel::DiperiksaOleh->value,
-                    'user_id' => $form->teknisi->id,
+                    'user_id' => $form->teknisi->email,
                     'status' => 'approved',
                     'approved_at' => $submittedAt->copy()->addMinutes(rand(5, 30)),
                     'catatan' => ucfirst($label) . ' selesai dilakukan',
@@ -41,7 +41,7 @@ class FormApprovalSeeder extends Seeder
 
             // Diketahui oleh (pengguna) - for forms that have been acknowledged
             if (in_array($form->status, ['diketahui', 'disetujui', 'selesai'])) {
-                $penggunaUserId = $form->pengguna?->user?->id;
+                $penggunaUserId = $form->pengguna?->user?->email;
                 $form->approvals()->create([
                     'approval_level' => ApprovalLevel::DiketahuiOleh->value,
                     'user_id' => $penggunaUserId,
@@ -55,7 +55,7 @@ class FormApprovalSeeder extends Seeder
                 if ($form->status === 'diketahui') {
                     $form->approvals()->create([
                         'approval_level' => ApprovalLevel::DisetujuiOleh->value,
-                        'user_id' => $supervisor?->id,
+                        'user_id' => $supervisor?->email,
                         'custom_signer_name' => $supervisor ? null : 'Supervisor IT',
                         'status' => 'pending',
                     ]);
@@ -68,7 +68,7 @@ class FormApprovalSeeder extends Seeder
 
                 $form->approvals()->create([
                     'approval_level' => ApprovalLevel::DisetujuiOleh->value,
-                    'user_id' => $approver?->id,
+                    'user_id' => $approver?->email,
                     'custom_signer_name' => $approver ? null : ($manager ? null : 'Manager IT'),
                     'status' => 'approved',
                     'approved_at' => $submittedAt->copy()->addDays(rand(1, 3)),
@@ -79,7 +79,7 @@ class FormApprovalSeeder extends Seeder
             // Revisi - create approval with rejection note
             if ($form->status === 'revisi') {
                 // Diketahui but rejected (needs revision)
-                $penggunaUserId = $form->pengguna?->user?->id;
+                $penggunaUserId = $form->pengguna?->user?->email;
                 $form->approvals()->create([
                     'approval_level' => ApprovalLevel::DiketahuiOleh->value,
                     'user_id' => $penggunaUserId,
@@ -93,7 +93,7 @@ class FormApprovalSeeder extends Seeder
                 $rejector = fake()->boolean(50) ? $manager : $supervisor;
                 $form->approvals()->create([
                     'approval_level' => ApprovalLevel::DisetujuiOleh->value,
-                    'user_id' => $rejector?->id,
+                    'user_id' => $rejector?->email,
                     'custom_signer_name' => $rejector ? null : 'Approver',
                     'status' => 'rejected',
                     'approved_at' => $submittedAt->copy()->addDays(rand(1, 2)),

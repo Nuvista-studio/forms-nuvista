@@ -41,29 +41,6 @@
         @error('nik') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
     </div>
 
-    {{-- Department & Business Unit --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-            <label class="block text-sm font-medium text-secondary mb-1">Department</label>
-            <input wire:model="department" type="text"
-                class="w-full px-4 py-2 rounded-lg text-sm transition-colors duration-200"
-                style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);"
-                placeholder="IT Operation" />
-        </div>
-        <div>
-            <label class="block text-sm font-medium text-secondary mb-1">{{ __('Corp Unit') }}</label>
-            <select wire:model="business_unit"
-                class="w-full px-4 py-2 rounded-lg text-sm transition-colors duration-200"
-                style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
-                <option value="">{{ __('Pilih Corp Unit') }}</option>
-                @foreach($this->getBusinessUnitList() as $code => $label)
-                    <option value="{{ $code }}">{{ $label }}</option>
-                @endforeach
-            </select>
-            @error('business_unit') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
-        </div>
-    </div>
-
     {{-- Site & No. Telepon --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
@@ -93,8 +70,8 @@
         <select wire:model="status"
             class="w-full px-4 py-2 rounded-lg text-sm transition-colors duration-200"
             style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
-            <option value="active">Active</option>
-            <option value="resigned">Resigned</option>
+            <option value="Active">Active</option>
+            <option value="Resigned">Resigned</option>
         </select>
         @error('status') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
     </div>

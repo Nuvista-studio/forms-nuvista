@@ -77,7 +77,7 @@ class Index extends Component
         if (!$user) return;
         if ($user->hasPermissionTo('view-all-forms')) return;
         if ($user->hasPermissionTo('view-assigned-forms')) {
-            $query->where('assigned_employee_id', $user->employee_id);
+            $query->where('assigned_employee_id', $user->nik);
         }
     }
 

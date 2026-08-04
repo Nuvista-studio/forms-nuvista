@@ -45,7 +45,7 @@ class Index extends Component
             'kelengkapan' => $form->kelengkapan,
             'notes' => $form->notes,
             'teknisi' => $form->teknisi ? ['name' => $form->teknisi->name, 'email' => $form->teknisi->email] : null,
-            'pengguna' => $form->pengguna ? ['name' => $form->pengguna->name, 'nik' => $form->pengguna->nik, 'department' => $form->pengguna->department] : null,
+            'pengguna' => $form->pengguna ? ['name' => $form->pengguna->name, 'nik' => $form->pengguna->nik, 'site' => $form->pengguna->site_name] : null,
             'items' => $form->items->map(fn ($item) => [
                 'no_asset' => $item->asset?->no_asset,
                 'nama_perangkat' => $item->asset?->nama_perangkat,

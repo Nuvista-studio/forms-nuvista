@@ -67,7 +67,7 @@ class Index extends Component
             'tindakan_solution' => $form->tindakan_solution,
             'location_detail' => $form->location_detail,
             'teknisi' => $form->teknisi ? ['name' => $form->teknisi->name, 'email' => $form->teknisi->email] : null,
-            'pengguna' => $form->pengguna ? ['name' => $form->pengguna->name, 'nik' => $form->pengguna->nik, 'department' => $form->pengguna->department] : null,
+            'pengguna' => $form->pengguna ? ['name' => $form->pengguna->name, 'nik' => $form->pengguna->nik, 'site' => $form->pengguna->site_name] : null,
             'asset' => $form->asset ? [
                 'nama_perangkat' => $form->asset->nama_perangkat,
                 'no_asset' => $form->asset->no_asset,

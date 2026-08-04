@@ -72,7 +72,7 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                     <div class="absolute z-20 w-full mt-1 rounded-lg max-h-40 overflow-y-auto"
                         style="background: var(--color-card-bg); border: 1px solid var(--color-card-border);">
                         @foreach ($userResults as $user)
-                            <button wire:click="selectUser({{ $user['id'] }})"
+                            <button wire:click="selectUser('{{ $user['email'] }}')"
                                 class="w-full text-left px-2 py-1.5 text-xs transition-colors text-primary" onmouseover="this.style.backgroundColor='var(--color-bg-tertiary)'" onmouseout="this.style.backgroundColor=''">
                                 {{ $user['name'] }} <span class="text-muted">({{ $user['nik'] ?? '-' }})</span>
                             </button> @endforeach
@@ -355,14 +355,9 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                         <tr>
                             <td
                                 class="border border-gray-300 dark:border-gray-600 px-3 py-1.5 bg-gray-100 dark:bg-gray-800 font-semibold">
-                                Department</td>
+                                Site</td>
                             <td class="border border-gray-300 dark:border-gray-600 px-3 py-1.5">
-                                {{ $_form['pengguna']['department'] ?? '-' }}</td>
-                            <td
-                                class="border border-gray-300 dark:border-gray-600 px-3 py-1.5 bg-gray-100 dark:bg-gray-800 font-semibold">
-                                Site / B. Unit</td>
-                            <td class="border border-gray-300 dark:border-gray-600 px-3 py-1.5">
-                                {{ $_form['pengguna']['site'] ?? ($_form['pengguna']['business_unit'] ?? '-') }}</td>
+                                {{ $_form['pengguna']['site'] ?? '-' }}</td>
                         </tr>
                         <tr>
                             <td

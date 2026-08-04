@@ -10,7 +10,7 @@ class AssetSeeder extends Seeder
 {
     public function run(): void
     {
-        $employees = Employee::pluck('id', 'email')->toArray();
+        $employees = Employee::pluck('nik', 'email')->toArray();
         $getEmployeeId = fn(string $email) => $employees[$email] ?? null;
 
         $assets = [

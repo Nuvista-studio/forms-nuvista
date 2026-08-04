@@ -107,10 +107,8 @@
             <td class="val">{{ $form->pengguna->nik ?? '-' }}</td>
         </tr>
         <tr>
-            <td class="lbl">Department</td>
-            <td class="val">{{ $form->pengguna->department ?? '-' }}</td>
-            <td class="lbl">Site / B. Unit</td>
-            <td class="val">{{ $form->pengguna->site ?? $form->pengguna->business_unit ?? '-' }}</td>
+            <td class="lbl">Site</td>
+            <td class="val">{{ $form->pengguna->site_name ?? '-' }}</td>
         </tr>
         <tr>
             <td class="lbl">No. Telepon</td>

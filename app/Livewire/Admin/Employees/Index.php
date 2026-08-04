@@ -14,14 +14,12 @@ class Index extends Component
     public string $filterName = '';
     public string $filterEmail = '';
     public string $filterNik = '';
-    public string $filterDepartment = '';
-    public string $filterBusinessUnit = '';
     public string $filterSite = '';
     public string $filterStatus = '';
     public string $sortBy = 'name';
     public string $sortDirection = 'asc';
     public bool $showDeleteModal = false;
-    public ?int $deleteEmployeeId = null;
+    public ?string $deleteEmployeeId = null;
     public string $deleteEmployeeName = '';
     public array $selected = [];
     public bool $showBulkDeleteModal = false;
@@ -30,8 +28,6 @@ class Index extends Component
         'filterName' => ['except' => ''],
         'filterEmail' => ['except' => ''],
         'filterNik' => ['except' => ''],
-        'filterDepartment' => ['except' => ''],
-        'filterBusinessUnit' => ['except' => ''],
         'filterSite' => ['except' => ''],
         'filterStatus' => ['except' => ''],
         'sortBy' => ['except' => 'name'],
@@ -68,9 +64,9 @@ class Index extends Component
         return $status === Employee::STATUS_RESIGNED ? 'Resigned' : 'Active';
     }
 
-    public function confirmDelete(int $id, string $name): void
+    public function confirmDelete(string $nik, string $name): void
     {
-        $this->deleteEmployeeId = $id;
+        $this->deleteEmployeeId = $nik;
         $this->deleteEmployeeName = $name;
         $this->showDeleteModal = true;
     }
@@ -104,7 +100,7 @@ class Index extends Component
     {
         $pageIds = collect($this->filteredQuery()
             ->orderBy($this->sortBy, $this->sortDirection)
-            ->paginate(12)->items())->pluck('id')->all();
+            ->paginate(12)->items())->pluck('nik')->all();
 
         if (count($pageIds) === count(array_intersect($pageIds, $this->selected))) {
             $this->selected = array_values(array_diff($this->selected, $pageIds));
@@ -125,7 +121,7 @@ class Index extends Component
 
     public function bulkDelete(): void
     {
-        $employees = Employee::whereIn('id', $this->selected)->get();
+        $employees = Employee::whereIn('nik', $this->selected)->get();
         $deleted = 0;
         foreach ($employees as $employee) {
             if ($employee->assignedAssets()->count() > 0) {
@@ -148,8 +144,6 @@ class Index extends Component
             ->when($this->filterName, fn ($q) => $q->where('name', 'like', "%{$this->filterName}%"))
             ->when($this->filterEmail, fn ($q) => $q->where('email', 'like', "%{$this->filterEmail}%"))
             ->when($this->filterNik, fn ($q) => $q->where('nik', 'like', "%{$this->filterNik}%"))
-            ->when($this->filterDepartment, fn ($q) => $q->where('department', 'like', "%{$this->filterDepartment}%"))
-            ->when($this->filterBusinessUnit, fn ($q) => $q->where('business_unit', 'like', "%{$this->filterBusinessUnit}%"))
             ->when($this->filterSite, fn ($q) => $q->where(function ($q) {
                 $q->where('site', 'like', "%{$this->filterSite}%")
                     ->orWhereHas('siteDetail', fn ($q) => $q->where('site', 'like', "%{$this->filterSite}%"));
@@ -163,7 +157,7 @@ class Index extends Component
             ->orderBy($this->sortBy, $this->sortDirection)
             ->paginate(12);
 
-        $pageIds = collect($employees->items())->pluck('id')->all();
+        $pageIds = collect($employees->items())->pluck('nik')->all();
         $allSelected = count($pageIds) > 0 && count(array_intersect($this->selected, $pageIds)) === count($pageIds);
 
         return view('livewire.admin.employees.index', [

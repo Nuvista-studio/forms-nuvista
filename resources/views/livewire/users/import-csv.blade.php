@@ -21,8 +21,7 @@
                 </div>
                 <div>
                     <h3 class="font-semibold text-primary">{{ __('Upload File CSV') }}</h3>
-                    <p class="text-xs text-muted">Format: name, email, password, nik, department, business_unit, site,
-                        no_telepon, role, status</p>
+                    <p class="text-xs text-muted">Format: name, email, password, nik, role, status</p>
                 </div>
             </div>
 
@@ -108,11 +107,6 @@
                                 <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">{{ __('Email') }}</th>
                                 <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">{{ __('Password') }}</th>
                                 <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">NIK</th>
-                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">Department</th>
-                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">{{ __('Corp Unit') }}</th>
-                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">{{ __('Site') }}</th>
-                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">{{ __('No Telepon') }}
-                                </th>
                                 <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">{{ __('Role') }}</th>
                                 <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">{{ __('Status') }}</th>
                             </tr>
@@ -129,14 +123,6 @@
                                         {{ $row['password'] ?? '-' }}</td>
                                     <td class="px-3 py-2 text-secondary font-mono whitespace-nowrap">
                                         {{ $row['nik'] ?? '-' }}</td>
-                                    <td class="px-3 py-2 text-secondary whitespace-nowrap">
-                                        {{ $row['department'] ?? '-' }}</td>
-                                    <td class="px-3 py-2 text-secondary whitespace-nowrap">
-                                        {{ $row['business_unit'] ?? '-' }}</td>
-                                    <td class="px-3 py-2 text-secondary whitespace-nowrap">{{ $row['site'] ?? '-' }}
-                                    </td>
-                                    <td class="px-3 py-2 text-secondary whitespace-nowrap">
-                                        {{ $row['no_telepon'] ?? '-' }}</td>
                                     <td class="px-3 py-2 text-secondary whitespace-nowrap">{{ $row['role'] ?? '-' }}
                                     </td>
                                     <td class="px-3 py-2 text-secondary whitespace-nowrap">
@@ -228,12 +214,6 @@
                                             <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">
                                                 NIK</th>
                                             <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">
-                                                Department</th>
-                                            <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">
-                                                {{ __('Corp Unit') }}</th>
-                                            <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">
-                                                {{ __('Site') }}</th>
-                                            <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">
                                                 {{ __('Role') }}</th>
                                             <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">
                                                 {{ __('Status') }}</th>
@@ -250,12 +230,6 @@
                                                     {{ $row['data']['email'] }}</td>
                                                 <td class="px-2 py-1.5 text-secondary font-mono whitespace-nowrap">
                                                     {{ $row['data']['nik'] }}</td>
-                                                <td class="px-2 py-1.5 text-secondary whitespace-nowrap">
-                                                    {{ $row['data']['department'] }}</td>
-                                                <td class="px-2 py-1.5 text-secondary whitespace-nowrap">
-                                                    {{ $row['data']['business_unit'] }}</td>
-                                                <td class="px-2 py-1.5 text-secondary whitespace-nowrap">
-                                                    {{ $row['data']['site'] }}</td>
                                                 <td class="px-2 py-1.5 text-secondary whitespace-nowrap">
                                                     {{ $row['data']['role'] }}</td>
                                                 <td class="px-2 py-1.5 text-secondary whitespace-nowrap">
@@ -369,11 +343,6 @@
                                             {{ __('Email') }}</th>
                                         <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">NIK
                                         </th>
-                                        <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">
-                                            Department</th>
-                                        <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">{{ __('Corp Unit') }}</th>
-                                        <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">{{ __('Site') }}
-                                        </th>
                                         <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">{{ __('Role') }}
                                         </th>
                                         <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">{{ __('Status') }}
@@ -391,12 +360,6 @@
                                                 {{ $row['data']['email'] }}</td>
                                             <td class="px-2 py-1.5 text-secondary font-mono whitespace-nowrap">
                                                 {{ $row['data']['nik'] }}</td>
-                                            <td class="px-2 py-1.5 text-secondary whitespace-nowrap">
-                                                {{ $row['data']['department'] }}</td>
-                                            <td class="px-2 py-1.5 text-secondary whitespace-nowrap">
-                                                {{ $row['data']['business_unit'] }}</td>
-                                            <td class="px-2 py-1.5 text-secondary whitespace-nowrap">
-                                                {{ $row['data']['site'] }}</td>
                                             <td class="px-2 py-1.5 text-secondary whitespace-nowrap">
                                                 {{ $row['data']['role'] }}</td>
                                             <td class="px-2 py-1.5 text-secondary whitespace-nowrap">

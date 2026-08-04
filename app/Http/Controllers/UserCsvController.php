@@ -19,7 +19,7 @@ class UserCsvController extends Controller
         $callback = function () use ($users) {
             $file = fopen('php://output', 'w');
 
-            fputcsv($file, ['name', 'email', 'password', 'nik', 'department', 'business_unit', 'site', 'no_telepon', 'role', 'status']);
+            fputcsv($file, ['name', 'email', 'password', 'nik', 'role', 'status']);
 
             foreach ($users as $user) {
                 fputcsv($file, [
@@ -27,12 +27,8 @@ class UserCsvController extends Controller
                     $user->email,
                     '',
                     $user->nik ?? '',
-                    $user->department ?? '',
-                    $user->business_unit ?? '',
-                    $user->site ?? '',
-                    $user->no_telepon ?? '',
                     $user->getRoleNames()->first() ?? '',
-                    $user->status ?? 'active',
+                    $user->status ?? 'Enable',
                 ]);
             }
 
@@ -52,19 +48,15 @@ class UserCsvController extends Controller
         $callback = function () {
             $file = fopen('php://output', 'w');
 
-            fputcsv($file, ['name', 'email', 'password', 'nik', 'department', 'business_unit', 'site', 'no_telepon', 'role', 'status']);
+            fputcsv($file, ['name', 'email', 'password', 'nik', 'role', 'status']);
 
             fputcsv($file, [
                 'John Doe',
                 'john@asri.co.id',
                 'password',
                 'USR001',
-                'IT Operation',
-                'MAS',
-                'O99',
-                '081234567890',
                 'pengguna',
-                'active',
+                'Enable',
             ]);
 
             fputcsv($file, [
@@ -72,12 +64,8 @@ class UserCsvController extends Controller
                 'jane@asri.co.id',
                 'password123',
                 'USR002',
-                'Finance',
-                'MAP',
-                'M01',
-                '081234567891',
                 'teknisi',
-                'active',
+                'Enable',
             ]);
 
             fputcsv($file, [
@@ -85,12 +73,8 @@ class UserCsvController extends Controller
                 'budi@asri.co.id',
                 'passbudi',
                 'USR003',
-                'HRD',
-                'PPP',
-                'A03',
-                '081234567892',
                 'admin',
-                'resigned',
+                'Disable',
             ]);
 
             fclose($file);

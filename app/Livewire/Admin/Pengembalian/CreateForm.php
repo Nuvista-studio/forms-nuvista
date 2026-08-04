@@ -13,7 +13,7 @@ use Livewire\Component;
 
 class CreateForm extends Component
 {
-    public ?int $penggunaId = null;
+    public ?string $penggunaId = null;
 
     public string $penggunaSearch = '';
 
@@ -24,8 +24,6 @@ class CreateForm extends Component
     public string $penggunaName = '';
 
     public string $penggunaNik = '';
-
-    public string $penggunaDepartment = '';
 
     public string $penggunaEmail = '';
 
@@ -46,14 +44,14 @@ class CreateForm extends Component
         $employeeId = $employee ?? request('employee');
 
         if ($employeeId) {
-            $this->selectPengguna((int) $employeeId);
+            $this->selectPengguna((string) $employeeId);
         }
     }
 
     protected function rules(): array
     {
         return [
-            'penggunaId' => 'required|exists:employees,id',
+            'penggunaId' => 'required|exists:employees,nik',
             'selectedAssets' => 'required|array|min:1',
             'tanggalPengembalian' => 'nullable|date',
             'kondisi' => 'nullable|in:baik,rusak,hilang',
@@ -88,7 +86,6 @@ class CreateForm extends Component
             ->where(function ($q) {
                 $q->where('name', 'like', "%{$this->penggunaSearch}%")
                     ->orWhere('nik', 'like', "%{$this->penggunaSearch}%")
-                    ->orWhere('department', 'like', "%{$this->penggunaSearch}%")
                     ->orWhere('email', 'like', "%{$this->penggunaSearch}%");
             })
             ->limit(10)
@@ -98,18 +95,17 @@ class CreateForm extends Component
         $this->showPenggunaDropdown = strlen($this->penggunaSearch) >= 2;
     }
 
-    public function selectPengguna(int $employeeId): void
+    public function selectPengguna(string $nik): void
     {
-        $employee = Employee::find($employeeId);
+        $employee = Employee::find($nik);
 
         if (! $employee) {
             return;
         }
 
-        $this->penggunaId = $employee->id;
+        $this->penggunaId = $employee->nik;
         $this->penggunaName = $employee->name;
         $this->penggunaNik = $employee->nik ?? '';
-        $this->penggunaDepartment = $employee->department ?? '';
         $this->penggunaEmail = $employee->email ?? '';
         $this->penggunaSearch = $employee->name;
         $this->showPenggunaDropdown = false;
@@ -125,7 +121,6 @@ class CreateForm extends Component
         $this->penggunaId = null;
         $this->penggunaName = '';
         $this->penggunaNik = '';
-        $this->penggunaDepartment = '';
         $this->penggunaEmail = '';
         $this->penggunaSearch = '';
         $this->availableAssets = [];

@@ -13,20 +13,26 @@ class Employee extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $primaryKey = 'nik';
+
+    protected $keyType = 'string';
+
+    public $incrementing = false;
+
     protected $fillable = [
         'name',
         'nik',
-        'department',
-        'business_unit',
         'site',
         'no_telepon',
         'email',
+        'akun_login',
+        'date_resign',
         'status',
     ];
 
-    public const STATUS_ACTIVE = 'active';
+    public const STATUS_ACTIVE = 'Active';
 
-    public const STATUS_RESIGNED = 'resigned';
+    public const STATUS_RESIGNED = 'Resigned';
 
     public function siteDetail(): BelongsTo
     {
@@ -35,7 +41,7 @@ class Employee extends Model
 
     public function user(): HasOne
     {
-        return $this->hasOne(User::class, 'employee_id');
+        return $this->hasOne(User::class, 'nik', 'nik');
     }
 
     public function assignedAssets(): HasMany

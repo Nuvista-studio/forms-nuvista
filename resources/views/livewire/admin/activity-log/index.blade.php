@@ -43,7 +43,7 @@
                 style="border-color: var(--color-border); color: var(--color-text-primary);">
                 <option value="">{{ __('Semua User') }}</option>
                 @foreach($users as $user)
-                    <option value="{{ $user->id }}">{{ $user->name }}</option>
+                    <option value="{{ $user->email }}">{{ $user->name }}</option>
                 @endforeach
             </select>
             @if($search || $filterType || $filterUserId)

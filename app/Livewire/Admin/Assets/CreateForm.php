@@ -18,7 +18,7 @@ class CreateForm extends Component
     public string $noAsset = '';
     public string $operatingUnit = '';
     public string $siteLocationAsset = '';
-    public ?int $assignedEmployeeId = null;
+    public ?string $assignedEmployeeId = null;
 
     protected function rules(): array
     {
@@ -31,7 +31,7 @@ class CreateForm extends Component
             'noAsset' => 'required|string|max:255|unique:assets,no_asset',
             'operatingUnit' => 'nullable|string|max:255',
             'siteLocationAsset' => 'nullable|string|max:255',
-            'assignedEmployeeId' => 'nullable|exists:employees,id',
+            'assignedEmployeeId' => 'nullable|exists:employees,nik',
         ];
     }
 

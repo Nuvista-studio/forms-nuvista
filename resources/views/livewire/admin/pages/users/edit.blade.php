@@ -5,9 +5,9 @@ use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 
 new #[Layout('components.admin-layout')] class extends Component {
-    public int $userId = 0;
+    public string $userEmail = '';
 }; ?>
 
 <div class="max-w-2xl">
-    <livewire:users.edit-form :userId="$userId" />
+    <livewire:users.edit-form :email="$userEmail" />
 </div>

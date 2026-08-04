@@ -311,23 +311,27 @@ class Index extends Component
     private function loadUsersBySite(): void
     {
         $query = User::query()
-            ->select('users.site', 'users.business_unit', DB::raw('count(*) as total'))
-            ->whereNotNull('users.site')
-            ->where('users.site', '!=', '')
-            ->groupBy('users.site', 'users.business_unit');
+            ->join('employees', 'employees.nik', '=', 'users.nik')
+            ->select('employees.site', DB::raw('count(*) as total'))
+            ->whereNotNull('employees.site')
+            ->where('employees.site', '!=', '');
 
         if ($this->filterCorpUnit) {
-            $query->where('users.business_unit', $this->filterCorpUnit);
+            $query->whereIn('employees.site', Site::where('id_corp', $this->filterCorpUnit)->pluck('id_site'));
         }
 
         if ($this->filterSite) {
-            $query->where('users.site', $this->filterSite);
+            $query->where('employees.site', $this->filterSite);
         }
 
-        $rows = $query->get();
+        $rows = $query->groupBy('employees.site')->get();
 
         $siteNames = Site::whereIn('id_site', $rows->pluck('site')->toArray())
             ->pluck('site', 'id_site')
+            ->toArray();
+
+        $corpUnits = Site::whereIn('id_site', $rows->pluck('site')->toArray())
+            ->pluck('id_corp', 'id_site')
             ->toArray();
 
         $result = [];
@@ -335,7 +339,7 @@ class Index extends Component
             $result[] = [
                 'site_id' => $row->site,
                 'site' => $siteNames[$row->site] ?? $row->site,
-                'corp_unit' => $row->business_unit ?? '-',
+                'corp_unit' => $corpUnits[$row->site] ?? '-',
                 'total' => (int) $row->total,
             ];
         }

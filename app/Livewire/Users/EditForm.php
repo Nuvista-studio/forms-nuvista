@@ -3,7 +3,6 @@
 namespace App\Livewire\Users;
 
 use App\Helpers\ActivityLogger;
-use App\Models\Site;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Component;
@@ -16,27 +15,19 @@ class EditForm extends Component
     public string $password = '';
     public string $password_confirmation = '';
     public string $nik = '';
-    public string $department = '';
-    public string $business_unit = '';
-    public string $site = '';
-    public string $no_telepon = '';
-    public string $status = 'active';
+    public string $status = User::STATUS_ACTIVE;
     public string $role = '';
 
     public array $assignedAssets = [];
 
-    public function mount(int $userId): void
+    public function mount(string $email): void
     {
-        $user = User::findOrFail($userId);
+        $user = User::findOrFail($email);
         $this->user = $user;
         $this->name = $user->name ?? '';
         $this->email = $user->email ?? '';
         $this->nik = $user->nik ?? '';
-        $this->department = $user->department ?? '';
-        $this->business_unit = $user->business_unit ?? '';
-        $this->site = $user->site ?? '';
-        $this->no_telepon = $user->no_telepon ?? '';
-        $this->status = $user->status ?? 'active';
+        $this->status = $user->status ?? User::STATUS_ACTIVE;
         $this->role = $user->getRoleNames()->first() ?? '';
         $this->assignedAssets = $user->assignedAssets()
             ->get(['id', 'no_asset', 'nama_perangkat', 'brand', 'tipe', 'no_serial'])
@@ -47,14 +38,10 @@ class EditForm extends Component
     {
         return [
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $this->user->id,
+            'email' => 'required|email|unique:users,email,' . $this->user->email,
             'password' => 'nullable|string|min:6|confirmed',
-            'nik' => 'nullable|string|max:50|unique:users,nik,' . $this->user->id,
-            'department' => 'nullable|string|max:255',
-            'business_unit' => 'nullable|string|max:50|exists:sites,id_corp',
-            'site' => 'nullable|string|max:50|exists:sites,id_site',
-            'no_telepon' => 'nullable|string|max:50',
-            'status' => 'nullable|in:active,resigned',
+            'nik' => 'nullable|string|max:50|unique:users,nik,' . $this->user->email,
+            'status' => 'nullable|in:Enable,Disable',
             'role' => 'required|exists:roles,name',
         ];
     }
@@ -93,10 +80,6 @@ class EditForm extends Component
                 'name' => $this->name,
                 'email' => $this->email,
                 'nik' => $this->nik ?: null,
-                'department' => $this->department ?: null,
-                'business_unit' => $this->business_unit ?: null,
-                'site' => $this->site ?: null,
-                'no_telepon' => $this->no_telepon ?: null,
                 'status' => $this->status,
             ];
 
@@ -106,9 +89,10 @@ class EditForm extends Component
 
             $this->user->update($data);
 
+            $this->user->syncEmployeeLink();
             $this->user->syncRoles([$this->role]);
 
-            ActivityLogger::log('update', "Mengubah user: {$this->name} ({$this->email})", 'App\Models\User', $this->user->id);
+            ActivityLogger::log('update', "Mengubah user: {$this->name} ({$this->email})", 'App\Models\User', $this->user->email);
             $this->dispatch('user-updated');
         } catch (\Illuminate\Validation\ValidationException $e) {
             $this->dispatch('validation-error', errors: $e->errors());
@@ -118,20 +102,6 @@ class EditForm extends Component
     public function getRoleList(): array
     {
         return \Spatie\Permission\Models\Role::pluck('name')->toArray();
-    }
-
-    public function getSiteList(): array
-    {
-        return Site::orderBy('id_site')->get(['id_site', 'site'])
-            ->mapWithKeys(fn ($s) => [$s->id_site => "{$s->id_site} - {$s->site}"])
-            ->toArray();
-    }
-
-    public function getBusinessUnitList(): array
-    {
-        return Site::select('id_corp')->distinct()->orderBy('id_corp')->pluck('id_corp')
-            ->mapWithKeys(fn ($code) => [$code => $code])
-            ->toArray();
     }
 
     public function getRoleLabel(string $role): string

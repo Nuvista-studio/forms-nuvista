@@ -37,23 +37,17 @@ class CreateForm extends Component
     ];
 
     // Step 1: Info Pengguna
-    public ?int $penggunaId = null;
+    public ?string $penggunaId = null;
 
     public string $teknisiName = '';
 
     public string $teknisiNik = '';
-
-    public string $teknisiDepartment = '';
-
-    public string $teknisiBusinessUnit = '';
 
     public string $teknisiSite = '';
 
     public string $penggunaName = '';
 
     public string $penggunaNik = '';
-
-    public string $penggunaDepartment = '';
 
     public string $penggunaEmail = '';
 
@@ -114,10 +108,6 @@ class CreateForm extends Component
 
     public string $newPenggunaNik = '';
 
-    public string $newPenggunaDepartment = '';
-
-    public string $newPenggunaBusinessUnit = '';
-
     public string $newPenggunaSite = '';
 
     public string $newPenggunaEmail = '';
@@ -157,7 +147,7 @@ class CreateForm extends Component
     protected function rules(): array
     {
         return [
-            'penggunaId' => 'required|exists:employees,id',
+            'penggunaId' => 'required|exists:employees,nik',
             'assetId' => 'required|exists:assets,id',
             'hardwareItems.*.status' => 'nullable|in:baik,tidak_baik',
             'hardwareItems.*.keterangan' => 'nullable|string|max:1000',
@@ -179,9 +169,7 @@ class CreateForm extends Component
         $user = Auth::user();
         $this->teknisiName = $user->name;
         $this->teknisiNik = $user->nik ?? '';
-        $this->teknisiDepartment = $user->department ?? '';
-        $this->teknisiBusinessUnit = $user->business_unit ?? '';
-        $this->teknisiSite = $user->site ?? '';
+        $this->teknisiSite = $user->siteName ?? '';
 
         $this->sites = Site::orderBy('id_site')->get()->toArray();
 
@@ -214,7 +202,6 @@ class CreateForm extends Component
         if ($form->pengguna) {
             $this->penggunaName = $form->pengguna->name;
             $this->penggunaNik = $form->pengguna->nik ?? '';
-            $this->penggunaDepartment = $form->pengguna->department ?? '';
             $this->penggunaEmail = $form->pengguna->email ?? '';
         }
 
@@ -319,7 +306,6 @@ class CreateForm extends Component
             ->where(function ($q) {
                 $q->where('name', 'like', "%{$this->penggunaSearch}%")
                     ->orWhere('nik', 'like', "%{$this->penggunaSearch}%")
-                    ->orWhere('department', 'like', "%{$this->penggunaSearch}%")
                     ->orWhere('email', 'like', "%{$this->penggunaSearch}%");
             })
             ->limit(10)
@@ -329,14 +315,13 @@ class CreateForm extends Component
         $this->showPenggunaDropdown = strlen($this->penggunaSearch) >= 2;
     }
 
-    public function selectPengguna(int $employeeId): void
+    public function selectPengguna(string $nik): void
     {
-        $employee = Employee::find($employeeId);
+        $employee = Employee::find($nik);
         if ($employee) {
-            $this->penggunaId = $employeeId;
+            $this->penggunaId = $employee->nik;
             $this->penggunaName = $employee->name;
             $this->penggunaNik = $employee->nik ?? '';
-            $this->penggunaDepartment = $employee->department ?? '';
             $this->penggunaEmail = $employee->email ?? '';
             $this->penggunaSearch = $employee->name;
             $this->showPenggunaDropdown = false;
@@ -348,7 +333,6 @@ class CreateForm extends Component
         $this->penggunaId = null;
         $this->penggunaName = '';
         $this->penggunaNik = '';
-        $this->penggunaDepartment = '';
         $this->penggunaEmail = '';
         $this->penggunaSearch = '';
         $this->showCreatePengguna = false;
@@ -374,8 +358,6 @@ class CreateForm extends Component
             'newPenggunaName' => 'required|string|max:255',
             'newPenggunaEmail' => 'nullable|email|max:255',
             'newPenggunaNik' => 'nullable|string|max:50',
-            'newPenggunaDepartment' => 'nullable|string|max:255',
-            'newPenggunaBusinessUnit' => 'nullable|string|max:255',
             'newPenggunaSite' => 'nullable|string|max:255',
         ]);
 
@@ -383,16 +365,13 @@ class CreateForm extends Component
             'name' => $this->newPenggunaName,
             'email' => $this->newPenggunaEmail ?: null,
             'nik' => $this->newPenggunaNik ?: null,
-            'department' => $this->newPenggunaDepartment ?: null,
-            'business_unit' => $this->newPenggunaBusinessUnit ?: null,
             'site' => $this->newPenggunaSite ?: null,
             'status' => Employee::STATUS_ACTIVE,
         ]);
 
-        $this->penggunaId = $employee->id;
+        $this->penggunaId = $employee->nik;
         $this->penggunaName = $employee->name;
         $this->penggunaNik = $employee->nik ?? '';
-        $this->penggunaDepartment = $employee->department ?? '';
         $this->penggunaEmail = $employee->email ?? '';
         $this->penggunaSearch = $employee->name;
         $this->showPenggunaDropdown = false;
@@ -412,8 +391,6 @@ class CreateForm extends Component
     {
         $this->newPenggunaName = '';
         $this->newPenggunaNik = '';
-        $this->newPenggunaDepartment = '';
-        $this->newPenggunaBusinessUnit = '';
         $this->newPenggunaSite = '';
         $this->newPenggunaEmail = '';
     }
@@ -435,7 +412,7 @@ class CreateForm extends Component
 
         $user = Auth::user();
         if ($user && ! $user->hasPermissionTo('view-all-forms') && $user->hasPermissionTo('view-assigned-forms')) {
-            $query->where('assigned_employee_id', $user->employee_id);
+            $query->where('assigned_employee_id', $user->nik);
         }
 
         $this->assetResults = $query->limit(10)->get()->toArray();

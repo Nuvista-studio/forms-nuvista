@@ -134,8 +134,8 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                     <p class="text-primary">{{ $form->pengguna->nik ?? '-' }}</p>
                 </div>
                 <div>
-                    <span class="text-xs text-muted">Department</span>
-                    <p class="text-primary">{{ $form->pengguna->department ?? '-' }}</p>
+                    <span class="text-xs text-muted">Site</span>
+                    <p class="text-primary">{{ $form->pengguna->site_name ?? '-' }}</p>
                 </div>
             </div>
         </div>

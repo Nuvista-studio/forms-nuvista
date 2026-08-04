@@ -252,7 +252,7 @@ class ImportCsv extends Component
                     $employee = Employee::where('email', $assignedEmail)
                         ->orWhere('nik', $assignedEmail)
                         ->first();
-                    $assignedEmployeeId = $employee?->id;
+                    $assignedEmployeeId = $employee?->nik;
                 }
 
                 $attributes = [

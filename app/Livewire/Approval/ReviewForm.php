@@ -107,7 +107,7 @@ class ReviewForm extends Component
         $pendingStatuses = [FormStatus::Diketahui->value, FormStatus::Submitted->value, FormStatus::Revisi->value];
 
         if ($this->formType === 'pemeriksaan') {
-            if ($user->employee_id && $form->pengguna_employee_id === $user->employee_id && in_array($form->status, $pendingStatuses)) {
+            if ($user->nik && $form->pengguna_employee_id === $user->nik && in_array($form->status, $pendingStatuses)) {
                 $this->approvalLevel = ApprovalLevel::DiketahuiOleh->value;
                 $this->canApprove = true;
             } elseif ($user->hasAnyRole(['supervisor_it', 'manager_it', 'admin']) && $form->status === FormStatus::Disetujui->value) {
@@ -115,7 +115,7 @@ class ReviewForm extends Component
                 $this->canApprove = true;
             }
         } else {
-            if ($user->employee_id && $form->pengguna_employee_id === $user->employee_id && in_array($form->status, $pendingStatuses)) {
+            if ($user->nik && $form->pengguna_employee_id === $user->nik && in_array($form->status, $pendingStatuses)) {
                 $this->approvalLevel = ApprovalLevel::DiketahuiOleh->value;
                 $this->canApprove = true;
             } elseif ($user->hasAnyRole(['supervisor_it', 'manager_it', 'admin']) && $form->status === FormStatus::Disetujui->value) {
@@ -126,7 +126,7 @@ class ReviewForm extends Component
 
         // Teknisi (creator) bisa edit selama belum di-approve oleh Disetujui
         if (! $this->canApprove
-            && $form->user_id === $user->id
+            && $form->user_id === $user->email
             && in_array($form->status, [FormStatus::Submitted->value, FormStatus::Diketahui->value])) {
             $this->canEditAsTeknisi = true;
         }
@@ -415,7 +415,6 @@ class ReviewForm extends Component
             ->where(function ($q) {
                 $q->where('name', 'like', "%{$this->customSignerName}%")
                     ->orWhere('nik', 'like', "%{$this->customSignerName}%")
-                    ->orWhere('department', 'like', "%{$this->customSignerName}%")
                     ->orWhere('email', 'like', "%{$this->customSignerName}%");
             })
             ->limit(10)

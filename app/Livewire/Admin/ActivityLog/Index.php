@@ -85,7 +85,7 @@ class Index extends Component
 
         $types = ActivityLog::select('type')->distinct()->orderBy('type')->pluck('type');
 
-        $users = User::whereHas('activityLogs')->orderBy('name')->get(['id', 'name']);
+        $users = User::whereHas('activityLogs')->orderBy('name')->get(['email', 'name']);
 
         return view('livewire.admin.activity-log.index', [
             'logs' => $logs,

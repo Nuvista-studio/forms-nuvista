@@ -81,7 +81,7 @@
                 style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
                 <option value="">-- {{ __('Tidak Ada Pengguna') }} --</option>
                 @foreach($employees as $u)
-                    <option value="{{ $u->id }}">{{ $u->name }} ({{ $u->nik ?? '-' }})</option>
+                    <option value="{{ $u->nik }}">{{ $u->name }} ({{ $u->nik ?? '-' }})</option>
                 @endforeach
             </select>
             @error('assignedEmployeeId') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror

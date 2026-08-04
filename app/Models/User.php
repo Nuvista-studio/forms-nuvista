@@ -14,6 +14,12 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, HasRoles, SoftDeletes;
 
+    protected $primaryKey = 'email';
+
+    protected $keyType = 'string';
+
+    public $incrementing = false;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -24,20 +30,15 @@ class User extends Authenticatable
         'email',
         'password',
         'nik',
-        'department',
-        'business_unit',
-        'site',
-        'no_telepon',
         'status',
-        'employee_id',
         'theme_preference',
         'locale',
         'signature_path',
     ];
 
-    public const STATUS_ACTIVE = 'active';
+    public const STATUS_ACTIVE = 'Enable';
 
-    public const STATUS_RESIGNED = 'resigned';
+    public const STATUS_RESIGNED = 'Disable';
 
     public const LOCALE_ID = 'id';
 
@@ -63,24 +64,44 @@ class User extends Authenticatable
         return $this->hasMany(ActivityLog::class);
     }
 
-    public function siteDetail(): \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(Site::class, 'site', 'id_site');
-    }
-
     public function assignedAssets(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(Asset::class, 'assigned_employee_id', 'employee_id');
+        return $this->hasMany(Asset::class, 'assigned_employee_id', 'nik');
     }
 
     public function employee(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(Employee::class, 'employee_id');
+        return $this->belongsTo(Employee::class, 'nik', 'nik');
+    }
+
+    public function syncEmployeeLink(): void
+    {
+        if (empty($this->nik)) {
+            return;
+        }
+
+        $employee = Employee::where('nik', $this->nik)->first();
+
+        if (! $employee) {
+            $employee = Employee::create([
+                'name' => $this->name,
+                'nik' => $this->nik,
+                'email' => $this->email,
+                'status' => $this->status === self::STATUS_RESIGNED ? Employee::STATUS_RESIGNED : Employee::STATUS_ACTIVE,
+                'akun_login' => $this->status === self::STATUS_RESIGNED ? 'No Access' : 'Connect',
+            ]);
+
+            return;
+        }
+
+        $employee->update([
+            'akun_login' => $this->status === self::STATUS_RESIGNED ? 'No Access' : 'Connect',
+        ]);
     }
 
     public function getSiteNameAttribute(): ?string
     {
-        return $this->siteDetail?->site ?? $this->site;
+        return $this->employee?->siteName;
     }
 
     protected function casts(): array

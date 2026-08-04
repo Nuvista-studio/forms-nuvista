@@ -40,7 +40,7 @@
                         <div>
                             <p class="text-sm font-medium" style="color: var(--color-text-primary);">{{ $penggunaName }}</p>
                             <p class="text-xs mt-0.5" style="color: var(--color-text-secondary);">
-                                {{ $penggunaNik ? 'NIK ' . $penggunaNik . ' • ' : '' }}{{ $penggunaDepartment ?: __('Tanpa department') }}
+                                {{ $penggunaNik ? 'NIK ' . $penggunaNik . ' • ' : '' }}{{ $penggunaEmail }}
                             </p>
                         </div>
                         <button type="button" wire:click="clearPengguna"
@@ -52,19 +52,19 @@
                 </div>
             @else
                 <div class="relative">
-                    <input wire:model.live="penggunaSearch" wire:keyup="searchPengguna" type="text" placeholder="{{ __('Cari nama, NIK, atau department...') }}"
+                    <input wire:model.live="penggunaSearch" wire:keyup="searchPengguna" type="text" placeholder="{{ __('Cari nama, NIK, atau email...') }}"
                         class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
                         style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);" />
                     @if ($showPenggunaDropdown && count($penggunaResults))
                         <div class="absolute z-20 w-full mt-1 rounded-lg overflow-hidden shadow-lg"
                             style="background: var(--color-bg-secondary, #ffffff); border: 1px solid var(--color-border);">
                             @foreach ($penggunaResults as $result)
-                                <button type="button" wire:click="selectPengguna({{ $result['id'] }})"
+                                <button type="button" wire:click="selectPengguna('{{ addslashes($result['nik']) }}')"
                                     class="w-full text-left px-3 py-2 text-sm transition-colors duration-200"
                                     style="color: var(--color-text-primary);">
                                     <span class="font-medium">{{ $result['name'] }}</span>
                                     <span class="block text-xs" style="color: var(--color-text-secondary);">
-                                        {{ $result['nik'] ? 'NIK ' . $result['nik'] . ' • ' : '' }}{{ $result['department'] ?? __('Tanpa department') }}
+                                        {{ $result['nik'] ? 'NIK ' . $result['nik'] . ' • ' : '' }}{{ $result['email'] ?? '' }}
                                     </span>
                                 </button>
                             @endforeach

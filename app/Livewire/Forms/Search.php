@@ -19,7 +19,7 @@ class Search extends Component
     public string $formType = '';
     public string $status = '';
     public string $kondisi = '';
-    public ?int $userId = null;
+    public ?string $userId = null;
     public ?int $assetId = null;
     public string $dateFrom = '';
     public string $dateTo = '';
@@ -91,7 +91,7 @@ class Search extends Component
         $this->showUserDropdown = count($this->userResults) > 0;
     }
 
-    public function selectUser(?int $userId = null): void
+    public function selectUser(?string $userId = null): void
     {
         if ($userId) {
             $user = User::find($userId);
@@ -151,9 +151,6 @@ class Search extends Component
         $query = FormPemeriksaan::with(['teknisi', 'asset', 'pengguna', 'approvals.user']);
         $this->applyRoleScope($query);
 
-        if ($this->formType && $this->formType !== 'pemeriksaan') {
-            return collect();
-        }
         if ($this->formType && $this->formType !== 'pemeriksaan') {
             return collect();
         }
@@ -327,12 +324,12 @@ class Search extends Component
         if ($user->hasPermissionTo('view-all-forms')) return;
 
         if ($user->hasPermissionTo('view-assigned-forms')) {
-            $query->where('pengguna_employee_id', $user->employee_id);
+            $query->where('pengguna_employee_id', $user->nik);
             return;
         }
 
         if ($user->hasPermissionTo('view-own-forms')) {
-            $query->where('user_id', $user->id);
+            $query->where('user_id', $user->email);
         }
     }
 }

@@ -114,7 +114,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Volt::route('users/create', 'admin.pages.users.create')
             ->name('users.create');
 
-        Volt::route('users/{userId}/edit', 'admin.pages.users.edit')
+        Volt::route('users/{userEmail}/edit', 'admin.pages.users.edit')
             ->name('users.edit');
 
         Volt::route('users/import', 'admin.pages.users.import')
@@ -133,7 +133,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Volt::route('employees/create', 'admin.pages.employees.create')
             ->name('employees.create');
 
-        Volt::route('employees/{id}/edit', 'admin.pages.employees.edit')
+        Volt::route('employees/{nik}/edit', 'admin.pages.employees.edit')
             ->name('employees.edit');
 
         // Form Pemeriksaan (PMR)

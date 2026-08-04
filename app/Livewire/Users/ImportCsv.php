@@ -176,8 +176,6 @@ class ImportCsv extends Component
             ->map(fn ($email) => strtolower(trim($email)))
             ->flip()
             ->all();
-        $validSites = \App\Models\Site::pluck('id_site')->flip()->all();
-        $validCorps = \App\Models\Site::pluck('id_corp')->flip()->all();
         $roleIds = \Spatie\Permission\Models\Role::pluck('id', 'name')->all();
         $defaultRoleId = $roleIds['pengguna'] ?? null;
 
@@ -225,28 +223,17 @@ class ImportCsv extends Component
                     continue;
                 }
 
-                $site = trim($data['site'] ?? '');
-                if (!empty($site) && !isset($validSites[$site])) {
-                    $this->importErrors[] = "Baris {$rowNumber}: Site tidak valid ({$site}). Gunakan kode id_site (contoh: O99).";
-                    $this->errorCount++;
-                    continue;
-                }
-
-                $businessUnit = trim($data['business_unit'] ?? '');
-                if (!empty($businessUnit) && !isset($validCorps[$businessUnit])) {
-                    $this->importErrors[] = "Baris {$rowNumber}: Business unit tidak valid ({$businessUnit}). Gunakan kode id_corp (contoh: MAS).";
-                    $this->errorCount++;
-                    continue;
-                }
-
                 $status = strtolower(trim($data['status'] ?? ''));
                 if ($status === '') {
-                    $status = 'active';
+                    $status = 'Enable';
                 }
-                if (!in_array($status, ['active', 'resigned'], true)) {
+                if (!in_array($status, ['Enable', 'Disable', 'enable', 'disable', 'active', 'resigned', 'resign'], true)) {
                     $this->importErrors[] = "Baris {$rowNumber}: Status tidak valid ({$status}). Gunakan Active atau Resigned.";
                     $this->errorCount++;
                     continue;
+                }
+                if (in_array($status, ['active', 'enable', 'resigned', 'resign'], true)) {
+                    $status = in_array($status, ['active', 'enable'], true) ? 'Enable' : 'Disable';
                 }
 
                 $password = trim($data['password'] ?? '');
@@ -264,10 +251,6 @@ class ImportCsv extends Component
                         'email' => $email,
                         'password' => $password,
                         'nik' => trim($data['nik'] ?? '') ?: null,
-                        'department' => trim($data['department'] ?? '') ?: null,
-                        'business_unit' => trim($data['business_unit'] ?? '') ?: null,
-                        'site' => trim($data['site'] ?? '') ?: null,
-                        'no_telepon' => trim($data['no_telepon'] ?? '') ?: null,
                         'status' => $status,
                         'role_id' => $roleId,
                     ],
@@ -279,11 +262,7 @@ class ImportCsv extends Component
                         'name' => $name,
                         'email' => $email,
                         'nik' => trim($data['nik'] ?? '') ?: '-',
-                        'department' => trim($data['department'] ?? '') ?: '-',
-                        'business_unit' => trim($data['business_unit'] ?? '') ?: '-',
-                        'site' => trim($data['site'] ?? '') ?: '-',
-                        'no_telepon' => trim($data['no_telepon'] ?? '') ?: '-',
-                        'status' => ucfirst($status),
+                        'status' => $status === 'Enable' ? 'Active' : 'Resigned',
                         'role' => $role ?: '-',
                     ],
                 ];
@@ -350,12 +329,10 @@ class ImportCsv extends Component
                         // Bcrypt cost 10 keeps import ~4x faster while staying OWASP-recommended.
                         'password' => Hash::make($data['password'], ['rounds' => 10]),
                         'nik' => $data['nik'],
-                        'department' => $data['department'],
-                        'business_unit' => $data['business_unit'],
-                        'site' => $data['site'],
-                        'no_telepon' => $data['no_telepon'],
-                        'status' => $data['status'] ?? 'active',
+                        'status' => $data['status'] ?? 'Enable',
                     ]);
+
+                    $user->syncEmployeeLink();
 
                     if (!empty($data['role_id'])) {
                         $user->roles()->attach($data['role_id']);
@@ -363,7 +340,7 @@ class ImportCsv extends Component
 
                     $importedCount++;
 
-                    $this->importedIds[] = $user->id;
+                    $this->importedIds[] = $user->email;
                 } catch (\Throwable $e) {
                     $skipped[] = "Baris {$validRow['row']}: " . $e->getMessage();
                 }
@@ -443,7 +420,7 @@ class ImportCsv extends Component
         \Illuminate\Support\Facades\DB::beginTransaction();
 
         try {
-            foreach (User::whereIn('id', $this->importedIds)->get() as $user) {
+            foreach (User::whereIn('email', $this->importedIds)->get() as $user) {
                 $user->roles()->detach();
                 $user->forceDelete();
             }

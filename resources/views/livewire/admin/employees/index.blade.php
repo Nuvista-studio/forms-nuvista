@@ -44,7 +44,7 @@
     <div class="glass-card p-4">
         <div class="flex items-center justify-between mb-3">
             <p class="text-xs font-medium text-muted uppercase tracking-wider">{{ __('Filter Data') }}</p>
-            @if($filterName || $filterEmail || $filterNik || $filterDepartment || $filterBusinessUnit || $filterSite || $filterStatus)
+            @if($filterName || $filterEmail || $filterNik || $filterSite || $filterStatus)
                 <a href="{{ route('admin.employees.index') }}" wire:navigate
                     class="inline-flex items-center px-3 py-1 rounded-lg text-xs transition-colors duration-200"
                     style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);">
@@ -72,18 +72,6 @@
                     style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);" />
             </div>
             <div>
-                <label class="block text-xs font-medium text-muted mb-1">Department</label>
-                <input wire:model.live.debounce.300ms="filterDepartment" type="text" placeholder="Department..."
-                    class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
-                    style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);" />
-            </div>
-            <div>
-                <label class="block text-xs font-medium text-muted mb-1">{{ __('Corp Unit') }}</label>
-                <input wire:model.live.debounce.300ms="filterBusinessUnit" type="text" placeholder="{{ __('Corp Unit') }}..."
-                    class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
-                    style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);" />
-            </div>
-            <div>
                 <label class="block text-xs font-medium text-muted mb-1">{{ __('Site') }}</label>
                 <input wire:model.live.debounce.300ms="filterSite" type="text" placeholder="{{ __('Site') }}..."
                     class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
@@ -95,8 +83,8 @@
                     class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
                     style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
                     <option value="">{{ __('Semua Status') }}</option>
-                    <option value="active">Active</option>
-                    <option value="resigned">Resigned</option>
+                    <option value="Active">Active</option>
+                    <option value="Resigned">Resigned</option>
                 </select>
             </div>
         </div>
@@ -127,8 +115,6 @@
                                 </span>
                             </th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden sm:table-cell">NIK</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden md:table-cell">Department</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden lg:table-cell">{{ __('Corp Unit') }}</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden lg:table-cell">{{ __('Site') }}</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden md:table-cell">{{ __('No. Telepon') }}</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden md:table-cell">Email</th>
@@ -141,7 +127,7 @@
                         @foreach($employees as $employee)
                             <tr class="transition-colors duration-150" style="hover: background: var(--color-glass-bg);">
                                 <td class="px-4 py-3 w-10">
-                                    <input type="checkbox" value="{{ $employee->id }}" wire:model.live="selected"
+                                    <input type="checkbox" value="{{ $employee->nik }}" wire:model.live="selected"
                                         class="rounded cursor-pointer" style="accent-color: var(--color-primary);">
                                 </td>
                                 <td class="px-4 py-3">
@@ -157,8 +143,6 @@
                                     </div>
                                 </td>
                                 <td class="px-4 py-3 font-mono text-secondary hidden sm:table-cell">{{ $employee->nik ?? '-' }}</td>
-                                <td class="px-4 py-3 text-secondary hidden md:table-cell">{{ $employee->department ?? '-' }}</td>
-                                <td class="px-4 py-3 text-secondary hidden lg:table-cell">{{ $employee->business_unit ?? '-' }}</td>
                                 <td class="px-4 py-3 text-secondary hidden lg:table-cell">{{ $employee->site_name ?? '-' }}</td>
                                 <td class="px-4 py-3 text-secondary hidden md:table-cell">{{ $employee->no_telepon ?? '-' }}</td>
                                 <td class="px-4 py-3 text-secondary hidden md:table-cell">{{ $employee->email ?? '-' }}</td>
@@ -178,13 +162,13 @@
                                 </td>
                                 <td class="px-4 py-3 text-right">
                                     <div class="flex items-center justify-end gap-1">
-                                        <a href="{{ route('admin.employees.edit', $employee->id) }}" wire:navigate
+                                        <a href="{{ route('admin.employees.edit', $employee->nik) }}" wire:navigate
                                             class="p-1.5 rounded-lg transition-colors duration-200"
                                             style="color: var(--color-text-secondary);"
                                             title="{{ __('Edit') }}">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                         </a>
-                                        <button wire:click="confirmDelete({{ $employee->id }}, '{{ addslashes($employee->name) }}')"
+                                        <button wire:click="confirmDelete('{{ addslashes($employee->nik) }}', '{{ addslashes($employee->name) }}')"
                                             class="p-1.5 rounded-lg transition-colors duration-200 text-red-400 hover:text-red-300"
                                             title="{{ __('Hapus') }}">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>

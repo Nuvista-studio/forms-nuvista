@@ -104,11 +104,6 @@
                                     class="glass-input w-full rounded-lg px-3 py-2 text-sm mt-1">
                             </div>
                             <div>
-                                <label class="text-xs text-muted">Department</label>
-                                <input type="text" wire:model.live="teknisiDepartment"
-                                    class="glass-input w-full rounded-lg px-3 py-2 text-sm mt-1">
-                            </div>
-                            <div>
                                 <label class="text-xs text-muted">Site</label>
                                 <input type="text" wire:model.live="teknisiSite"
                                     class="glass-input w-full rounded-lg px-3 py-2 text-sm mt-1">
@@ -123,7 +118,7 @@
                             <div class="glass-card p-3 flex items-center justify-between">
                                 <div>
                                     <p class="text-sm font-semibold text-primary">{{ $penggunaName }}</p>
-                                    <p class="text-xs text-muted">{{ $penggunaNik }} · {{ $penggunaDepartment }} · {{ $penggunaEmail }}</p>
+                                    <p class="text-xs text-muted">{{ $penggunaNik }} · {{ $penggunaEmail }}</p>
                                 </div>
                                 <button wire:click="clearPengguna" type="button"
                                     class="text-xs text-red-400 hover:text-red-300">Ganti</button>
@@ -132,17 +127,17 @@
                             <div class="relative">
                                 <input type="text" wire:model.live="penggunaSearch"
                                     wire:input.debounce.300ms="searchPengguna"
-                                    placeholder="Cari nama, NIK, atau department..."
+                                    placeholder="Cari nama, NIK, atau email..."
                                     class="glass-input w-full rounded-lg px-3 py-2 text-sm">
                                 @if($showPenggunaDropdown && count($penggunaResults) > 0)
                                     <div class="absolute z-20 mt-1 w-full rounded-lg shadow-lg max-h-48 overflow-auto"
                                         style="background: var(--color-bg-secondary); border: 1px solid var(--color-border);">
                                         @foreach($penggunaResults as $u)
-                                            <button wire:click="selectPengguna({{ $u['id'] }})" type="button"
+                                            <button wire:click="selectPengguna('{{ addslashes($u['nik']) }}')" type="button"
                                                 class="w-full text-left px-3 py-2 text-sm hover:opacity-80 transition"
                                                 style="color: var(--color-text-primary);">
                                                 <span class="font-medium">{{ $u['name'] }}</span>
-                                                <span class="text-xs text-muted ml-2">{{ $u['nik'] ?? '' }} · {{ $u['department'] ?? '' }}</span>
+                                                <span class="text-xs text-muted ml-2">{{ $u['nik'] ?? '' }}</span>
                                             </button>
                                         @endforeach
                                     </div>
@@ -181,21 +176,11 @@
                                             <input type="text" wire:model.live="newPenggunaNik" class="glass-input w-full rounded-lg px-3 py-1.5 text-sm mt-1" placeholder="Opsional">
                                         </div>
                                         <div>
-                                            <label class="text-xs text-muted">Department</label>
-                                            <input type="text" wire:model.live="newPenggunaDepartment" class="glass-input w-full rounded-lg px-3 py-1.5 text-sm mt-1" placeholder="Opsional">
-                                        </div>
-                                    </div>
-                                    <div class="grid grid-cols-2 gap-2">
-                                        <div>
-                                            <label class="text-xs text-muted">Corp Unit</label>
-                                            <input type="text" wire:model.live="newPenggunaBusinessUnit" class="glass-input w-full rounded-lg px-3 py-1.5 text-sm mt-1" placeholder="Opsional">
-                                        </div>
-                                        <div>
                                             <label class="text-xs text-muted">Site</label>
                                             <select wire:model.live="newPenggunaSite" class="glass-input w-full rounded-lg px-3 py-1.5 text-sm mt-1">
                                                 <option value="">Pilih Site</option>
                                                 @foreach($sites as $s)
-                                                    <option value="{{ $s['site'] }}">{{ $s['site'] }}</option>
+                                                    <option value="{{ $s['id_site'] }}">{{ $s['site'] }}</option>
                                                 @endforeach
                                             </select>
                                         </div>

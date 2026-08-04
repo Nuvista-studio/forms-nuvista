@@ -61,8 +61,8 @@ class FormPemeriksaanSeeder extends Seeder
 
                 $form = FormPemeriksaan::create([
                     'nomor_form' => 'PBR-' . str_pad($formNumber++, 4, '0', STR_PAD_LEFT),
-                    'user_id' => $teknisi->id,
-                    'pengguna_employee_id' => $pengguna->id,
+                    'user_id' => $teknisi->email,
+                    'pengguna_employee_id' => $pengguna->nik,
                     'asset_id' => $asset->id,
                     'site_location' => $asset->operating_unit,
                     'location_detail' => 'Lantai ' . rand(1, 5) . ' Ruang ' . fake()->randomElement(['A', 'B', 'C', 'D']) . '-' . rand(1, 20),

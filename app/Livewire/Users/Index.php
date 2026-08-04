@@ -15,15 +15,13 @@ class Index extends Component
     public string $filterName = '';
     public string $filterEmail = '';
     public string $filterNik = '';
-    public string $filterDepartment = '';
-    public string $filterBusinessUnit = '';
     public string $filterSite = '';
     public string $filterRole = '';
     public string $filterStatus = '';
     public string $sortBy = 'name';
     public string $sortDirection = 'asc';
     public bool $showDeleteModal = false;
-    public ?int $deleteUserId = null;
+    public ?string $deleteUserId = null;
     public string $deleteUserName = '';
     public array $selected = [];
     public bool $showBulkDeleteModal = false;
@@ -35,8 +33,6 @@ class Index extends Component
         'filterName' => ['except' => ''],
         'filterEmail' => ['except' => ''],
         'filterNik' => ['except' => ''],
-        'filterDepartment' => ['except' => ''],
-        'filterBusinessUnit' => ['except' => ''],
         'filterSite' => ['except' => ''],
         'filterRole' => ['except' => ''],
         'filterStatus' => ['except' => ''],
@@ -93,19 +89,19 @@ class Index extends Component
 
     public function getStatusBadge(string $status): string
     {
-        return $status === 'resigned'
+        return $status === User::STATUS_RESIGNED
             ? 'bg-gray-500/15 text-gray-400'
             : 'bg-emerald-500/15 text-emerald-400';
     }
 
     public function getStatusLabel(string $status): string
     {
-        return $status === 'resigned' ? 'Resigned' : 'Active';
+        return $status === User::STATUS_RESIGNED ? 'Resigned' : 'Active';
     }
 
-    public function confirmDelete(int $id, string $name): void
+    public function confirmDelete(string $email, string $name): void
     {
-        $this->deleteUserId = $id;
+        $this->deleteUserId = $email;
         $this->deleteUserName = $name;
         $this->showDeleteModal = true;
     }
@@ -137,7 +133,7 @@ class Index extends Component
     {
         $pageIds = collect($this->filteredQuery()
             ->orderBy($this->sortBy, $this->sortDirection)
-            ->paginate(12)->items())->pluck('id')->all();
+            ->paginate(12)->items())->pluck('email')->all();
 
         if (count($pageIds) === count(array_intersect($pageIds, $this->selected))) {
             $this->selected = array_values(array_diff($this->selected, $pageIds));
@@ -158,10 +154,10 @@ class Index extends Component
 
     public function bulkDelete(): void
     {
-        $users = User::whereIn('id', $this->selected)->get();
+        $users = User::whereIn('email', $this->selected)->get();
         $deleted = 0;
         foreach ($users as $user) {
-            if ($user->id === Auth::id()) continue;
+            if ($user->email === Auth::id()) continue;
             $user->delete();
             $deleted++;
         }
@@ -194,7 +190,7 @@ class Index extends Component
             return;
         }
 
-        $allowed = ['role', 'status', 'name', 'email', 'nik', 'department', 'business_unit', 'site', 'no_telepon'];
+        $allowed = ['role', 'status', 'name', 'email', 'nik'];
         if (!in_array($this->bulkEditField, $allowed)) {
             $this->addError('bulkEditField', 'Pilih field terlebih dahulu.');
             return;
@@ -207,7 +203,7 @@ class Index extends Component
             }
 
             $count = 0;
-            foreach (User::whereIn('id', $this->selected)->get() as $user) {
+            foreach (User::whereIn('email', $this->selected)->get() as $user) {
                 $user->syncRoles([$this->bulkEditValue]);
                 $count++;
             }
@@ -215,21 +211,21 @@ class Index extends Component
             ActivityLogger::log('update', "Mengubah role {$count} user menjadi {$this->bulkEditValue}");
             $this->dispatch('show-toast', message: "Role {$count} user diperbarui menjadi {$this->getRoleLabel($this->bulkEditValue)}.", type: 'success');
         } elseif ($this->bulkEditField === 'status') {
-            if (!in_array($this->bulkEditValue, ['active', 'resigned'], true)) {
+            if (!in_array($this->bulkEditValue, [User::STATUS_ACTIVE, User::STATUS_RESIGNED], true)) {
                 $this->addError('bulkEditValue', 'Pilih status terlebih dahulu.');
                 return;
             }
 
-            if ($this->bulkEditValue === 'resigned') {
+            if ($this->bulkEditValue === User::STATUS_RESIGNED) {
                 $blocked = User::withCount('assignedAssets')
-                    ->whereIn('id', $this->selected)
+                    ->whereIn('email', $this->selected)
                     ->having('assigned_assets_count', '>', 0)
                     ->get();
 
                 if ($blocked->isNotEmpty()) {
                     $names = $blocked->map(fn ($u) => "{$u->name} ({$u->assigned_assets_count} asset)")->implode(', ');
                     $this->dispatch('show-toast', message: "Tidak bisa ubah status menjadi Resigned: {$names}. Kembalikan asset terlebih dahulu melalui Form Pengembalian Asset.", type: 'error');
-                    $this->selected = array_values(array_diff($this->selected, $blocked->pluck('id')->all()));
+                    $this->selected = array_values(array_diff($this->selected, $blocked->pluck('email')->all()));
 
                     if (empty($this->selected)) {
                         $this->cancelBulkEdit();
@@ -239,13 +235,13 @@ class Index extends Component
                 }
             }
 
-            $count = User::whereIn('id', $this->selected)->update(['status' => $this->bulkEditValue]);
+            $count = User::whereIn('email', $this->selected)->update(['status' => $this->bulkEditValue]);
 
-            ActivityLogger::log('update', "Mengubah status {$count} user menjadi " . ucfirst($this->bulkEditValue));
+            ActivityLogger::log('update', "Mengubah status {$count} user menjadi " . $this->getStatusLabel($this->bulkEditValue));
             $this->dispatch('show-toast', message: "Status {$count} user diperbarui menjadi {$this->getStatusLabel($this->bulkEditValue)}.", type: 'success');
         } else {
             $value = trim($this->bulkEditValue);
-            $count = User::whereIn('id', $this->selected)->update([$this->bulkEditField => $value ?: null]);
+            $count = User::whereIn('email', $this->selected)->update([$this->bulkEditField => $value ?: null]);
 
             ActivityLogger::log('update', "Mengubah {$this->bulkEditField} {$count} user menjadi '{$value}'");
             $this->dispatch('show-toast', message: "{$this->getBulkEditFieldLabel($this->bulkEditField)} {$count} user diperbarui.", type: 'success');
@@ -264,26 +260,17 @@ class Index extends Component
             'name' => 'Nama',
             'email' => 'Email',
             'nik' => 'NIK',
-            'department' => 'Department',
-            'business_unit' => 'Corp Unit',
-            'site' => 'Site',
-            'no_telepon' => 'No. Telepon',
             default => ucfirst($field),
         };
     }
 
     private function filteredQuery()
     {
-        return User::with(['roles', 'siteDetail'])
+        return User::with('roles')
             ->when($this->filterName, fn ($q) => $q->where('name', 'like', "%{$this->filterName}%"))
             ->when($this->filterEmail, fn ($q) => $q->where('email', 'like', "%{$this->filterEmail}%"))
             ->when($this->filterNik, fn ($q) => $q->where('nik', 'like', "%{$this->filterNik}%"))
-            ->when($this->filterDepartment, fn ($q) => $q->where('department', 'like', "%{$this->filterDepartment}%"))
-            ->when($this->filterBusinessUnit, fn ($q) => $q->where('business_unit', 'like', "%{$this->filterBusinessUnit}%"))
-            ->when($this->filterSite, fn ($q) => $q->where(function ($q) {
-                $q->where('site', 'like', "%{$this->filterSite}%")
-                    ->orWhereHas('siteDetail', fn ($q) => $q->where('site', 'like', "%{$this->filterSite}%"));
-            }))
+            ->when($this->filterSite, fn ($q) => $q->whereHas('employee', fn ($q) => $q->where('site', 'like', "%{$this->filterSite}%")))
             ->when($this->filterRole, fn ($q) => $q->role($this->filterRole))
             ->when($this->filterStatus, fn ($q) => $q->where('status', $this->filterStatus));
     }
@@ -294,7 +281,7 @@ class Index extends Component
             ->orderBy($this->sortBy, $this->sortDirection)
             ->paginate(12);
 
-        $pageIds = collect($users->items())->pluck('id')->all();
+        $pageIds = collect($users->items())->pluck('email')->all();
         $allSelected = count($pageIds) > 0 && count(array_intersect($this->selected, $pageIds)) === count($pageIds);
 
         return view('livewire.users.index', [

@@ -11,8 +11,6 @@ class CreateForm extends Component
 {
     public string $name = '';
     public string $nik = '';
-    public string $department = '';
-    public string $business_unit = '';
     public string $site = '';
     public string $no_telepon = '';
     public string $email = '';
@@ -23,12 +21,10 @@ class CreateForm extends Component
         return [
             'name' => 'required|string|max:255',
             'nik' => 'nullable|string|max:50|unique:employees,nik',
-            'department' => 'nullable|string|max:255',
-            'business_unit' => 'nullable|string|max:50|exists:sites,id_corp',
             'site' => 'nullable|string|max:50|exists:sites,id_site',
             'no_telepon' => 'nullable|string|max:50',
-            'email' => 'nullable|email|max:255|unique:employees,email',
-            'status' => 'nullable|in:active,resigned',
+            'email' => 'nullable|email|max:255|unique:employees,email|exists:users,email',
+            'status' => 'nullable|in:Active,Resigned',
         ];
     }
 
@@ -39,6 +35,7 @@ class CreateForm extends Component
             'nik.unique' => 'NIK sudah terdaftar pada employee lain.',
             'email.email' => 'Format email tidak valid.',
             'email.unique' => 'Email sudah terdaftar pada employee lain.',
+            'email.exists' => 'Email harus terdaftar sebagai akun user terlebih dahulu.',
             'status.in' => 'Status harus Active atau Resigned.',
         ];
     }
@@ -51,15 +48,21 @@ class CreateForm extends Component
             $employee = Employee::create([
                 'name' => $this->name,
                 'nik' => $this->nik ?: null,
-                'department' => $this->department ?: null,
-                'business_unit' => $this->business_unit ?: null,
                 'site' => $this->site ?: null,
                 'no_telepon' => $this->no_telepon ?: null,
                 'email' => $this->email ?: null,
                 'status' => $this->status,
+                'akun_login' => $this->email ? 'Connect' : 'No Access',
             ]);
 
-            ActivityLogger::log('create', "Menambahkan employee baru: {$this->name}", 'App\Models\Employee', $employee->id);
+            if ($this->email) {
+                $user = \App\Models\User::find($this->email);
+                if ($user && $user->status === \App\Models\User::STATUS_RESIGNED) {
+                    $employee->update(['akun_login' => 'No Access']);
+                }
+            }
+
+            ActivityLogger::log('create', "Menambahkan employee baru: {$this->name}", 'App\Models\Employee', $employee->nik);
             session()->flash('success', 'Employee berhasil ditambahkan.');
             $this->redirect(route('admin.employees.index'));
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -72,13 +75,6 @@ class CreateForm extends Component
     {
         return Site::orderBy('id_site')->get(['id_site', 'site'])
             ->mapWithKeys(fn ($s) => [$s->id_site => "{$s->id_site} - {$s->site}"])
-            ->toArray();
-    }
-
-    public function getBusinessUnitList(): array
-    {
-        return Site::select('id_corp')->distinct()->orderBy('id_corp')->pluck('id_corp')
-            ->mapWithKeys(fn ($code) => [$code => $code])
             ->toArray();
     }
 

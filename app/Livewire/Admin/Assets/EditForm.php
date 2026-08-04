@@ -19,7 +19,7 @@ class EditForm extends Component
     public string $noAsset = '';
     public string $operatingUnit = '';
     public string $siteLocationAsset = '';
-    public ?int $assignedEmployeeId = null;
+    public ?string $assignedEmployeeId = null;
 
     public function mount(int $id): void
     {
@@ -47,7 +47,7 @@ class EditForm extends Component
             'noAsset' => 'required|string|max:255|unique:assets,no_asset,' . $this->assetModel?->id,
             'operatingUnit' => 'nullable|string|max:255',
             'siteLocationAsset' => 'nullable|string|max:255',
-            'assignedEmployeeId' => 'nullable|exists:employees,id',
+            'assignedEmployeeId' => 'nullable|exists:employees,nik',
         ];
     }
 
