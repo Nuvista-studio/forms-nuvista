@@ -12,7 +12,7 @@ class ActivityLogger
         string $type,
         string $description,
         ?string $modelType = null,
-        ?int $modelId = null,
+        int|string|null $modelId = null,
         ?array $properties = null,
     ): ?ActivityLog {
         try {

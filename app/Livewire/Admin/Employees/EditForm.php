@@ -41,10 +41,10 @@ class EditForm extends Component
     {
         return [
             'name' => 'required|string|max:255',
-            'nik' => 'nullable|string|max:50|unique:employees,nik,'.$this->employee->nik,
+            'nik' => 'nullable|string|max:50|unique:employees,nik,' . $this->employee->nik . ',nik',
             'site' => 'nullable|string|max:50|exists:sites,id_site',
             'no_telepon' => 'nullable|string|max:50',
-            'email' => 'nullable|email|max:255|unique:employees,email,'.$this->employee->nik,
+            'email' => 'nullable|email|max:255|unique:employees,email,' . $this->employee->nik . ',nik',
             'status' => 'nullable|in:Active,Resigned',
             'linkedUserId' => 'nullable|exists:users,email',
         ];

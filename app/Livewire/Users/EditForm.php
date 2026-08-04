@@ -38,9 +38,9 @@ class EditForm extends Component
     {
         return [
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $this->user->email,
+            'email' => 'required|email|unique:users,email,' . $this->user->email . ',email',
             'password' => 'nullable|string|min:6|confirmed',
-            'nik' => 'nullable|string|max:50|unique:users,nik,' . $this->user->email,
+            'nik' => 'nullable|string|max:50|unique:users,nik,' . $this->user->email . ',email',
             'status' => 'nullable|in:Enable,Disable',
             'role' => 'required|exists:roles,name',
         ];
