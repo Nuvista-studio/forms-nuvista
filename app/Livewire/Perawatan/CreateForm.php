@@ -356,9 +356,13 @@ class CreateForm extends Component
     {
         $this->validate([
             'newPenggunaName' => 'required|string|max:255',
-            'newPenggunaEmail' => 'nullable|email|max:255',
-            'newPenggunaNik' => 'nullable|string|max:50',
-            'newPenggunaSite' => 'nullable|string|max:255',
+            'newPenggunaEmail' => 'nullable|email|max:255|exists:users,email',
+            'newPenggunaNik' => 'nullable|string|max:50|unique:employees,nik',
+            'newPenggunaSite' => 'nullable|string|max:255|exists:sites,id_site',
+        ], [
+            'newPenggunaEmail.exists' => 'Email harus terdaftar sebagai akun user terlebih dahulu.',
+            'newPenggunaNik.unique' => 'NIK sudah terdaftar pada employee lain.',
+            'newPenggunaSite.exists' => 'Site yang dipilih tidak valid.',
         ]);
 
         $employee = Employee::create([

@@ -34,6 +34,31 @@ class Employee extends Model
 
     public const STATUS_RESIGNED = 'Resigned';
 
+    protected static function booted(): void
+    {
+        static::creating(function (Employee $employee) {
+            if (empty($employee->nik)) {
+                $employee->nik = static::nextAvailableNik();
+            }
+        });
+    }
+
+    private static function nextAvailableNik(): string
+    {
+        $last = static::where('nik', 'like', 'NIK-%')
+            ->orderByRaw('LENGTH(nik) DESC, nik DESC')
+            ->value('nik');
+
+        $sequence = $last ? ((int) substr($last, 4)) + 1 : 1;
+
+        do {
+            $candidate = 'NIK-'.str_pad((string) $sequence, 4, '0', STR_PAD_LEFT);
+            $sequence++;
+        } while (static::where('nik', $candidate)->exists());
+
+        return $candidate;
+    }
+
     public function siteDetail(): BelongsTo
     {
         return $this->belongsTo(Site::class, 'site', 'id_site');
