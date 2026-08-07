@@ -31,7 +31,7 @@
         .section-title { font-size: 12px; font-weight: bold; margin: 8px 0 4px; padding: 3px 6px; background: #e8e8e8; border-left: 3px solid #333; }
 
         .device-table { width: 100%; border: 1px solid #999; margin-bottom: 8px; }
-        .device-table td { border: 1px solid #ccc; padding: 3px 6px; font-size: 11px; }
+        .device-table td { border: 1px solid #ccc; padding: 3px 6px; font-size: 11px; text-align: center; }
         .device-table .lbl { background: #f0f0f0; font-weight: 600; font-size: 10px; }
 
         .two-col { width: 100%; margin-bottom: 6px; }

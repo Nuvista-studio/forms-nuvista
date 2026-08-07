@@ -32,7 +32,7 @@
         .info-table .val { font-size: 11px; }
 
         .device-table { width: 100%; border: 1px solid #999; margin-bottom: 8px; }
-        .device-table td { border: 1px solid #ccc; padding: 3px 6px; font-size: 11px; }
+        .device-table td { border: 1px solid #ccc; padding: 3px 6px; font-size: 11px; text-align: center; }
         .device-table .lbl { background: #f0f0f0; font-weight: 600; font-size: 10px; }
 
         .two-col { width: 100%; margin-bottom: 6px; table-layout: fixed; }
@@ -131,12 +131,12 @@
     </div>
 
     {{-- INFORMASI PERANGKAT --}}
-    <div class="pdf-section">
+    <div class="-pdfsection">
     <div class="section-title">Informasi Perangkat</div>
     <table class="device-table">
         <tr>
             <td class="lbl" style="width:12%;">Kategori</td>
-                <td class="lbl" style="width:10%;">Brand, Tipe</td>
+            <td class="lbl" style="width:10%;">Brand, Tipe</td>
             <td class="lbl" style="width:13%;">Nama Perangkat</td>
             <td class="lbl" style="width:10%;">No. Serial</td>
             <td class="lbl" style="width:10%;">No. Asset</td>
@@ -311,8 +311,8 @@
         </tr>
     </table>
     </div>
-    
-    
+
+
 
     {{-- KOTA & TANGGAL --}}
     <div style="font-size:11px; margin-top:8px;">Jakarta, {{ $form->submitted_at ? $form->submitted_at->format('d F Y') : '_______________' }}</div>

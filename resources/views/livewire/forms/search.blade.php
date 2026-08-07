@@ -384,7 +384,7 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                         class="text-xs font-bold mb-1 px-3 py-1 bg-gray-100 dark:bg-gray-800 border-l-4 border-gray-500">
                         Informasi Perangkat</div>
                     @if ($_isPemeriksaan)
-                        <table class="w-full border border-gray-300 dark:border-gray-600">
+                        <table class="w-full border border-gray-300 dark:border-gray-600" style="text-align: center;">
                             <tr>
                                 <td
                                     class="border border-gray-300 dark:border-gray-600 px-3 py-1.5 bg-gray-100 dark:bg-gray-800 font-semibold w-[12%]">
@@ -453,7 +453,7 @@ new #[Layout('components.app-layout')] class extends Component {}; ?>
                             </tr>
                         </table>
                     @else
-                        <table class="w-full border border-gray-300 dark:border-gray-600">
+                        <table class="w-full border border-gray-300 dark:border-gray-600" style="text-align: center;">
                             <tr>
                                 <td
                                     class="border border-gray-300 dark:border-gray-600 px-3 py-1.5 bg-gray-100 dark:bg-gray-800 font-semibold w-[12%]">
