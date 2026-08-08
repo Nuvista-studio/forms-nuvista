@@ -59,7 +59,7 @@
     <div class="glass-card p-4">
         <div class="flex items-center justify-between mb-3">
             <p class="text-xs font-medium text-muted uppercase tracking-wider">{{ __('Filter Data') }}</p>
-            @if($filterName || $filterEmail || $filterNik || $filterSite || $filterRole || $filterStatus)
+            @if($filterName || $filterEmail || $filterNik || $filterSite || $filterRole || $filterStatusEmployee || $filterAccessLogin)
                 <a href="{{ route('admin.users.index') }}" wire:navigate
                     class="inline-flex items-center px-3 py-1 rounded-lg text-xs transition-colors duration-200"
                     style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);">
@@ -104,13 +104,23 @@
                 </select>
             </div>
             <div>
-                <label class="block text-xs font-medium text-muted mb-1">{{ __('Status') }}</label>
-                <select wire:model.live="filterStatus"
+                <label class="block text-xs font-medium text-muted mb-1">{{ __('Status Employee') }}</label>
+                <select wire:model.live="filterStatusEmployee"
                     class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
                     style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
                     <option value="">{{ __('Semua Status') }}</option>
-                    <option value="Enable">Active</option>
-                    <option value="Disable">Resigned</option>
+                    <option value="Active">Active</option>
+                    <option value="Resigned">Resigned</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-muted mb-1">{{ __('Access Login') }}</label>
+                <select wire:model.live="filterAccessLogin"
+                    class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
+                    style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
+                    <option value="">{{ __('Semua') }}</option>
+                    <option value="Enable">Enable</option>
+                    <option value="Disable">Disable</option>
                 </select>
             </div>
         </div>
@@ -142,7 +152,8 @@
                             </th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden sm:table-cell">NIK</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">{{ __('Role') }}</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">{{ __('Status') }}</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">{{ __('Status Employee') }}</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">{{ __('Access Login') }}</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden lg:table-cell">{{ __('Site') }}</th>
                             <th class="px-4 py-3 text-right text-xs font-medium text-muted uppercase tracking-wider">{{ __('Aksi') }}</th>
                         </tr>
@@ -158,10 +169,10 @@
                                     <div class="flex items-center gap-3">
                                         <div class="shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold"
                                              style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-primary);">
-                                            {{ strtoupper(substr($user->name, 0, 2)) }}
+                                            {{ strtoupper(substr($user->employee?->name ?? $user->name, 0, 2)) }}
                                         </div>
                                         <div class="min-w-0">
-                                            <div class="font-medium text-primary truncate">{{ $user->name }}</div>
+                                            <div class="font-medium text-primary truncate">{{ $user->employee?->name ?? $user->name }}</div>
                                             <div class="text-xs text-muted truncate">{{ $user->email }}</div>
                                         </div>
                                     </div>
@@ -177,8 +188,17 @@
                                     @endforelse
                                 </td>
                                 <td class="px-4 py-3">
-                                    <span class="inline-block px-2 py-0.5 rounded-full text-xs font-medium {{ $this->getStatusBadge($user->status) }}">
-                                        {{ $this->getStatusLabel($user->status) }}
+                                    @if($user->employee)
+                                        <span class="inline-block px-2 py-0.5 rounded-full text-xs font-medium {{ $this->getEmployeeStatusBadge($user->employee->status) }}">
+                                            {{ $this->getEmployeeStatusLabel($user->employee->status) }}
+                                        </span>
+                                    @else
+                                        <span class="text-xs text-muted">-</span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-3">
+                                    <span class="inline-block px-2 py-0.5 rounded-full text-xs font-medium {{ $this->getAccessLoginBadge($user->status) }}">
+                                        {{ $this->getAccessLoginLabel($user->status) }}
                                     </span>
                                 </td>
                                 <td class="px-4 py-3 text-secondary hidden lg:table-cell">{{ $user->siteName ?? '-' }}</td>
@@ -190,7 +210,7 @@
                                             title="{{ __('Edit') }}">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                         </a>
-                                        <button wire:click="confirmDelete('{{ $user->email }}', '{{ addslashes($user->name) }}')"
+                                        <button wire:click="confirmDelete('{{ $user->email }}', '{{ addslashes($user->employee?->name ?? $user->name) }}')"
                                             class="p-1.5 rounded-lg transition-colors duration-200 text-red-400 hover:text-red-300"
                                             title="{{ __('Hapus') }}">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
@@ -279,7 +299,7 @@
                         style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
                         <option value="">{{ __('Pilih Field') }}</option>
                         <option value="role">Role</option>
-                        <option value="status">{{ __('Status') }}</option>
+                        <option value="access_login">{{ __('Access Login') }}</option>
                         <option value="name">{{ __('Nama') }}</option>
                         <option value="email">Email</option>
                         <option value="nik">NIK</option>
@@ -297,13 +317,13 @@
                                 <option value="{{ $role }}">{{ $this->getRoleLabel($role) }}</option>
                             @endforeach
                         </select>
-                    @elseif($bulkEditField === 'status')
+                    @elseif($bulkEditField === 'access_login')
                         <select wire:model="bulkEditValue"
                             class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
                             style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
-                            <option value="">{{ __('Pilih Status') }}</option>
-                            <option value="Enable">Active</option>
-                            <option value="Disable">Resigned</option>
+                            <option value="">{{ __('Pilih Access Login') }}</option>
+                            <option value="Enable">Enable</option>
+                            <option value="Disable">Disable</option>
                         </select>
                     @else
                         <input type="text" wire:model="bulkEditValue" placeholder="{{ __('Nilai baru') }}"

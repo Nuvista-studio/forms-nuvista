@@ -39,13 +39,13 @@ class LoginForm extends Form
             ]);
         }
 
-        // Block employees with Resigned status. Auth::attempt already authenticated
-        // the user, so log them out before rejecting the request.
+        // Block users whose Access Login is Disable. Auth::attempt already
+        // authenticated the user, so log them out before rejecting the request.
         if (Auth::user()?->status === User::STATUS_RESIGNED) {
             Auth::logout();
 
             throw ValidationException::withMessages([
-                'form.email' => 'Akun Anda berstatus Resigned sehingga tidak dapat masuk.',
+                'form.email' => 'Access Login Anda berstatus Disable sehingga tidak dapat masuk.',
             ]);
         }
 

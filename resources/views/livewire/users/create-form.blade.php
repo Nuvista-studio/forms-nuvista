@@ -34,14 +34,35 @@
         </div>
     @else
         {{-- FORM TAMBAH PENGGUNA --}}
-        {{-- Name --}}
+        {{-- NIK --}}
         <div>
-            <label class="block text-sm font-medium text-secondary mb-1">{{ __('Nama') }} <span class="text-red-400">*</span></label>
-            <input wire:model="name" type="text"
+            <label class="block text-sm font-medium text-secondary mb-1">NIK <span class="text-red-400">*</span></label>
+            <input wire:model.live.debounce.500ms="nik" type="text"
                 class="w-full px-4 py-2 rounded-lg text-sm transition-colors duration-200"
                 style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);"
-                placeholder="{{ __('Nama lengkap') }}" />
-            @error('name') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
+                placeholder="{{ __('Nomor Induk Karyawan') }}" />
+            @error('nik') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
+
+            @if($nik !== '' && ! $this->linkedEmployee)
+                <div class="mt-2 p-3 rounded-lg"
+                    style="background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.35);">
+                    <p class="text-xs text-amber-400">{{ __('NIK belum terdaftar pada data employee.') }}</p>
+                    <a href="{{ route('admin.employees.create', ['nik' => $nik, 'name' => $name]) }}" wire:navigate
+                        class="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors duration-200"
+                        style="background: rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.5); color: #fbbf24;">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        {{ __('Tambah Employee') }}
+                    </a>
+                </div>
+            @endif
+        </div>
+        {{-- Nama (otomatis dari Employee berdasarkan NIK) --}}
+        <div>
+            <label class="block text-sm font-medium text-secondary mb-1">{{ __('Nama') }}</label>
+            <div class="w-full px-4 py-2 rounded-lg text-sm"
+                style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-secondary);">
+                {{ $this->linkedEmployee?->name ?? __('Nama otomatis dari data Employee berdasarkan NIK') }}
+            </div>
         </div>
 
         {{-- Email --}}
@@ -73,26 +94,17 @@
             </div>
         </div>
 
-        {{-- NIK --}}
+        {{-- Access Login --}}
         <div>
-            <label class="block text-sm font-medium text-secondary mb-1">NIK</label>
-            <input wire:model="nik" type="text"
-                class="w-full px-4 py-2 rounded-lg text-sm transition-colors duration-200"
-                style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);"
-                placeholder="{{ __('Nomor Induk Karyawan') }}" />
-            @error('nik') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
-        </div>
-
-        {{-- Status --}}
-        <div>
-            <label class="block text-sm font-medium text-secondary mb-1">{{ __('Status Employee') }}</label>
+            <label class="block text-sm font-medium text-secondary mb-1">{{ __('Access Login') }}</label>
             <select wire:model="status"
                 class="w-full px-4 py-2 rounded-lg text-sm transition-colors duration-200"
                 style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
-                <option value="Enable">Active</option>
-                <option value="Disable">Resigned</option>
+                <option value="Enable">Enable</option>
+                <option value="Disable">Disable</option>
             </select>
             @error('status') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
+            <p class="text-xs text-muted mt-1">Enable: user dapat mengakses login web. Disable: user tidak dapat mengakses login web.</p>
         </div>
 
         {{-- Role --}}

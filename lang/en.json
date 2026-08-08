@@ -373,5 +373,7 @@
   "Lepas": "Unlink",
   "Employee masih memiliki asset terpasang": "Employee still has assigned assets",
   "Sebelum mengubah status menjadi Resigned, kembalikan terlebih dahulu asset berikut melalui Form Pengembalian Asset.": "Before changing the status to Resigned, please return the following assets via the Asset Return Form.",
-  "Karyawan tanpa email tetap dapat diproses.": "Employees without an email can still be processed."
+  "Karyawan tanpa email tetap dapat diproses.": "Employees without an email can still be processed.",
+  "Nama otomatis dari data Employee berdasarkan NIK": "Name is auto-filled from Employee data based on NIK",
+  "NIK belum terdaftar pada data employee.": "NIK is not registered in the employee data."
 }

@@ -17,7 +17,8 @@ class Index extends Component
     public string $filterNik = '';
     public string $filterSite = '';
     public string $filterRole = '';
-    public string $filterStatus = '';
+    public string $filterStatusEmployee = '';
+    public string $filterAccessLogin = '';
     public string $sortBy = 'name';
     public string $sortDirection = 'asc';
     public bool $showDeleteModal = false;
@@ -35,7 +36,8 @@ class Index extends Component
         'filterNik' => ['except' => ''],
         'filterSite' => ['except' => ''],
         'filterRole' => ['except' => ''],
-        'filterStatus' => ['except' => ''],
+        'filterStatusEmployee' => ['except' => ''],
+        'filterAccessLogin' => ['except' => ''],
         'sortBy' => ['except' => 'name'],
         'sortDirection' => ['except' => 'asc'],
     ];
@@ -87,16 +89,28 @@ class Index extends Component
         };
     }
 
-    public function getStatusBadge(string $status): string
+    public function getEmployeeStatusBadge(?string $status): string
+    {
+        return $status === \App\Models\Employee::STATUS_RESIGNED
+            ? 'bg-gray-500/15 text-gray-400'
+            : 'bg-emerald-500/15 text-emerald-400';
+    }
+
+    public function getEmployeeStatusLabel(?string $status): string
+    {
+        return $status === \App\Models\Employee::STATUS_RESIGNED ? 'Resigned' : ($status ? 'Active' : '-');
+    }
+
+    public function getAccessLoginBadge(string $status): string
     {
         return $status === User::STATUS_RESIGNED
             ? 'bg-gray-500/15 text-gray-400'
             : 'bg-emerald-500/15 text-emerald-400';
     }
 
-    public function getStatusLabel(string $status): string
+    public function getAccessLoginLabel(string $status): string
     {
-        return $status === User::STATUS_RESIGNED ? 'Resigned' : 'Active';
+        return $status === User::STATUS_RESIGNED ? 'Disable' : 'Enable';
     }
 
     public function confirmDelete(string $email, string $name): void
@@ -131,8 +145,7 @@ class Index extends Component
 
     public function toggleSelectAll(): void
     {
-        $pageIds = collect($this->filteredQuery()
-            ->orderBy($this->sortBy, $this->sortDirection)
+        $pageIds = collect($this->orderedQuery()
             ->paginate(12)->items())->pluck('email')->all();
 
         if (count($pageIds) === count(array_intersect($pageIds, $this->selected))) {
@@ -190,7 +203,7 @@ class Index extends Component
             return;
         }
 
-        $allowed = ['role', 'status', 'name', 'email', 'nik'];
+        $allowed = ['role', 'access_login', 'name', 'email', 'nik'];
         if (!in_array($this->bulkEditField, $allowed)) {
             $this->addError('bulkEditField', 'Pilih field terlebih dahulu.');
             return;
@@ -210,35 +223,16 @@ class Index extends Component
 
             ActivityLogger::log('update', "Mengubah role {$count} user menjadi {$this->bulkEditValue}");
             $this->dispatch('show-toast', message: "Role {$count} user diperbarui menjadi {$this->getRoleLabel($this->bulkEditValue)}.", type: 'success');
-        } elseif ($this->bulkEditField === 'status') {
+        } elseif ($this->bulkEditField === 'access_login') {
             if (!in_array($this->bulkEditValue, [User::STATUS_ACTIVE, User::STATUS_RESIGNED], true)) {
-                $this->addError('bulkEditValue', 'Pilih status terlebih dahulu.');
+                $this->addError('bulkEditValue', 'Pilih akses login terlebih dahulu.');
                 return;
-            }
-
-            if ($this->bulkEditValue === User::STATUS_RESIGNED) {
-                $blocked = User::withCount('assignedAssets')
-                    ->whereIn('email', $this->selected)
-                    ->having('assigned_assets_count', '>', 0)
-                    ->get();
-
-                if ($blocked->isNotEmpty()) {
-                    $names = $blocked->map(fn ($u) => "{$u->name} ({$u->assigned_assets_count} asset)")->implode(', ');
-                    $this->dispatch('show-toast', message: "Tidak bisa ubah status menjadi Resigned: {$names}. Kembalikan asset terlebih dahulu melalui Form Pengembalian Asset.", type: 'error');
-                    $this->selected = array_values(array_diff($this->selected, $blocked->pluck('email')->all()));
-
-                    if (empty($this->selected)) {
-                        $this->cancelBulkEdit();
-                        $this->dispatch('user-updated');
-                        return;
-                    }
-                }
             }
 
             $count = User::whereIn('email', $this->selected)->update(['status' => $this->bulkEditValue]);
 
-            ActivityLogger::log('update', "Mengubah status {$count} user menjadi " . $this->getStatusLabel($this->bulkEditValue));
-            $this->dispatch('show-toast', message: "Status {$count} user diperbarui menjadi {$this->getStatusLabel($this->bulkEditValue)}.", type: 'success');
+            ActivityLogger::log('update', "Mengubah akses login {$count} user menjadi " . $this->getAccessLoginLabel($this->bulkEditValue));
+            $this->dispatch('show-toast', message: "Access Login {$count} user diperbarui menjadi {$this->getAccessLoginLabel($this->bulkEditValue)}.", type: 'success');
         } else {
             $value = trim($this->bulkEditValue);
             $count = User::whereIn('email', $this->selected)->update([$this->bulkEditField => $value ?: null]);
@@ -256,7 +250,7 @@ class Index extends Component
     {
         return match ($field) {
             'role' => 'Role',
-            'status' => 'Status',
+            'access_login' => 'Access Login',
             'name' => 'Nama',
             'email' => 'Email',
             'nik' => 'NIK',
@@ -266,20 +260,36 @@ class Index extends Component
 
     private function filteredQuery()
     {
-        return User::with('roles')
-            ->when($this->filterName, fn ($q) => $q->where('name', 'like', "%{$this->filterName}%"))
-            ->when($this->filterEmail, fn ($q) => $q->where('email', 'like', "%{$this->filterEmail}%"))
-            ->when($this->filterNik, fn ($q) => $q->where('nik', 'like', "%{$this->filterNik}%"))
+        return User::query()
+            ->with(['roles', 'employee'])
+            ->leftJoin('employees', 'employees.nik', '=', 'users.nik')
+            ->select('users.*')
+            ->when($this->filterName, fn ($q) => $q->where('users.name', 'like', "%{$this->filterName}%"))
+            ->when($this->filterEmail, fn ($q) => $q->where('users.email', 'like', "%{$this->filterEmail}%"))
+            ->when($this->filterNik, fn ($q) => $q->where('users.nik', 'like', "%{$this->filterNik}%"))
             ->when($this->filterSite, fn ($q) => $q->whereHas('employee', fn ($q) => $q->where('site', 'like', "%{$this->filterSite}%")))
             ->when($this->filterRole, fn ($q) => $q->role($this->filterRole))
-            ->when($this->filterStatus, fn ($q) => $q->where('status', $this->filterStatus));
+            ->when($this->filterStatusEmployee, fn ($q) => $q->whereHas('employee', fn ($q) => $q->where('status', $this->filterStatusEmployee)))
+            ->when($this->filterAccessLogin, fn ($q) => $q->where('users.status', $this->filterAccessLogin));
+    }
+
+    private function orderedQuery()
+    {
+        $query = $this->filteredQuery();
+
+        if ($this->sortBy === 'name') {
+            $query->orderByRaw('COALESCE(employees.name, users.name) ' . $this->sortDirection)
+                ->orderBy('users.name', $this->sortDirection);
+        } else {
+            $query->orderBy('users.' . $this->sortBy, $this->sortDirection);
+        }
+
+        return $query;
     }
 
     public function render()
     {
-        $users = $this->filteredQuery()
-            ->orderBy($this->sortBy, $this->sortDirection)
-            ->paginate(12);
+        $users = $this->orderedQuery()->paginate(12);
 
         $pageIds = collect($users->items())->pluck('email')->all();
         $allSelected = count($pageIds) > 0 && count(array_intersect($this->selected, $pageIds)) === count($pageIds);

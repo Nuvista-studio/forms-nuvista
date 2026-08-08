@@ -36,6 +36,20 @@ class CreateForm extends Component
     public string $newUserPassword = 'password';
     public string $newUserRole = 'pengguna';
 
+    public function mount(): void
+    {
+        $nik = request()->query('nik');
+        $name = request()->query('name');
+
+        if (is_string($nik) && trim($nik) !== '') {
+            $this->nik = trim($nik);
+        }
+
+        if (is_string($name) && trim($name) !== '') {
+            $this->name = trim($name);
+        }
+    }
+
     protected function rules(): array
     {
         return [

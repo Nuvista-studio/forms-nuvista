@@ -21,8 +21,7 @@
                 </div>
                 <div>
                     <h3 class="font-semibold text-primary">{{ __('Upload File CSV') }}</h3>
-                    <p class="text-xs text-muted">Format: name, email, password, nik, role, status</p>
-                </div>
+                    <p class="text-xs text-muted">Format: name, email, password, nik, role, status (Access Login: Enable/Disable)</p>                </div>
             </div>
 
             <div class="relative border-2 border-dashed rounded-lg p-8 text-center transition-colors duration-200"
@@ -108,7 +107,7 @@
                                 <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">{{ __('Password') }}</th>
                                 <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">NIK</th>
                                 <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">{{ __('Role') }}</th>
-                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">{{ __('Status') }}</th>
+                                <th class="px-3 py-2 text-left text-muted font-medium whitespace-nowrap">{{ __('Access Login') }}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y" style="border-color: var(--color-border);">
@@ -216,7 +215,7 @@
                                             <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">
                                                 {{ __('Role') }}</th>
                                             <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">
-                                                {{ __('Status') }}</th>
+                                                {{ __('Access Login') }}</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y" style="border-color: var(--color-border);">
@@ -345,7 +344,7 @@
                                         </th>
                                         <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">{{ __('Role') }}
                                         </th>
-                                        <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">{{ __('Status') }}
+                                        <th class="px-2 py-1.5 text-left text-muted font-medium whitespace-nowrap">{{ __('Access Login') }}
                                         </th>
                                     </tr>
                                 </thead>

@@ -70,7 +70,7 @@ class User extends Authenticatable
 
     public function activityLogs(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(ActivityLog::class);
+        return $this->hasMany(ActivityLog::class, 'user_id', 'email');
     }
 
     public function assignedAssets(): \Illuminate\Database\Eloquent\Relations\HasMany
@@ -96,7 +96,7 @@ class User extends Authenticatable
                 'name' => $this->name,
                 'nik' => $this->nik,
                 'email' => $this->email,
-                'status' => $this->status === self::STATUS_RESIGNED ? Employee::STATUS_RESIGNED : Employee::STATUS_ACTIVE,
+                'status' => Employee::STATUS_ACTIVE,
                 'akun_login' => $this->status === self::STATUS_RESIGNED ? 'No Access' : 'Connect',
             ]);
 

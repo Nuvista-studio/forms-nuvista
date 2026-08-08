@@ -262,7 +262,7 @@ class ImportCsv extends Component
                         'name' => $name,
                         'email' => $email,
                         'nik' => trim($data['nik'] ?? '') ?: '-',
-                        'status' => $status === 'Enable' ? 'Active' : 'Resigned',
+                        'status' => $status,
                         'role' => $role ?: '-',
                     ],
                 ];

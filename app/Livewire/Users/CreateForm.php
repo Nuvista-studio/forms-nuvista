@@ -3,6 +3,7 @@
 namespace App\Livewire\Users;
 
 use App\Helpers\ActivityLogger;
+use App\Models\Employee;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Component;
@@ -21,13 +22,25 @@ class CreateForm extends Component
     public string $createdEmail = '';
     public string $createdPassword = '';
 
+    public function getLinkedEmployeeProperty(): ?Employee
+    {
+        $nik = trim($this->nik);
+
+        return $nik !== '' ? Employee::where('nik', $nik)->first() : null;
+    }
+
+    public function updatedNik(string $value): void
+    {
+        $this->name = Employee::where('nik', trim($value))->value('name') ?? '';
+    }
+
     protected function rules(): array
     {
         return [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6|confirmed',
-            'nik' => 'nullable|string|max:50|unique:users,nik',
+            'nik' => 'required|string|max:50|unique:users,nik',
             'status' => 'nullable|in:Enable,Disable',
             'role' => 'required|exists:roles,name',
         ];
@@ -43,8 +56,9 @@ class CreateForm extends Component
             'password.required' => 'Password wajib diisi.',
             'password.min' => 'Password minimal 6 karakter.',
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
+            'nik.required' => 'NIK wajib diisi.',
             'nik.unique' => 'NIK sudah terdaftar.',
-            'status.in' => 'Status harus Active atau Resigned.',
+            'status.in' => 'Access Login harus Enable atau Disable.',
             'role.required' => 'Role wajib dipilih.',
             'role.exists' => 'Role tidak valid.',
         ];
@@ -52,6 +66,22 @@ class CreateForm extends Component
 
     public function save(): void
     {
+        if ($this->nik === '') {
+            $this->addError('nik', 'NIK wajib diisi.');
+            $this->dispatch('show-toast', message: 'NIK wajib diisi.', type: 'error');
+
+            return;
+        }
+
+        if (! $this->linkedEmployee) {
+            $this->addError('nik', 'NIK belum terdaftar pada data employee. Tambahkan employee terlebih dahulu.');
+            $this->dispatch('show-toast', message: 'NIK belum terdaftar pada data employee.', type: 'error');
+
+            return;
+        }
+
+        $this->name = $this->linkedEmployee->name;
+
         try {
             $this->validate();
 

@@ -9,12 +9,11 @@
     <form wire:submit="update" class="space-y-5">
         {{-- Name --}}
         <div>
-            <label class="text-xs text-muted">{{ __('Nama') }} <span class="text-red-400">*</span></label>
-            <input wire:model="name" type="text"
-                class="w-full px-3 py-2 rounded-lg text-sm mt-1 transition-colors duration-200"
-                style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);"
-                required />
-            @error('name') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
+            <label class="text-xs text-muted">{{ __('Nama') }}</label>
+            <div class="mt-1 px-3 py-2 rounded-lg text-sm"
+                style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-secondary);">
+                {{ $this->linkedEmployee?->name ?? __('Nama otomatis dari data Employee berdasarkan NIK') }}
+            </div>
         </div>
 
         {{-- Email --}}
@@ -49,47 +48,52 @@
         {{-- NIK --}}
         <div>
             <label class="text-xs text-muted">NIK</label>
-            <input wire:model="nik" type="text"
+            <input wire:model.live.debounce.500ms="nik" type="text"
                 class="w-full px-3 py-2 rounded-lg text-sm mt-1 transition-colors duration-200"
                 style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);" />
             @error('nik') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
-        </div>
 
-        {{-- Status --}}
-        <div>
-            <label class="text-xs text-muted">{{ __('Status Employee') }}</label>
-            <select wire:model="status"
-                class="w-full px-3 py-2 rounded-lg text-sm mt-1 transition-colors duration-200"
-                style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
-                <option value="Enable">Active</option>
-                <option value="Disable">Resigned</option>
-            </select>
-            @error('status') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
-
-            @if ($this->status === \App\Models\User::STATUS_RESIGNED && count($assignedAssets) > 0)
-                <div class="p-3 mt-3 rounded-lg text-sm"
-                    style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.35); color: var(--color-text-primary);">
-                    <p class="font-semibold" style="color: #ef4444;">{{ __('User masih memiliki asset terpasang') }}</p>
-                    <p class="mt-1" style="color: var(--color-text-secondary);">
-                        {{ __('Sebelum mengubah status menjadi Resigned, kembalikan terlebih dahulu') }}
-                        {{ count($assignedAssets) }} {{ __('asset berikut melalui Form Pengembalian Asset') }}:
-                    </p>
-                    <ul class="mt-2 space-y-1 text-xs" style="color: var(--color-text-secondary);">
-                        @foreach ($assignedAssets as $asset)
-                            <li>• {{ $asset['no_asset'] ?? '-' }} — {{ $asset['nama_perangkat'] ?? '-' }}
-                                @if (($asset['brand'] ?? '') || ($asset['tipe'] ?? ''))
-                                    ({{ $asset['brand'] ?? '' }} {{ $asset['tipe'] ?? '' }})
-                                @endif
-                            </li>
-                        @endforeach
-                    </ul>
-                    <a href="{{ route('admin.pengembalian.create', ['employee' => $this->user->nik]) }}" wire:navigate
-                        class="inline-flex items-center gap-1.5 mt-3 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors duration-200"
-                        style="background: var(--color-primary); color: var(--color-button-text);">
-                        {{ __('Buat Form Pengembalian Asset') }}
+            @if($nik !== '' && ! $this->linkedEmployee)
+                <div class="mt-2 p-3 rounded-lg"
+                    style="background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.35);">
+                    <p class="text-xs text-amber-400">{{ __('NIK belum terdaftar pada data employee.') }}</p>
+                    <a href="{{ route('admin.employees.create', ['nik' => $nik, 'name' => $name]) }}" wire:navigate
+                        class="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors duration-200"
+                        style="background: rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.5); color: #fbbf24;">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        {{ __('Tambah Employee') }}
                     </a>
                 </div>
             @endif
+        </div>
+
+        {{-- Status Employee (read-only, dari data Employee) --}}
+        <div>
+            <label class="text-xs text-muted">{{ __('Status Employee') }}</label>
+            <div class="mt-1 px-3 py-2 rounded-lg text-sm"
+                style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-secondary);">
+                @if($this->linkedEmployee)
+                    <span class="inline-block px-2 py-0.5 rounded-full text-xs font-medium {{ $this->linkedEmployee->status === \App\Models\Employee::STATUS_RESIGNED ? 'bg-gray-500/15 text-gray-400' : 'bg-emerald-500/15 text-emerald-400' }}">
+                        {{ $this->linkedEmployee->status }}
+                    </span>
+                    <span class="ml-2 text-xs text-muted">{{ __('Dikelola di menu Employee') }}</span>
+                @else
+                    <span class="text-xs text-muted">-</span>
+                @endif
+            </div>
+        </div>
+
+        {{-- Access Login --}}
+        <div>
+            <label class="text-xs text-muted">{{ __('Access Login') }}</label>
+            <select wire:model="status"
+                class="w-full px-3 py-2 rounded-lg text-sm mt-1 transition-colors duration-200"
+                style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
+                <option value="Enable">Enable</option>
+                <option value="Disable">Disable</option>
+            </select>
+            @error('status') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
+            <p class="text-xs text-muted mt-1">Enable: user dapat mengakses login web. Disable: user tidak dapat mengakses login web.</p>
         </div>
 
         {{-- Role --}}

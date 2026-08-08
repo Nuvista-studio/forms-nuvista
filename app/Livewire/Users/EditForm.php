@@ -3,6 +3,7 @@
 namespace App\Livewire\Users;
 
 use App\Helpers\ActivityLogger;
+use App\Models\Employee;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Component;
@@ -18,20 +19,27 @@ class EditForm extends Component
     public string $status = User::STATUS_ACTIVE;
     public string $role = '';
 
-    public array $assignedAssets = [];
-
     public function mount(string $email): void
     {
         $user = User::findOrFail($email);
         $this->user = $user;
-        $this->name = $user->name ?? '';
         $this->email = $user->email ?? '';
         $this->nik = $user->nik ?? '';
         $this->status = $user->status ?? User::STATUS_ACTIVE;
         $this->role = $user->getRoleNames()->first() ?? '';
-        $this->assignedAssets = $user->assignedAssets()
-            ->get(['id', 'no_asset', 'nama_perangkat', 'brand', 'tipe', 'no_serial'])
-            ->toArray();
+        $this->name = $this->linkedEmployee?->name ?? '';
+    }
+
+    public function getLinkedEmployeeProperty(): ?Employee
+    {
+        $nik = trim($this->nik);
+
+        return $nik !== '' ? Employee::where('nik', $nik)->first() : null;
+    }
+
+    public function updatedNik(string $value): void
+    {
+        $this->name = Employee::where('nik', trim($value))->value('name') ?? '';
     }
 
     protected function rules(): array
@@ -40,7 +48,7 @@ class EditForm extends Component
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $this->user->email . ',email',
             'password' => 'nullable|string|min:6|confirmed',
-            'nik' => 'nullable|string|max:50|unique:users,nik,' . $this->user->email . ',email',
+            'nik' => 'required|string|max:50|unique:users,nik,' . $this->user->email . ',email',
             'status' => 'nullable|in:Enable,Disable',
             'role' => 'required|exists:roles,name',
         ];
@@ -55,8 +63,9 @@ class EditForm extends Component
             'email.unique' => 'Email sudah terdaftar.',
             'password.min' => 'Password minimal 6 karakter.',
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
+            'nik.required' => 'NIK wajib diisi.',
             'nik.unique' => 'NIK sudah terdaftar.',
-            'status.in' => 'Status harus Active atau Resigned.',
+            'status.in' => 'Access Login harus Enable atau Disable.',
             'role.required' => 'Role wajib dipilih.',
             'role.exists' => 'Role tidak valid.',
         ];
@@ -64,17 +73,24 @@ class EditForm extends Component
 
     public function update(): void
     {
+        if ($this->nik === '') {
+            $this->addError('nik', 'NIK wajib diisi.');
+            $this->dispatch('show-toast', message: 'NIK wajib diisi.', type: 'error');
+
+            return;
+        }
+
+        if (! $this->linkedEmployee) {
+            $this->addError('nik', 'NIK belum terdaftar pada data employee. Tambahkan employee terlebih dahulu.');
+            $this->dispatch('show-toast', message: 'NIK belum terdaftar pada data employee.', type: 'error');
+
+            return;
+        }
+
+        $this->name = $this->linkedEmployee->name;
+
         try {
             $this->validate();
-
-            if ($this->status === User::STATUS_RESIGNED && ! empty($this->assignedAssets)) {
-                $this->addError(
-                    'status',
-                    'User masih memiliki ' . count($this->assignedAssets) . ' asset terpasang. Kembalikan asset terlebih dahulu melalui Form Pengembalian Asset.'
-                );
-
-                return;
-            }
 
             $data = [
                 'name' => $this->name,
