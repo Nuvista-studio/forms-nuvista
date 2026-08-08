@@ -6,6 +6,7 @@ use App\Helpers\ActivityLogger;
 use App\Models\Employee;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class EditForm extends Component
@@ -18,6 +19,8 @@ class EditForm extends Component
     public string $nik = '';
     public string $status = User::STATUS_ACTIVE;
     public string $role = '';
+
+    public bool $showAddEmployeeModal = false;
 
     public function mount(string $email): void
     {
@@ -40,6 +43,33 @@ class EditForm extends Component
     public function updatedNik(string $value): void
     {
         $this->name = Employee::where('nik', trim($value))->value('name') ?? '';
+    }
+
+    public function openAddEmployeeModal(): void
+    {
+        $this->showAddEmployeeModal = true;
+    }
+
+    public function closeAddEmployeeModal(): void
+    {
+        $this->showAddEmployeeModal = false;
+        $this->resetErrorBag('nik');
+    }
+
+    #[On('employee-created')]
+    public function onEmployeeCreated(string $nik): void
+    {
+        $this->showAddEmployeeModal = false;
+        $this->resetErrorBag('nik');
+        $this->nik = $nik;
+        $this->updatedNik($this->nik);
+        $this->dispatch('show-toast', message: 'Employee berhasil ditambahkan.', type: 'success');
+    }
+
+    #[On('close-employee-modal')]
+    public function closeEmployeeModal(): void
+    {
+        $this->closeAddEmployeeModal();
     }
 
     protected function rules(): array

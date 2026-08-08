@@ -20,6 +20,7 @@
         @error('name') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
     </div>
 
+    @if(! $this->modal)
     {{-- Email (opsional) --}}
     <div x-data="{ open: true }" @click.outside="open = false">
         <label class="block text-sm font-medium text-secondary mb-1">{{ __('Email') }}</label>
@@ -64,6 +65,7 @@
 
         @error('email') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
     </div>
+    @endif
 
     {{-- NIK --}}
     <div>
@@ -186,11 +188,19 @@
             <span wire:loading.remove wire:target="save">{{ __('Simpan') }}</span>
             <span wire:loading wire:target="save">{{ __('Menyimpan') }}...</span>
         </button>
-        <a href="{{ route('admin.employees.index') }}" wire:navigate
-            class="px-5 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200"
-            style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);">
-            {{ __('Batal') }}
-        </a>
+        @if($this->modal)
+            <button type="button" wire:click="closeModal"
+                class="px-5 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200"
+                style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);">
+                {{ __('Batal') }}
+            </button>
+        @else
+            <a href="{{ route('admin.employees.index') }}" wire:navigate
+                class="px-5 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200"
+                style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);">
+                {{ __('Batal') }}
+            </a>
+        @endif
     </div>
 
     {{-- Modal: Buat Email Baru --}}

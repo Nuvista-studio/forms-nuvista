@@ -6,6 +6,7 @@ use App\Helpers\ActivityLogger;
 use App\Models\Employee;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class CreateForm extends Component
@@ -22,6 +23,8 @@ class CreateForm extends Component
     public string $createdEmail = '';
     public string $createdPassword = '';
 
+    public bool $showAddEmployeeModal = false;
+
     public function getLinkedEmployeeProperty(): ?Employee
     {
         $nik = trim($this->nik);
@@ -32,6 +35,33 @@ class CreateForm extends Component
     public function updatedNik(string $value): void
     {
         $this->name = Employee::where('nik', trim($value))->value('name') ?? '';
+    }
+
+    public function openAddEmployeeModal(): void
+    {
+        $this->showAddEmployeeModal = true;
+    }
+
+    public function closeAddEmployeeModal(): void
+    {
+        $this->showAddEmployeeModal = false;
+        $this->resetErrorBag('nik');
+    }
+
+    #[On('employee-created')]
+    public function onEmployeeCreated(string $nik): void
+    {
+        $this->showAddEmployeeModal = false;
+        $this->resetErrorBag('nik');
+        $this->nik = $nik;
+        $this->updatedNik($this->nik);
+        $this->dispatch('show-toast', message: 'Employee berhasil ditambahkan.', type: 'success');
+    }
+
+    #[On('close-employee-modal')]
+    public function closeEmployeeModal(): void
+    {
+        $this->closeAddEmployeeModal();
     }
 
     protected function rules(): array
@@ -96,6 +126,14 @@ class CreateForm extends Component
             ]);
 
             $user->syncEmployeeLink();
+
+            if ($user->employee
+                && ! Employee::where('email', $user->email)
+                    ->where('nik', '!=', $user->nik)
+                    ->exists()) {
+                $user->employee->update(['email' => $user->email]);
+            }
+
             $user->assignRole($this->role);
 
             ActivityLogger::log('create', "Menambahkan user baru: {$this->name} ({$this->email})", 'App\Models\User', $user->email);

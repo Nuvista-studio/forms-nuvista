@@ -28,6 +28,8 @@ class CreateForm extends Component
     public string $email = '';
     public string $status = Employee::STATUS_ACTIVE;
 
+    public bool $modal = false;
+
     public array $emailSuggestions = [];
 
     public bool $showCreateUserModal = false;
@@ -36,18 +38,26 @@ class CreateForm extends Component
     public string $newUserPassword = 'password';
     public string $newUserRole = 'pengguna';
 
-    public function mount(): void
+    public function mount(?string $nik = null, ?string $name = null, bool $modal = false): void
     {
-        $nik = request()->query('nik');
-        $name = request()->query('name');
+        $this->modal = $modal;
 
-        if (is_string($nik) && trim($nik) !== '') {
+        if ($nik !== null) {
             $this->nik = trim($nik);
+        } elseif (is_string(request()->query('nik')) && trim(request()->query('nik')) !== '') {
+            $this->nik = trim(request()->query('nik'));
         }
 
-        if (is_string($name) && trim($name) !== '') {
+        if ($name !== null) {
             $this->name = trim($name);
+        } elseif (is_string(request()->query('name')) && trim(request()->query('name')) !== '') {
+            $this->name = trim(request()->query('name'));
         }
+    }
+
+    public function closeModal(): void
+    {
+        $this->dispatch('close-employee-modal');
     }
 
     protected function rules(): array
@@ -243,6 +253,13 @@ class CreateForm extends Component
             }
 
             ActivityLogger::log('create', "Menambahkan employee baru: {$this->name}", 'App\Models\Employee', $employee->nik);
+
+            if ($this->modal) {
+                $this->dispatch('employee-created', nik: $employee->nik, name: $employee->name);
+
+                return;
+            }
+
             session()->flash('success', 'Employee berhasil ditambahkan.');
             $this->redirect(route('admin.employees.index'));
         } catch (\Illuminate\Validation\ValidationException $e) {

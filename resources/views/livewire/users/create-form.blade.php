@@ -1,6 +1,13 @@
 <div class="glass-card p-6 space-y-5"
-    x-data="{ errors: {} }"
-    x-on:validation-error.window="errors = $event.detail.errors[0]">
+    x-data="{ errors: {}, toast: false, message: '', type: 'success' }"
+    x-on:validation-error.window="errors = $event.detail.errors[0]"
+    @show-toast.window="toast = true; message = $event.detail.message; type = $event.detail.type || 'success'; setTimeout(() => toast = false, 4000)">
+
+    <div x-show="toast" x-transition
+        class="fixed top-20 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-sm font-medium max-w-xs"
+        :class="type === 'success' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'"
+        x-text="message">
+    </div>
 
     @if($showCredentials)
         {{-- INFO AKSES LOGIN --}}
@@ -47,12 +54,12 @@
                 <div class="mt-2 p-3 rounded-lg"
                     style="background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.35);">
                     <p class="text-xs text-amber-400">{{ __('NIK belum terdaftar pada data employee.') }}</p>
-                    <a href="{{ route('admin.employees.create', ['nik' => $nik, 'name' => $name]) }}" wire:navigate
+                    <button type="button" wire:click="openAddEmployeeModal"
                         class="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors duration-200"
                         style="background: rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.5); color: #fbbf24;">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                         {{ __('Tambah Employee') }}
-                    </a>
+                    </button>
                 </div>
             @endif
         </div>
@@ -134,6 +141,22 @@
                 style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);">
                 {{ __('Batal') }}
             </a>
+        </div>
+    @endif
+
+    {{-- Modal: Tambah Employee (kembali ke form ini setelah selesai) --}}
+    @if($showAddEmployeeModal)
+        <div class="fixed inset-0 z-50 flex items-start justify-center p-4 overflow-y-auto"
+            style="background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);"
+            x-data x-on:keydown.escape.window="$wire.closeAddEmployeeModal()">
+            <div class="glass-card p-6 w-full max-w-3xl space-y-4 my-8" @click.away="$wire.closeAddEmployeeModal()">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-bold text-primary">{{ __('Tambah Employee') }}</h3>
+                    <button type="button" wire:click="closeAddEmployeeModal"
+                        class="text-muted hover:opacity-70 text-xl leading-none">&times;</button>
+                </div>
+                <livewire:admin.employees.create-form :nik="$nik" :name="$name" :modal="true" wire:key="'emp-create-' . $nik" />
+            </div>
         </div>
     @endif
 </div>
