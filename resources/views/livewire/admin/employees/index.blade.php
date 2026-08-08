@@ -44,7 +44,7 @@
     <div class="glass-card p-4">
         <div class="flex items-center justify-between mb-3">
             <p class="text-xs font-medium text-muted uppercase tracking-wider">{{ __('Filter Data') }}</p>
-            @if($filterName || $filterEmail || $filterNik || $filterSite || $filterStatus)
+            @if($filterName || $filterEmail || $filterNik || $filterSite || $filterSubDepartement || $filterPosition || $filterStatus)
                 <a href="{{ route('admin.employees.index') }}" wire:navigate
                     class="inline-flex items-center px-3 py-1 rounded-lg text-xs transition-colors duration-200"
                     style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);">
@@ -87,6 +87,28 @@
                     <option value="Resigned">Resigned</option>
                 </select>
             </div>
+            <div>
+                <label class="block text-xs font-medium text-muted mb-1">{{ __('Sub Departemen') }}</label>
+                <select wire:model.live="filterSubDepartement"
+                    class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
+                    style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
+                    <option value="">{{ __('Semua') }}</option>
+                    @foreach($this->getSubDepartementOptions() as $id => $label)
+                        <option value="{{ $id }}">{{ $label }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-muted mb-1">{{ __('Position') }}</label>
+                <select wire:model.live="filterPosition"
+                    class="w-full px-3 py-2 rounded-lg text-sm transition-colors duration-200"
+                    style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
+                    <option value="">{{ __('Semua') }}</option>
+                    @foreach($this->getPositionOptions() as $id => $label)
+                        <option value="{{ $id }}">{{ $label }}</option>
+                    @endforeach
+                </select>
+            </div>
         </div>
     </div>
 
@@ -116,6 +138,8 @@
                             </th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden sm:table-cell">NIK</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden lg:table-cell">{{ __('Site') }}</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden xl:table-cell">{{ __('Struktur') }}</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden md:table-cell">{{ __('Position') }}</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden md:table-cell">{{ __('No. Telepon') }}</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden md:table-cell">Email</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden lg:table-cell">{{ __('Akun Login') }}</th>
@@ -144,6 +168,14 @@
                                 </td>
                                 <td class="px-4 py-3 font-mono text-secondary hidden sm:table-cell">{{ $employee->nik ?? '-' }}</td>
                                 <td class="px-4 py-3 text-secondary hidden lg:table-cell">{{ $employee->site_name ?? '-' }}</td>
+                                <td class="px-4 py-3 text-secondary hidden xl:table-cell">
+                                    @if($employee->organization_path)
+                                        <span class="block max-w-[200px] truncate" title="{{ $employee->organization_path }}">{{ $employee->organization_path }}</span>
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-3 text-secondary hidden md:table-cell">{{ $employee->position?->name ?? '-' }}</td>
                                 <td class="px-4 py-3 text-secondary hidden md:table-cell">{{ $employee->no_telepon ?? '-' }}</td>
                                 <td class="px-4 py-3 text-secondary hidden md:table-cell">{{ $employee->email ?? '-' }}</td>
                                 <td class="px-4 py-3 hidden lg:table-cell">

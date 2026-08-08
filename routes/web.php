@@ -136,6 +136,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Volt::route('employees/{nik}/edit', 'admin.pages.employees.edit')
             ->name('employees.edit');
 
+        // Structure Organization
+        Volt::route('structure-organization', 'admin.pages.structure-organization.index')
+            ->name('structure-organization.index');
+
         // Form Pemeriksaan (PMR)
         Volt::route('pemeriksaan', 'admin.pages.pemeriksaan.index')
             ->name('pemeriksaan.index');

@@ -4,6 +4,8 @@ namespace App\Livewire\Admin\Employees;
 
 use App\Helpers\ActivityLogger;
 use App\Models\Employee;
+use App\Models\Position;
+use App\Models\SubDepartement;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -15,6 +17,8 @@ class Index extends Component
     public string $filterEmail = '';
     public string $filterNik = '';
     public string $filterSite = '';
+    public string $filterSubDepartement = '';
+    public string $filterPosition = '';
     public string $filterStatus = '';
     public string $sortBy = 'name';
     public string $sortDirection = 'asc';
@@ -29,6 +33,8 @@ class Index extends Component
         'filterEmail' => ['except' => ''],
         'filterNik' => ['except' => ''],
         'filterSite' => ['except' => ''],
+        'filterSubDepartement' => ['except' => ''],
+        'filterPosition' => ['except' => ''],
         'filterStatus' => ['except' => ''],
         'sortBy' => ['except' => 'name'],
         'sortDirection' => ['except' => 'asc'],
@@ -140,7 +146,7 @@ class Index extends Component
 
     private function filteredQuery()
     {
-        return Employee::with(['siteDetail', 'user'])
+        return Employee::with(['siteDetail', 'user', 'directorate', 'divisi', 'departement', 'subDepartement', 'position'])
             ->when($this->filterName, fn ($q) => $q->where('name', 'like', "%{$this->filterName}%"))
             ->when($this->filterEmail, fn ($q) => $q->where('email', 'like', "%{$this->filterEmail}%"))
             ->when($this->filterNik, fn ($q) => $q->where('nik', 'like', "%{$this->filterNik}%"))
@@ -148,7 +154,23 @@ class Index extends Component
                 $q->where('site', 'like', "%{$this->filterSite}%")
                     ->orWhereHas('siteDetail', fn ($q) => $q->where('site', 'like', "%{$this->filterSite}%"));
             }))
+            ->when($this->filterSubDepartement, fn ($q) => $q->where('sub_departement_id', $this->filterSubDepartement))
+            ->when($this->filterPosition, fn ($q) => $q->where('position_id', $this->filterPosition))
             ->when($this->filterStatus, fn ($q) => $q->where('status', $this->filterStatus));
+    }
+
+    public function getSubDepartementOptions(): array
+    {
+        return SubDepartement::orderBy('name')->get(['id', 'name'])
+            ->mapWithKeys(fn ($s) => [$s->id => $s->name])
+            ->toArray();
+    }
+
+    public function getPositionOptions(): array
+    {
+        return Position::orderBy('sort_order')->orderBy('name')->get(['id', 'name'])
+            ->mapWithKeys(fn ($p) => [$p->id => $p->name])
+            ->toArray();
     }
 
     public function render()

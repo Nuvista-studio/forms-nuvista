@@ -89,6 +89,73 @@
             @error('status') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
         </div>
 
+        {{-- Struktur Organisasi --}}
+        <div class="border-t pt-4" style="border-color: var(--color-border);">
+            <h3 class="text-sm font-bold text-primary mb-3">{{ __('Struktur Organisasi') }}</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-secondary mb-1">{{ __('Directorat') }}</label>
+                    <select wire:model.live="directorate_id"
+                        class="w-full px-4 py-2 rounded-lg text-sm transition-colors duration-200"
+                        style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
+                        <option value="">{{ __('Pilih Directorat') }}</option>
+                        @foreach($this->getDirectorateList() as $id => $label)
+                            <option value="{{ $id }}">{{ $label }}</option>
+                        @endforeach
+                    </select>
+                    @error('directorate_id') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-secondary mb-1">{{ __('Divisi') }}</label>
+                    <select wire:model.live="divisi_id" @disabled(!$directorate_id)
+                        class="w-full px-4 py-2 rounded-lg text-sm transition-colors duration-200"
+                        style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
+                        <option value="">{{ __('Pilih Divisi') }}</option>
+                        @foreach($this->getDivisiList() as $id => $label)
+                            <option value="{{ $id }}">{{ $label }}</option>
+                        @endforeach
+                    </select>
+                    @error('divisi_id') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-secondary mb-1">{{ __('Departemen') }}</label>
+                    <select wire:model.live="departement_id" @disabled(!$divisi_id)
+                        class="w-full px-4 py-2 rounded-lg text-sm transition-colors duration-200"
+                        style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
+                        <option value="">{{ __('Pilih Departemen') }}</option>
+                        @foreach($this->getDepartementList() as $id => $label)
+                            <option value="{{ $id }}">{{ $label }}</option>
+                        @endforeach
+                    </select>
+                    @error('departement_id') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-secondary mb-1">{{ __('Sub Departemen') }}</label>
+                    <select wire:model.live="sub_departement_id" @disabled(!$departement_id)
+                        class="w-full px-4 py-2 rounded-lg text-sm transition-colors duration-200"
+                        style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
+                        <option value="">{{ __('Pilih Sub Departemen') }}</option>
+                        @foreach($this->getSubDepartementList() as $id => $label)
+                            <option value="{{ $id }}">{{ $label }}</option>
+                        @endforeach
+                    </select>
+                    @error('sub_departement_id') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-secondary mb-1">{{ __('Position') }}</label>
+                    <select wire:model="position_id"
+                        class="w-full px-4 py-2 rounded-lg text-sm transition-colors duration-200"
+                        style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
+                        <option value="">{{ __('Pilih Position') }}</option>
+                        @foreach($this->getPositionList() as $id => $label)
+                            <option value="{{ $id }}">{{ $label }}</option>
+                        @endforeach
+                    </select>
+                    @error('position_id') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
+                </div>
+            </div>
+        </div>
+
         {{-- Akun Login --}}
         <div>
             <label class="block text-sm font-medium text-secondary mb-1">{{ __('Akun Login') }}</label>

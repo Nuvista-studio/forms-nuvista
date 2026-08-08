@@ -87,6 +87,14 @@
                                     </svg>
                                     {{ __('Employees') }}
                                 </a>
+                                <a href="{{ route('admin.structure-organization.index') }}" wire:navigate
+                                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 {{ request()->routeIs('admin.structure-organization.*') ? 'admin-nav-active' : '' }}"
+                                    style="{{ request()->routeIs('admin.structure-organization.*') ? '' : 'color: var(--color-text-secondary);' }}">
+                                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6h18M3 12h12M3 18h7"/>
+                                    </svg>
+                                    {{ __('Structure Organization') }}
+                                </a>
                                 <a href="{{ route('admin.assets.index') }}" wire:navigate
                                     class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 {{ request()->routeIs('admin.assets.*') ? 'admin-nav-active' : '' }}"
                                     style="{{ request()->routeIs('admin.assets.*') ? '' : 'color: var(--color-text-secondary);' }}">

@@ -23,6 +23,11 @@ class Employee extends Model
         'name',
         'nik',
         'site',
+        'directorate_id',
+        'divisi_id',
+        'departement_id',
+        'sub_departement_id',
+        'position_id',
         'no_telepon',
         'email',
         'akun_login',
@@ -70,6 +75,31 @@ class Employee extends Model
         return $this->belongsTo(Site::class, 'site', 'id_site');
     }
 
+    public function directorate(): BelongsTo
+    {
+        return $this->belongsTo(Directorate::class);
+    }
+
+    public function divisi(): BelongsTo
+    {
+        return $this->belongsTo(Divisi::class);
+    }
+
+    public function departement(): BelongsTo
+    {
+        return $this->belongsTo(Departement::class);
+    }
+
+    public function subDepartement(): BelongsTo
+    {
+        return $this->belongsTo(SubDepartement::class);
+    }
+
+    public function position(): BelongsTo
+    {
+        return $this->belongsTo(Position::class);
+    }
+
     public function user(): HasOne
     {
         return $this->hasOne(User::class, 'nik', 'nik');
@@ -98,5 +128,17 @@ class Employee extends Model
     public function getSiteNameAttribute(): ?string
     {
         return $this->siteDetail?->site ?? $this->site;
+    }
+
+    public function getOrganizationPathAttribute(): ?string
+    {
+        return collect([
+            $this->directorate?->name,
+            $this->divisi?->name,
+            $this->departement?->name,
+            $this->subDepartement?->name,
+        ])
+            ->filter()
+            ->implode(' / ') ?: null;
     }
 }
