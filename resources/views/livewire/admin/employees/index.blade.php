@@ -144,6 +144,7 @@
                             <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden md:table-cell">Email</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden lg:table-cell">{{ __('Akun Login') }}</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">{{ __('Status') }}</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">{{ __('Asset') }}</th>
                             <th class="px-4 py-3 text-right text-xs font-medium text-muted uppercase tracking-wider">{{ __('Aksi') }}</th>
                         </tr>
                     </thead>
@@ -191,6 +192,21 @@
                                     <span class="inline-block px-2 py-0.5 rounded-full text-xs font-medium {{ $this->getStatusBadge($employee->status) }}">
                                         {{ $this->getStatusLabel($employee->status) }}
                                     </span>
+                                </td>
+                                <td class="px-4 py-3">
+                                    @if(($employee->assigned_assets_count ?? 0) > 0)
+                                        <button wire:click="openAssets('{{ addslashes($employee->nik) }}')" type="button"
+                                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium transition-colors duration-200"
+                                            style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);"
+                                            title="{{ __('Lihat asset terpasang') }}">
+                                            {{ $employee->assigned_assets_count }}
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0zm7-3a11.8 11.8 0 01-3.1 5.1A11.8 11.8 0 015 12a11.8 11.8 0 013.1-5.1A11.8 11.8 0 0122 9z"/>
+                                            </svg>
+                                        </button>
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endif
                                 </td>
                                 <td class="px-4 py-3 text-right">
                                     <div class="flex items-center justify-end gap-1">
@@ -265,6 +281,60 @@
                 <div class="flex gap-2">
                     <button wire:click="cancelBulkDelete" type="button" class="glass-button-secondary text-sm flex-1">{{ __('Batal') }}</button>
                     <button wire:click="bulkDelete" type="button" class="flex-1 px-4 py-2 rounded-lg font-medium text-sm bg-red-500 text-white hover:bg-red-600 transition-all duration-200">{{ __('Hapus') }}</button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- View Assets Modal --}}
+    @if($showAssetsModal)
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);"
+            x-data x-on:keydown.escape.window="$wire.closeAssets()">
+            <div class="glass-card p-6 w-full max-w-2xl space-y-4" @click.away="$wire.closeAssets()">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <h3 class="text-lg font-bold text-primary">{{ __('Asset Terpasang') }}</h3>
+                        <p class="text-sm text-muted mt-1">{{ $viewAssetsEmployeeName }} · {{ count($viewAssets) }} {{ __('asset') }}</p>
+                    </div>
+                    <button wire:click="closeAssets" type="button"
+                        class="p-1.5 rounded-lg transition-colors duration-200"
+                        style="color: var(--color-text-secondary);"
+                        title="{{ __('Tutup') }}">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+
+                @if(count($viewAssets) > 0)
+                    <div class="max-h-[50vh] overflow-y-auto space-y-2">
+                        @foreach($viewAssets as $asset)
+                            <div class="p-3 rounded-lg flex items-center justify-between gap-3"
+                                style="background: var(--color-glass-bg); border: 1px solid var(--color-border);">
+                                <div class="min-w-0">
+                                    <p class="text-sm font-medium text-primary truncate">{{ $asset['nama_perangkat'] ?? '-' }}</p>
+                                    <p class="text-xs text-muted mt-0.5 font-mono">{{ $asset['no_asset'] ?? '-' }}</p>
+                                    <p class="text-xs text-muted mt-0.5">
+                                        {{ collect([$asset['brand'] ?? '', $asset['tipe'] ?? '', $asset['no_serial'] ?? ''])->filter()->implode(' · ') ?: '-' }}
+                                    </p>
+                                </div>
+                                @if(!empty($asset['status']))
+                                    <span class="shrink-0 inline-block px-2 py-0.5 rounded-full text-xs font-medium"
+                                        style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);">
+                                        {{ $asset['status'] }}
+                                    </span>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <p class="text-sm text-muted">{{ __('Tidak ada asset terpasang.') }}</p>
+                @endif
+
+                <div class="flex justify-end pt-2">
+                    <button wire:click="closeAssets" type="button"
+                        class="px-5 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200"
+                        style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);">
+                        {{ __('Tutup') }}
+                    </button>
                 </div>
             </div>
         </div>

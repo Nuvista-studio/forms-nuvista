@@ -27,6 +27,9 @@ class Index extends Component
     public string $deleteEmployeeName = '';
     public array $selected = [];
     public bool $showBulkDeleteModal = false;
+    public bool $showAssetsModal = false;
+    public array $viewAssets = [];
+    public string $viewAssetsEmployeeName = '';
 
     protected $queryString = [
         'filterName' => ['except' => ''],
@@ -125,6 +128,29 @@ class Index extends Component
         $this->showBulkDeleteModal = false;
     }
 
+    public function openAssets(string $nik): void
+    {
+        $employee = Employee::find($nik);
+
+        if (! $employee) {
+            return;
+        }
+
+        $this->viewAssetsEmployeeName = $employee->name;
+        $this->viewAssets = $employee->assignedAssets()
+            ->orderBy('no_asset')
+            ->get(['id', 'no_asset', 'nama_perangkat', 'brand', 'tipe', 'no_serial', 'status'])
+            ->toArray();
+        $this->showAssetsModal = true;
+    }
+
+    public function closeAssets(): void
+    {
+        $this->showAssetsModal = false;
+        $this->viewAssets = [];
+        $this->viewAssetsEmployeeName = '';
+    }
+
     public function bulkDelete(): void
     {
         $employees = Employee::whereIn('nik', $this->selected)->get();
@@ -146,7 +172,8 @@ class Index extends Component
 
     private function filteredQuery()
     {
-        return Employee::with(['siteDetail', 'user', 'directorate', 'divisi', 'departement', 'subDepartement', 'position'])
+        return Employee::withCount('assignedAssets')
+            ->with(['siteDetail', 'user', 'directorate', 'divisi', 'departement', 'subDepartement', 'position'])
             ->when($this->filterName, fn ($q) => $q->where('name', 'like', "%{$this->filterName}%"))
             ->when($this->filterEmail, fn ($q) => $q->where('email', 'like', "%{$this->filterEmail}%"))
             ->when($this->filterNik, fn ($q) => $q->where('nik', 'like', "%{$this->filterNik}%"))
