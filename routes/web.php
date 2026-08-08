@@ -2,10 +2,10 @@
 
 use App\Http\Controllers\ExportPdfController;
 use App\Http\Controllers\FormExportController;
-use App\Http\Controllers\UserCsvController;
-use App\Http\Controllers\SiteCsvController;
-use App\Http\Controllers\AssetCsvController;
-use App\Http\Controllers\EmployeeCsvController;
+use App\Http\Controllers\UserExportController;
+use App\Http\Controllers\SiteExportController;
+use App\Http\Controllers\AssetExportController;
+use App\Http\Controllers\EmployeeExportController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
@@ -83,10 +83,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Volt::route('sites/import', 'admin.pages.sites.import')
             ->name('sites.import');
 
-        Route::get('sites/export-csv', [SiteCsvController::class, 'export'])
-            ->name('sites.export.csv');
+        Route::get('sites/export/{format}', [SiteExportController::class, 'export'])
+            ->whereIn('format', ['pdf', 'xlsx', 'xls', 'csv', 'html'])
+            ->name('sites.export');
 
-        Route::get('sites/import/template', [SiteCsvController::class, 'template'])
+        Route::get('sites/import/template', [SiteExportController::class, 'template'])
             ->name('sites.import.template');
 
         // Assets
@@ -102,10 +103,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Volt::route('assets/import', 'admin.pages.assets.import')
             ->name('assets.import');
 
-        Route::get('assets/export-csv', [AssetCsvController::class, 'export'])
-            ->name('assets.export.csv');
+        Route::get('assets/export/{format}', [AssetExportController::class, 'export'])
+            ->whereIn('format', ['pdf', 'xlsx', 'xls', 'csv', 'html'])
+            ->name('assets.export');
 
-        Route::get('assets/import/template', [AssetCsvController::class, 'template'])
+        Route::get('assets/import/template', [AssetExportController::class, 'template'])
             ->name('assets.import.template');
 
         // Users
@@ -121,10 +123,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Volt::route('users/import', 'admin.pages.users.import')
             ->name('users.import');
 
-        Route::get('users/export-csv', [UserCsvController::class, 'export'])
-            ->name('users.export.csv');
+        Route::get('users/export/{format}', [UserExportController::class, 'export'])
+            ->whereIn('format', ['pdf', 'xlsx', 'xls', 'csv', 'html'])
+            ->name('users.export');
 
-        Route::get('users/import/template', [UserCsvController::class, 'template'])
+        Route::get('users/import/template', [UserExportController::class, 'template'])
             ->name('users.import.template');
 
         // Employees
@@ -140,10 +143,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Volt::route('employees/import', 'admin.pages.employees.import')
             ->name('employees.import');
 
-        Route::get('employees/export-csv', [EmployeeCsvController::class, 'export'])
-            ->name('employees.export.csv');
+        Route::get('employees/export/{format}', [EmployeeExportController::class, 'export'])
+            ->whereIn('format', ['pdf', 'xlsx', 'xls', 'csv', 'html'])
+            ->name('employees.export');
 
-        Route::get('employees/import/template', [EmployeeCsvController::class, 'template'])
+        Route::get('employees/import/template', [EmployeeExportController::class, 'template'])
             ->name('employees.import.template');
 
         // Structure Organization

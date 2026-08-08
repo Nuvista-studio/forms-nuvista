@@ -2,44 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\ExportsFormats;
 use App\Models\Asset;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-class AssetCsvController extends Controller
+class AssetExportController extends Controller
 {
-    public function export(): StreamedResponse
-    {
-        $assets = Asset::with('assignedEmployee')->orderBy('no_asset')->get();
+    use ExportsFormats;
 
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="assets_export_' . now()->format('Y-m-d_His') . '.csv"',
-        ];
+    public string $exportKey = 'assets';
 
-        $callback = function () use ($assets) {
-            $file = fopen('php://output', 'w');
-
-            fputcsv($file, ['no_asset', 'kategori', 'brand', 'tipe', 'nama_perangkat', 'no_serial', 'operating_unit', 'site_location_asset', 'assigned_employee_email']);
-
-            foreach ($assets as $asset) {
-                fputcsv($file, [
-                    $asset->no_asset,
-                    $asset->kategori,
-                    $asset->brand,
-                    $asset->tipe,
-                    $asset->nama_perangkat,
-                    $asset->no_serial ?? '',
-                    $asset->operating_unit ?? '',
-                    $asset->site_location_asset ?? '',
-                    $asset->assignedEmployee?->email ?? '',
-                ]);
-            }
-
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
-    }
+    public string $exportTitle = 'Data Assets';
 
     public function template(): StreamedResponse
     {
@@ -93,5 +66,30 @@ class AssetCsvController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+
+    protected function exportQuery()
+    {
+        return Asset::with('assignedEmployee')->orderBy('no_asset');
+    }
+
+    protected function exportHeadings(): array
+    {
+        return ['no_asset', 'kategori', 'brand', 'tipe', 'nama_perangkat', 'no_serial', 'operating_unit', 'site_location_asset', 'assigned_employee_email'];
+    }
+
+    protected function exportRow($asset): array
+    {
+        return [
+            $asset->no_asset,
+            $asset->kategori,
+            $asset->brand,
+            $asset->tipe,
+            $asset->nama_perangkat,
+            $asset->no_serial ?? '',
+            $asset->operating_unit ?? '',
+            $asset->site_location_asset ?? '',
+            $asset->assignedEmployee?->email ?? '',
+        ];
     }
 }

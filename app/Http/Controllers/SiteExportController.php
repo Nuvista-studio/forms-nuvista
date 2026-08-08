@@ -2,44 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\ExportsFormats;
 use App\Models\Site;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-class SiteCsvController extends Controller
+class SiteExportController extends Controller
 {
-    public function export(): StreamedResponse
-    {
-        $sites = Site::orderBy('id_site')->get();
+    use ExportsFormats;
 
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="sites_export_' . now()->format('Y-m-d_His') . '.csv"',
-        ];
+    public string $exportKey = 'sites';
 
-        $callback = function () use ($sites) {
-            $file = fopen('php://output', 'w');
-
-            fputcsv($file, ['id_site', 'site', 'buss', 'id_corp', 'country', 'provincy', 'city', 'address', 'url_maps']);
-
-            foreach ($sites as $site) {
-                fputcsv($file, [
-                    $site->id_site,
-                    $site->site,
-                    $site->buss ?? '',
-                    $site->id_corp ?? '',
-                    $site->country ?? '',
-                    $site->provincy ?? '',
-                    $site->city ?? '',
-                    $site->address ?? '',
-                    $site->url_maps ?? '',
-                ]);
-            }
-
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
-    }
+    public string $exportTitle = 'Data Sites';
 
     public function template(): StreamedResponse
     {
@@ -93,5 +66,30 @@ class SiteCsvController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+
+    protected function exportQuery()
+    {
+        return Site::orderBy('id_site');
+    }
+
+    protected function exportHeadings(): array
+    {
+        return ['id_site', 'site', 'buss', 'id_corp', 'country', 'provincy', 'city', 'address', 'url_maps'];
+    }
+
+    protected function exportRow($site): array
+    {
+        return [
+            $site->id_site,
+            $site->site,
+            $site->buss ?? '',
+            $site->id_corp ?? '',
+            $site->country ?? '',
+            $site->provincy ?? '',
+            $site->city ?? '',
+            $site->address ?? '',
+            $site->url_maps ?? '',
+        ];
     }
 }

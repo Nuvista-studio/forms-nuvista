@@ -2,41 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\ExportsFormats;
 use App\Models\User;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-class UserCsvController extends Controller
+class UserExportController extends Controller
 {
-    public function export(): StreamedResponse
-    {
-        $users = User::with('roles')->orderBy('name')->get();
+    use ExportsFormats;
 
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="users_export_' . now()->format('Y-m-d_His') . '.csv"',
-        ];
+    public string $exportKey = 'users';
 
-        $callback = function () use ($users) {
-            $file = fopen('php://output', 'w');
-
-            fputcsv($file, ['name', 'email', 'password', 'nik', 'role', 'status']);
-
-            foreach ($users as $user) {
-                fputcsv($file, [
-                    $user->name,
-                    $user->email,
-                    '',
-                    $user->nik ?? '',
-                    $user->getRoleNames()->first() ?? '',
-                    $user->status ?? 'Enable',
-                ]);
-            }
-
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
-    }
+    public string $exportTitle = 'Data Users';
 
     public function template(): StreamedResponse
     {
@@ -81,5 +57,27 @@ class UserCsvController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+
+    protected function exportQuery()
+    {
+        return User::with('roles')->orderBy('name');
+    }
+
+    protected function exportHeadings(): array
+    {
+        return ['name', 'email', 'password', 'nik', 'role', 'status'];
+    }
+
+    protected function exportRow($user): array
+    {
+        return [
+            $user->name,
+            $user->email,
+            '',
+            $user->nik ?? '',
+            $user->getRoleNames()->first() ?? '',
+            $user->status ?? 'Enable',
+        ];
     }
 }
