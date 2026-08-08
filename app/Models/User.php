@@ -59,6 +59,15 @@ class User extends Authenticatable
      *
      * @return array<string, string>
      */
+    protected static function booted(): void
+    {
+        static::deleting(function (User $user) {
+            if ($user->nik !== null) {
+                Employee::where('nik', $user->nik)->update(['email' => null]);
+            }
+        });
+    }
+
     public function activityLogs(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(ActivityLog::class);

@@ -29,7 +29,7 @@ class EditForm extends Component
         $this->nik = $employee->nik ?? '';
         $this->site = $employee->site ?? '';
         $this->no_telepon = $employee->no_telepon ?? '';
-        $this->email = $employee->email ?? '';
+        $this->email = $employee->user?->email ?? '';
         $this->status = $employee->status ?? Employee::STATUS_ACTIVE;
         $this->linkedUserId = $employee->user?->email;
         $this->assignedAssets = $employee->assignedAssets()
@@ -84,11 +84,16 @@ class EditForm extends Component
                 'nik' => $this->nik ?: null,
                 'site' => $this->site ?: null,
                 'no_telepon' => $this->no_telepon ?: null,
-                'email' => $this->email ?: null,
                 'status' => $this->status,
             ]);
 
             $this->syncLinkedUser();
+
+            $this->employee->load('user');
+            $linkedEmail = $this->employee->user?->email;
+            $this->employee->update(['email' => $linkedEmail]);
+            $this->email = $linkedEmail ?? '';
+
             $this->syncStatus();
 
             ActivityLogger::log('update', "Mengubah employee: {$this->name}", 'App\Models\Employee', $this->employee->nik);
@@ -166,9 +171,15 @@ class EditForm extends Component
         }
     }
 
+    public function updatedLinkedUserId(?string $value): void
+    {
+        $this->email = $value ?? '';
+    }
+
     public function unlinkUser(): void
     {
         $this->linkedUserId = null;
+        $this->email = '';
     }
 
     public function getSiteList(): array

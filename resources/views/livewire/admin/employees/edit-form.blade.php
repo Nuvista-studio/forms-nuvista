@@ -33,14 +33,14 @@
             @error('name') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
         </div>
 
-        {{-- Email (opsional) --}}
+        {{-- Email (otomatis dari akun login) --}}
         <div>
             <label class="block text-sm font-medium text-secondary mb-1">{{ __('Email') }}</label>
-            <input wire:model="email" type="email"
-                class="w-full px-4 py-2 rounded-lg text-sm transition-colors duration-200"
+            <input type="email" wire:model="email" readonly
+                class="w-full px-4 py-2 rounded-lg text-sm transition-colors duration-200 cursor-not-allowed"
                 style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);"
-                placeholder="email@asri.co.id" />
-            <p class="text-xs text-muted mt-1">{{ __('Opsional. Karyawan tanpa email tetap dapat diproses.') }}</p>
+                placeholder="{{ __('Tidak ada akun login') }}" />
+            <p class="text-xs text-muted mt-1">{{ __('Email otomatis mengikuti akun login yang terhubung.') }}</p>
             @error('email') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
         </div>
 

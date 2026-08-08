@@ -41,11 +41,17 @@ class Employee extends Model
                 $employee->nik = static::nextAvailableNik();
             }
         });
+
+        static::deleting(function (Employee $employee) {
+            $employee->email = null;
+            User::where('nik', $employee->nik)->update(['nik' => null]);
+        });
     }
 
     private static function nextAvailableNik(): string
     {
-        $last = static::where('nik', 'like', 'NIK-%')
+        $last = static::withTrashed()
+            ->where('nik', 'like', 'NIK-%')
             ->orderByRaw('LENGTH(nik) DESC, nik DESC')
             ->value('nik');
 
@@ -54,7 +60,7 @@ class Employee extends Model
         do {
             $candidate = 'NIK-'.str_pad((string) $sequence, 4, '0', STR_PAD_LEFT);
             $sequence++;
-        } while (static::where('nik', $candidate)->exists());
+        } while (static::withTrashed()->where('nik', $candidate)->exists());
 
         return $candidate;
     }

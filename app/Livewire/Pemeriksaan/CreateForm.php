@@ -130,6 +130,18 @@ class CreateForm extends Component
 
     public string $newPenggunaEmail = '';
 
+    // Email search for new pengguna
+    public array $emailSearchResults = [];
+
+    public bool $showEmailDropdown = false;
+
+    // Add user popup
+    public bool $showAddUserPopup = false;
+
+    public string $addUserPassword = 'password';
+
+    public string $addUserRole = 'pengguna';
+
     // Asset search
     public string $assetSearch = '';
 
@@ -412,13 +424,21 @@ class CreateForm extends Component
 
     public function createPengguna(): void
     {
+        $usedByName = $this->newPenggunaEmailUsedByEmployee;
+        if ($usedByName) {
+            $this->dispatch('show-toast', message: "Email sudah terpakai pada employee \"{$usedByName}\".", type: 'error');
+
+            return;
+        }
+
         $this->validate([
             'newPenggunaName' => 'required|string|max:255',
-            'newPenggunaEmail' => 'nullable|email|max:255|exists:users,email',
+            'newPenggunaEmail' => 'nullable|email|max:255|exists:users,email|unique:employees,email',
             'newPenggunaNik' => 'nullable|string|max:50|unique:employees,nik',
             'newPenggunaSite' => 'nullable|string|max:255|exists:sites,id_site',
         ], [
             'newPenggunaEmail.exists' => 'Email harus terdaftar sebagai akun user terlebih dahulu.',
+            'newPenggunaEmail.unique' => 'Email sudah terdaftar pada employee lain.',
             'newPenggunaNik.unique' => 'NIK sudah terdaftar pada employee lain.',
             'newPenggunaSite.exists' => 'Site yang dipilih tidak valid.',
         ]);
@@ -429,7 +449,15 @@ class CreateForm extends Component
             'nik' => $this->newPenggunaNik ?: null,
             'site' => $this->newPenggunaSite ?: null,
             'status' => Employee::STATUS_ACTIVE,
+            'akun_login' => $this->newPenggunaEmail ? 'Connect' : 'No Access',
         ]);
+
+        if ($this->newPenggunaEmail) {
+            $user = User::where('email', $this->newPenggunaEmail)->first();
+            if ($user) {
+                $user->update(['nik' => $employee->nik]);
+            }
+        }
 
         $this->penggunaId = $employee->nik;
         $this->penggunaName = $employee->name;
@@ -442,6 +470,148 @@ class CreateForm extends Component
         $this->resetNewPenggunaFields();
 
         $this->dispatch('penggunaCreated', name: $employee->name);
+    }
+
+    public function getIsNewPenggunaEmailUnregisteredProperty(): bool
+    {
+        $email = trim($this->newPenggunaEmail);
+
+        if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return false;
+        }
+
+        return ! User::withTrashed()->where('email', $email)->exists();
+    }
+
+    public function getNewPenggunaEmailUsedByEmployeeProperty(): ?string
+    {
+        $email = trim($this->newPenggunaEmail);
+
+        if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return null;
+        }
+
+        $user = User::where('email', $email)->first();
+
+        if (! $user || ! $user->nik) {
+            return null;
+        }
+
+        return Employee::where('nik', $user->nik)->value('name');
+    }
+
+    public function searchNewPenggunaEmail(): void
+    {
+        $this->showEmailDropdown = false;
+
+        if (strlen(trim($this->newPenggunaEmail)) < 2) {
+            $this->emailSearchResults = [];
+
+            return;
+        }
+
+        $usedEmails = User::whereNotNull('nik')->pluck('email');
+
+        $this->emailSearchResults = User::where('email', 'like', '%'.trim($this->newPenggunaEmail).'%')
+            ->whereNotIn('email', $usedEmails)
+            ->limit(10)
+            ->get(['email', 'name'])
+            ->toArray();
+
+        $this->showEmailDropdown = count($this->emailSearchResults) > 0;
+    }
+
+    public function selectNewPenggunaEmail(string $email): void
+    {
+        $this->newPenggunaEmail = $email;
+        $this->emailSearchResults = [];
+        $this->showEmailDropdown = false;
+    }
+
+    public function openAddUserPopup(): void
+    {
+        if (! filter_var(trim($this->newPenggunaEmail), FILTER_VALIDATE_EMAIL)) {
+            $this->dispatch('show-toast', message: 'Isi alamat email terlebih dahulu.', type: 'error');
+
+            return;
+        }
+
+        $this->addUserPassword = 'password';
+        $this->addUserRole = 'pengguna';
+        $this->showAddUserPopup = true;
+    }
+
+    public function closeAddUserPopup(): void
+    {
+        $this->showAddUserPopup = false;
+    }
+
+    public function getRoleList(): array
+    {
+        return \Spatie\Permission\Models\Role::pluck('name')->toArray();
+    }
+
+    public function saveAddUser(): void
+    {
+        $this->validate([
+            'newPenggunaName' => 'required|string|max:255',
+            'newPenggunaEmail' => 'required|email|max:255',
+            'newPenggunaNik' => 'nullable|string|max:50|unique:users,nik|unique:employees,nik',
+            'newPenggunaSite' => 'nullable|string|max:255|exists:sites,id_site',
+            'addUserPassword' => 'required|string|min:6',
+            'addUserRole' => 'required|exists:roles,name',
+        ], [
+            'newPenggunaName.required' => 'Nama wajib diisi.',
+            'newPenggunaNik.unique' => 'NIK sudah terdaftar pada employee atau akun user lain.',
+            'newPenggunaSite.exists' => 'Site yang dipilih tidak valid.',
+            'addUserPassword.required' => 'Password wajib diisi.',
+            'addUserPassword.min' => 'Password minimal 6 karakter.',
+            'addUserRole.exists' => 'Role tidak valid.',
+        ]);
+
+        $email = trim($this->newPenggunaEmail);
+
+        if (User::withTrashed()->where('email', $email)->exists()) {
+            $this->dispatch('show-toast', message: 'Email sudah terdaftar sebagai akun user.', type: 'error');
+
+            return;
+        }
+
+        $employee = Employee::create([
+            'name' => trim($this->newPenggunaName),
+            'nik' => $this->newPenggunaNik ?: null,
+            'site' => $this->newPenggunaSite ?: null,
+            'status' => Employee::STATUS_ACTIVE,
+            'akun_login' => 'Connect',
+        ]);
+
+        $user = User::create([
+            'name' => $employee->name,
+            'email' => $email,
+            'password' => $this->addUserPassword,
+            'nik' => $employee->nik,
+            'status' => User::STATUS_ACTIVE,
+        ]);
+
+        $employee->update(['email' => $user->email]);
+
+        $user->assignRole($this->addUserRole);
+
+        $this->penggunaId = $employee->nik;
+        $this->penggunaName = $employee->name;
+        $this->penggunaNik = $employee->nik;
+        $this->penggunaEmail = $employee->email;
+        $this->penggunaSearch = $employee->name;
+        $this->showPenggunaDropdown = false;
+        $this->showCreatePengguna = false;
+        $this->showAddUserPopup = false;
+
+        $this->resetNewPenggunaFields();
+
+        ActivityLogger::log('create', "Membuat akun user baru dari form pemeriksaan: {$email}", 'App\Models\User', $email);
+
+        $this->dispatch('penggunaCreated', name: $employee->name);
+        $this->dispatch('show-toast', message: "Akun user {$email} berhasil dibuat. Password default: {$this->addUserPassword}.", type: 'success');
     }
 
     public function closePenggunaCredentials(): void

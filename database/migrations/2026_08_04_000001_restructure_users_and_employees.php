@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -166,12 +167,18 @@ return new class extends Migration
         // Lepas FK lama yang mengacu ke users.id
         DB::statement('ALTER TABLE activity_logs DROP FOREIGN KEY activity_logs_user_id_foreign');
         DB::statement('ALTER TABLE form_pemeriksaan DROP FOREIGN KEY form_pemeriksaan_user_id_foreign');
-        DB::statement('ALTER TABLE form_pemeriksaan DROP FOREIGN KEY form_pemeriksaan_pengguna_id_foreign');
+        if (Schema::hasColumn('form_pemeriksaan', 'pengguna_id')) {
+            DB::statement('ALTER TABLE form_pemeriksaan DROP FOREIGN KEY form_pemeriksaan_pengguna_id_foreign');
+        }
         DB::statement('ALTER TABLE form_perawatan DROP FOREIGN KEY form_perawatan_user_id_foreign');
-        DB::statement('ALTER TABLE form_perawatan DROP FOREIGN KEY form_perawatan_pengguna_id_foreign');
+        if (Schema::hasColumn('form_perawatan', 'pengguna_id')) {
+            DB::statement('ALTER TABLE form_perawatan DROP FOREIGN KEY form_perawatan_pengguna_id_foreign');
+        }
         DB::statement('ALTER TABLE form_pengembalian DROP FOREIGN KEY form_pengembalian_teknisi_id_foreign');
         DB::statement('ALTER TABLE form_approvals DROP FOREIGN KEY form_approvals_user_id_foreign');
-        DB::statement('ALTER TABLE assets DROP FOREIGN KEY assets_assigned_user_id_foreign');
+        if (Schema::hasColumn('assets', 'assigned_user_id')) {
+            DB::statement('ALTER TABLE assets DROP FOREIGN KEY assets_assigned_user_id_foreign');
+        }
 
         // status -> enum Enable/Disable
         DB::statement("ALTER TABLE users MODIFY COLUMN status ENUM('Enable','Disable') NOT NULL DEFAULT 'Enable'");
@@ -182,9 +189,15 @@ return new class extends Migration
         DB::statement('ALTER TABLE form_perawatan MODIFY COLUMN user_id VARCHAR(255) NOT NULL');
         DB::statement('ALTER TABLE form_pengembalian MODIFY COLUMN teknisi_id VARCHAR(255) NOT NULL');
         DB::statement('ALTER TABLE form_approvals MODIFY COLUMN user_id VARCHAR(255) NULL');
-        DB::statement('ALTER TABLE assets MODIFY COLUMN assigned_user_id VARCHAR(255) NULL');
-        DB::statement('ALTER TABLE form_pemeriksaan MODIFY COLUMN pengguna_id VARCHAR(255) NULL');
-        DB::statement('ALTER TABLE form_perawatan MODIFY COLUMN pengguna_id VARCHAR(255) NULL');
+        if (Schema::hasColumn('assets', 'assigned_user_id')) {
+            DB::statement('ALTER TABLE assets MODIFY COLUMN assigned_user_id VARCHAR(255) NULL');
+        }
+        if (Schema::hasColumn('form_pemeriksaan', 'pengguna_id')) {
+            DB::statement('ALTER TABLE form_pemeriksaan MODIFY COLUMN pengguna_id VARCHAR(255) NULL');
+        }
+        if (Schema::hasColumn('form_perawatan', 'pengguna_id')) {
+            DB::statement('ALTER TABLE form_perawatan MODIFY COLUMN pengguna_id VARCHAR(255) NULL');
+        }
         DB::statement('ALTER TABLE sessions MODIFY COLUMN user_id VARCHAR(255) NULL');
         DB::statement('ALTER TABLE model_has_roles MODIFY COLUMN model_id VARCHAR(255) NOT NULL');
         DB::statement('ALTER TABLE model_has_permissions MODIFY COLUMN model_id VARCHAR(255) NOT NULL');
@@ -195,16 +208,28 @@ return new class extends Migration
         DB::statement('UPDATE form_perawatan f JOIN users u ON u.id = f.user_id SET f.user_id = u.email');
         DB::statement('UPDATE form_pengembalian f JOIN users u ON u.id = f.teknisi_id SET f.teknisi_id = u.email');
         DB::statement('UPDATE form_approvals fa JOIN users u ON u.id = fa.user_id SET fa.user_id = u.email WHERE fa.user_id IS NOT NULL');
-        DB::statement('UPDATE assets a JOIN users u ON u.id = a.assigned_user_id SET a.assigned_user_id = u.email WHERE a.assigned_user_id IS NOT NULL');
-        DB::statement('UPDATE form_pemeriksaan f JOIN users u ON u.id = f.pengguna_id SET f.pengguna_id = u.email WHERE f.pengguna_id IS NOT NULL');
-        DB::statement('UPDATE form_perawatan f JOIN users u ON u.id = f.pengguna_id SET f.pengguna_id = u.email WHERE f.pengguna_id IS NOT NULL');
+        if (Schema::hasColumn('assets', 'assigned_user_id')) {
+            DB::statement('UPDATE assets a JOIN users u ON u.id = a.assigned_user_id SET a.assigned_user_id = u.email WHERE a.assigned_user_id IS NOT NULL');
+        }
+        if (Schema::hasColumn('form_pemeriksaan', 'pengguna_id')) {
+            DB::statement('UPDATE form_pemeriksaan f JOIN users u ON u.id = f.pengguna_id SET f.pengguna_id = u.email WHERE f.pengguna_id IS NOT NULL');
+        }
+        if (Schema::hasColumn('form_perawatan', 'pengguna_id')) {
+            DB::statement('UPDATE form_perawatan f JOIN users u ON u.id = f.pengguna_id SET f.pengguna_id = u.email WHERE f.pengguna_id IS NOT NULL');
+        }
         DB::statement('UPDATE sessions s JOIN users u ON u.id = s.user_id SET s.user_id = u.email WHERE s.user_id IS NOT NULL');
-        DB::statement("UPDATE model_has_roles mh JOIN users u ON u.id = mh.model_id SET mh.model_id = u.email WHERE mh.model_type = 'App\\Models\\User'");
+        DB::statement("UPDATE model_has_roles mh JOIN users u ON u.id = mh.model_id SET mh.model_id = u.email WHERE mh.model_type = 'App\\\\Models\\\\User'");
 
         // Hapus kolom legacy & kolom yang tidak dipakai
-        DB::statement('ALTER TABLE assets DROP COLUMN assigned_user_id');
-        DB::statement('ALTER TABLE form_pemeriksaan DROP COLUMN pengguna_id');
-        DB::statement('ALTER TABLE form_perawatan DROP COLUMN pengguna_id');
+        if (Schema::hasColumn('assets', 'assigned_user_id')) {
+            DB::statement('ALTER TABLE assets DROP COLUMN assigned_user_id');
+        }
+        if (Schema::hasColumn('form_pemeriksaan', 'pengguna_id')) {
+            DB::statement('ALTER TABLE form_pemeriksaan DROP COLUMN pengguna_id');
+        }
+        if (Schema::hasColumn('form_perawatan', 'pengguna_id')) {
+            DB::statement('ALTER TABLE form_perawatan DROP COLUMN pengguna_id');
+        }
         DB::statement('ALTER TABLE users DROP COLUMN employee_id');
         DB::statement('ALTER TABLE users DROP COLUMN department');
         DB::statement('ALTER TABLE users DROP COLUMN business_unit');

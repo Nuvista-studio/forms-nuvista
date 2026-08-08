@@ -21,13 +21,47 @@
     </div>
 
     {{-- Email (opsional) --}}
-    <div>
+    <div x-data="{ open: true }" @click.outside="open = false">
         <label class="block text-sm font-medium text-secondary mb-1">{{ __('Email') }}</label>
-        <input wire:model="email" type="email"
-            class="w-full px-4 py-2 rounded-lg text-sm transition-colors duration-200"
-            style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);"
-            placeholder="email@asri.co.id" />
+        <div class="relative">
+            <input wire:model.live.debounce.300ms="email" type="email" @focus="open = true"
+                class="w-full px-4 py-2 rounded-lg text-sm transition-colors duration-200"
+                style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);"
+                placeholder="email@asri.co.id" />
+            @if(count($emailSuggestions) > 0)
+                <div x-show="open" x-transition
+                    class="absolute z-20 mt-1 w-full rounded-lg shadow-lg overflow-hidden"
+                    style="background: var(--color-card-bg); border: 1px solid var(--color-card-border);">
+                    @foreach($emailSuggestions as $suggestion)
+                        <button type="button" wire:click="selectEmail('{{ $suggestion['email'] }}')"
+                            class="w-full text-left px-4 py-2 text-sm transition-colors duration-150 hover:bg-black/5"
+                            style="color: var(--color-text-primary);">
+                            <span>{{ $suggestion['email'] }}</span>
+                            <span class="text-xs text-muted"> · {{ $suggestion['name'] }}</span>
+                        </button>
+                    @endforeach
+                </div>
+            @endif
+        </div>
         <p class="text-xs text-muted mt-1">{{ __('Opsional. Karyawan tanpa email tetap dapat diproses.') }}</p>
+
+        @if($this->email !== '' && ! $this->emailRegistered)
+            <p class="text-xs text-amber-400 mt-1">{{ __('Email belum terdaftar sebagai akun user.') }}</p>
+            <button type="button" wire:click="openCreateUserModal"
+                class="mt-2 px-4 py-2 rounded-lg text-xs font-medium transition-colors duration-200"
+                style="background: var(--color-primary); color: var(--color-button-text);">
+                {{ __('Buat Email Baru') }}
+            </button>
+        @endif
+
+        @if($this->emailRegistered && $this->emailUsed)
+            <p class="text-xs text-red-400 mt-1">{{ __('Email sudah digunakan oleh employee lain dan tidak dapat dipakai.') }}</p>
+        @endif
+
+        @if($this->emailRegistered && ! $this->emailUsed)
+            <p class="text-xs text-emerald-500 mt-1">{{ __('Email terdaftar dan tersedia.') }}</p>
+        @endif
+
         @error('email') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
     </div>
 
@@ -79,8 +113,9 @@
     {{-- Actions --}}
     <div class="flex items-center gap-3 pt-2">
         <button wire:click="save" wire:loading.attr="disabled"
+            @if($this->email !== '' && $this->emailUsed) disabled title="{{ __('Email sudah digunakan oleh employee lain.') }}" @endif
             class="px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200"
-            style="background: var(--color-primary); color: var(--color-button-text);">
+            style="background: var(--color-primary); color: var(--color-button-text); @if($this->email !== '' && $this->emailUsed) opacity-50 cursor-not-allowed; @endif">
             <span wire:loading.remove wire:target="save">{{ __('Simpan') }}</span>
             <span wire:loading wire:target="save">{{ __('Menyimpan') }}...</span>
         </button>
@@ -90,4 +125,63 @@
             {{ __('Batal') }}
         </a>
     </div>
+
+    {{-- Modal: Buat Email Baru --}}
+    <x-modal name="create-user" :show="$showCreateUserModal" maxWidth="md" focusable>
+        <div class="p-6 space-y-4">
+            <h3 class="text-lg font-semibold" style="color: var(--color-text-primary);">{{ __('Buat Akun User Baru') }}</h3>
+            <p class="text-xs text-muted">{{ __('Akun akan dibuat di daftar users dengan status Active. Setelah dibuat, email otomatis dipakai untuk employee ini.') }}</p>
+
+            <div>
+                <label class="block text-sm font-medium text-secondary mb-1">{{ __('Nama') }} <span class="text-red-400">*</span></label>
+                <input wire:model="newUserName" type="text"
+                    class="w-full px-4 py-2 rounded-lg text-sm transition-colors duration-200"
+                    style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);" />
+                @error('newUserName') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-secondary mb-1">{{ __('Email') }} <span class="text-red-400">*</span></label>
+                <input wire:model="newUserEmail" type="email"
+                    class="w-full px-4 py-2 rounded-lg text-sm transition-colors duration-200"
+                    style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);" />
+                @error('newUserEmail') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-secondary mb-1">{{ __('Password') }} <span class="text-red-400">*</span></label>
+                    <input wire:model="newUserPassword" type="password"
+                        class="w-full px-4 py-2 rounded-lg text-sm transition-colors duration-200"
+                        style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);" />
+                    @error('newUserPassword') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-secondary mb-1">{{ __('Role') }}</label>
+                    <select wire:model="newUserRole"
+                        class="w-full px-4 py-2 rounded-lg text-sm transition-colors duration-200"
+                        style="background: var(--color-input-bg, var(--color-glass-bg)); border: 1px solid var(--color-border); color: var(--color-text-primary);">
+                        @foreach($this->getRoleList() as $role)
+                            <option value="{{ $role }}">{{ $this->getRoleLabel($role) }}</option>
+                        @endforeach
+                    </select>
+                    @error('newUserRole') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3 pt-2">
+                <button wire:click="createUser" wire:loading.attr="disabled"
+                    class="px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200"
+                    style="background: var(--color-primary); color: var(--color-button-text);">
+                    <span wire:loading.remove wire:target="createUser">{{ __('Buat Akun') }}</span>
+                    <span wire:loading wire:target="createUser">{{ __('Membuat') }}...</span>
+                </button>
+                <button type="button" wire:click="closeCreateUserModal"
+                    class="px-5 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200"
+                    style="background: var(--color-glass-bg); border: 1px solid var(--color-border); color: var(--color-text-secondary);">
+                    {{ __('Batal') }}
+                </button>
+            </div>
+        </div>
+    </x-modal>
 </div>

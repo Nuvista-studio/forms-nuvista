@@ -131,8 +131,36 @@
                                     </div>
                                     <div>
                                         <label class="text-xs text-muted">Email</label>
-                                        <input type="email" wire:model.live="newPenggunaEmail" class="glass-input w-full rounded-lg px-3 py-1.5 text-sm mt-1" placeholder="Opsional">
+                                        <div class="relative">
+                                            <input type="email" wire:model.live="newPenggunaEmail"
+                                                wire:input.debounce.300ms="searchNewPenggunaEmail"
+                                                class="glass-input w-full rounded-lg px-3 py-1.5 text-sm mt-1"
+                                                placeholder="Cari atau ketik email...">
+                                            @if($showEmailDropdown && count($emailSearchResults) > 0)
+                                                <div class="absolute z-20 mt-1 w-full rounded-lg shadow-lg max-h-40 overflow-auto"
+                                                    style="background: var(--color-bg-secondary); border: 1px solid var(--color-border);">
+                                                    @foreach($emailSearchResults as $u)
+                                                        <button wire:click="selectNewPenggunaEmail('{{ addslashes($u['email']) }}')" type="button"
+                                                            class="w-full text-left px-3 py-2 text-sm hover:opacity-80 transition"
+                                                            style="color: var(--color-text-primary);">
+                                                            <span class="font-medium">{{ $u['email'] }}</span>
+                                                            <span class="text-xs text-muted ml-2">{{ $u['name'] }}</span>
+                                                        </button>
+                                                    @endforeach
+                                                </div>
+                                            @endif
+                                        </div>
                                         @error('newPenggunaEmail') <span class="text-xs text-red-400">{{ $message }}</span> @enderror
+                                        @if ($this->newPenggunaEmailUsedByEmployee)
+                                            <div class="mt-1.5 text-xs text-red-400">Email sudah terpakai pada employee "{{ $this->newPenggunaEmailUsedByEmployee }}".</div>
+                                        @elseif ($this->isNewPenggunaEmailUnregistered)
+                                            <div class="flex items-center justify-between gap-2 mt-1.5">
+                                                <span class="text-xs text-amber-400">Email belum terdaftar sebagai akun user.</span>
+                                                <button wire:click="openAddUserPopup" type="button" class="shrink-0 text-xs font-semibold px-2.5 py-1 rounded-md bg-emerald-600 text-white hover:bg-emerald-500">
+                                                    + Tambah
+                                                </button>
+                                            </div>
+                                        @endif
                                     </div>
                                     <div class="grid grid-cols-2 gap-2">
                                         <div>
@@ -149,7 +177,9 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <button wire:click="createPengguna" type="button" class="glass-button-primary text-xs w-full py-1.5 mt-1">
+                                    <button wire:click="createPengguna" type="button"
+                                        class="glass-button-primary text-xs w-full py-1.5 mt-1"
+                                        @if($this->newPenggunaEmailUsedByEmployee) disabled style="opacity: 0.5; cursor: not-allowed;" @endif>
                                         Simpan & Pilih Pengguna
                                     </button>
                                 </div>
@@ -697,6 +727,44 @@
                 </div>
             </div>
         </div>
+
+        {{-- Popup Tambah Akun User Baru --}}
+        @if ($showAddUserPopup)
+            <div class="fixed inset-0 z-50 flex items-center justify-center px-4">
+                <div class="fixed inset-0 opacity-75" style="background-color: var(--color-bg-tertiary);" wire:click="closeAddUserPopup"></div>
+                <div class="relative w-full max-w-md glass-card p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-semibold text-primary">Tambah Akun User Baru</h3>
+                        <button wire:click="closeAddUserPopup" type="button" class="text-xs text-red-400 hover:text-red-300">Tutup</button>
+                    </div>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="text-xs text-muted">Email</label>
+                            <input type="email" wire:model="newPenggunaEmail" class="glass-input w-full rounded-lg px-3 py-1.5 text-sm mt-1">
+                            @error('newPenggunaEmail') <span class="text-xs text-red-400">{{ $message }}</span> @enderror
+                        </div>
+                        <div>
+                            <label class="text-xs text-muted">Password <span class="text-red-400">*</span></label>
+                            <input type="text" wire:model="addUserPassword" class="glass-input w-full rounded-lg px-3 py-1.5 text-sm mt-1" placeholder="password">
+                            @error('addUserPassword') <span class="text-xs text-red-400">{{ $message }}</span> @enderror
+                        </div>
+                        <div>
+                            <label class="text-xs text-muted">Role</label>
+                            <select wire:model="addUserRole" class="glass-input w-full rounded-lg px-3 py-1.5 text-sm mt-1">
+                                @foreach($this->getRoleList() as $role)
+                                    <option value="{{ $role }}">{{ ucfirst($role) }}</option>
+                                @endforeach
+                            </select>
+                            @error('addUserRole') <span class="text-xs text-red-400">{{ $message }}</span> @enderror
+                        </div>
+                    </div>
+                    <div class="flex justify-end gap-2 mt-5">
+                        <button wire:click="closeAddUserPopup" type="button" class="glass-button-secondary text-xs">Batal</button>
+                        <button wire:click="saveAddUser" type="button" class="glass-button-primary text-xs">Simpan & Pilih</button>
+                    </div>
+                </div>
+            </div>
+        @endif
 
     </div>
 </div>
