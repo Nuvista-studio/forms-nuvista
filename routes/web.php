@@ -5,6 +5,7 @@ use App\Http\Controllers\FormExportController;
 use App\Http\Controllers\UserCsvController;
 use App\Http\Controllers\SiteCsvController;
 use App\Http\Controllers\AssetCsvController;
+use App\Http\Controllers\EmployeeCsvController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
@@ -135,6 +136,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Volt::route('employees/{nik}/edit', 'admin.pages.employees.edit')
             ->name('employees.edit');
+
+        Volt::route('employees/import', 'admin.pages.employees.import')
+            ->name('employees.import');
+
+        Route::get('employees/export-csv', [EmployeeCsvController::class, 'export'])
+            ->name('employees.export.csv');
+
+        Route::get('employees/import/template', [EmployeeCsvController::class, 'template'])
+            ->name('employees.import.template');
 
         // Structure Organization
         Volt::route('structure-organization', 'admin.pages.structure-organization.index')
